@@ -16,3 +16,4 @@
 /tmp
 
 .idea
+scalarm_supervisor_scrpits/simulated_annealing/*.pyc
