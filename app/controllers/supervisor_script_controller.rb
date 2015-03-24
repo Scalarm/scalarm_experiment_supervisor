@@ -7,8 +7,8 @@ class SupervisorScriptController < ApplicationController
   end
 
   # POST params
-  # - supervisor_script_id
-  # - supervisor_script_params
+  # - script_id
+  # - config
   #TODO validate and check errors
   def create
     response = {}
