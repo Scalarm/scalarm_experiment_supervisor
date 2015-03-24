@@ -9,23 +9,19 @@ class SupervisorScriptController < ApplicationController
   # POST params
   # - supervisor_script_id
   # - supervisor_script_params
-  # - experiment_input
   #TODO validate and check errors
   def create
     response = {}
     begin
-      supervisor_script = SupervisorScript.new(
-                              params[:id],
-                              JSON.parse(params[:config]),
-                              JSON.parse(params[:experiment_input])
-      )
-      supervisor_script.start
-      # supervisor_script.save TODO
-      response = {status: 'ok', pid: supervisor_script.pid}
+      supervisor_script = SupervisorScript.new({})
+      pid = supervisor_script.start params[:script_id], JSON.parse(params[:config])
+      Rails.logger.debug supervisor_script
+      supervisor_script.save
+      response = {status: 'ok', pid: pid}
 
     rescue Exception => e
-      Rails.logger.debug("Error while starting new supervisor script: #{e}")
-      response.merge!({status: 'error', reason: e.to_s})
+      Rails.logger.debug("Error while starting new supervisor script: #{e.to_s}")
+      response.merge!({status: 'error', reason: "[Experiment Supervisor] #{e.to_s}"})
     end
 
     render json: response
