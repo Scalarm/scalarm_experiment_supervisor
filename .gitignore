@@ -17,3 +17,7 @@
 
 .idea
 scalarm_supervisor_scrpits/simulated_annealing/*.pyc
+
+# Scalarm configuration
+config/scalarm.yml
+config/secrets.yml
