@@ -11,22 +11,6 @@ class ActiveSupport::TestCase
 
   # Add more helper methods to be used by all tests here...
 
-  # Drop all collections after each test case.
-  def teardown
-    db = MongoActiveRecord.get_database('scalarm_db_test')
-    db.collections.each do |collection|
-      collection.remove unless collection.name.start_with? 'system.'
-    end
-  end
-
-  # Make sure that each test case has a teardown
-  # method to clear the db after each test.
-  def inherited(base)
-    base.define_method :teardown do
-      super
-    end
-  end
-
   EXPERIMENT_ID = 'some_id'
 
   def simulated_annealing_id
