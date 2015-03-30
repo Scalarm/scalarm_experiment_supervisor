@@ -25,7 +25,7 @@ class ScriptStartingTest < ActionDispatch::IntegrationTest
     File.delete script_config_file_path if File.exists? script_config_file_path
     `kill -9 #{@pid}` if `ps #{@pid} | wc -l` == '2'
     @pid = nil
-    super
+    # super
   end
 
 

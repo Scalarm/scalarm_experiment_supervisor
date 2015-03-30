@@ -49,6 +49,6 @@ class Scalarm:
     def mark_as_complete(self, result):
         r = requests.post("%s/experiments/%s/mark_as_complete.json" % (self.address, self.experiment_id),
                           auth=HTTPBasicAuth(self.user, self.password),
-                          params={'result': json.dumps(result)})
+                          params={'results': json.dumps(result)})
         print r.text
 
