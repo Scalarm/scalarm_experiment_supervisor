@@ -9,6 +9,10 @@ class SupervisorScript < MongoActiveRecord
     self.script_id = id
     # TODO vailidate config
     # TODO use of id
+    information_service = InformationService.new
+
+    config['address'] = information_service.get_list_of('experiment_managers').sample
+    config['http_schema'] = 'https' # TODO - temporary, change to config entry
 
     script_config = "/tmp/supervisor_script_config_#{self.experiment_id.to_s}"
     File.open(script_config, 'w+') {

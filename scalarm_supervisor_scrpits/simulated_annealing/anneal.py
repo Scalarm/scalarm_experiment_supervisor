@@ -29,6 +29,7 @@ if __name__ == "__main__":
     scalarm = Scalarm(config['user'],
                       config['password'],
                       config['experiment_id'],
+                      config['http_schema'],
                       config["address"],
                       config["parameters_ids"])
 
