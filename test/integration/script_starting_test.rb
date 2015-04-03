@@ -34,7 +34,7 @@ class ScriptStartingTest < ActionDispatch::IntegrationTest
       'http_schema' => 'https'
   }
   SIMULATED_ANNEALING_ID = 'simulated_annealing'
-  SCRIPT_LOG_FILE_PATH = "log/supervisor_script_log_#{EXPERIMENT_ID}"
+  SCRIPT_LOG_FILE_PATH = "log/supervisor_script_log_#{EXPERIMENT_ID}.log"
   SCRIPT_CONFIG_FILE_PATH = "/tmp/supervisor_script_config_#{EXPERIMENT_ID}"
   SCRIPT_MAIN_FILE = 'scalarm_supervisor_scrpits/simulated_annealing/anneal.py'
   SCRIPT_LIBRARY_FILE = 'scalarm_supervisor_scrpits/simulated_annealing/scalarmapi.py'

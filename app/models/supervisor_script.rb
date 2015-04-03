@@ -17,6 +17,7 @@ class SupervisorScript < MongoActiveRecord
 
   SM_PATH = 'scalarm_supervisor_scrpits/simulated_annealing/anneal.py'
   LOG_FILE_PREFIX = 'log/supervisor_script_log_'
+  LOG_FILE_SUFFIX = '.log'
   CONFIG_FILE_PREFIX = '/tmp/supervisor_script_config_'
 
   ##
@@ -45,7 +46,7 @@ class SupervisorScript < MongoActiveRecord
     script_config = "#{CONFIG_FILE_PREFIX}#{self.experiment_id.to_s}"
     File.open(script_config, 'w+') { |file| file.write(config.to_json) }
 
-    script_log = "#{LOG_FILE_PREFIX}#{self.experiment_id.to_s}"
+    script_log = "#{LOG_FILE_PREFIX}#{self.experiment_id.to_s}#{LOG_FILE_SUFFIX}"
 
     self.pid = Process.spawn("python2 #{SM_PATH} #{script_config}", out: script_log, err: script_log)
     Process.detach(self.pid)
@@ -66,8 +67,10 @@ class SupervisorScript < MongoActiveRecord
     # Private method.
     # Removes config and log files of supervisor script
     def cleanup
+      if File.exists? "#{LOG_FILE_PREFIX}#{self.experiment_id.to_s}#{LOG_FILE_SUFFIX}"
+        File.delete "#{LOG_FILE_PREFIX}#{self.experiment_id.to_s}#{LOG_FILE_SUFFIX}"
+      end
       File.delete "#{CONFIG_FILE_PREFIX}#{self.experiment_id.to_s}" if File.exists? "#{CONFIG_FILE_PREFIX}#{self.experiment_id.to_s}"
-      File.delete "#{LOG_FILE_PREFIX}#{self.experiment_id.to_s}" if File.exists? "#{LOG_FILE_PREFIX}#{self.experiment_id.to_s}"
     end
 
 end
