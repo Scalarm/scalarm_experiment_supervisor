@@ -20,18 +20,18 @@ class ScriptStartingTest < ActionDispatch::IntegrationTest
   }
   EM_ADDRESS = 'none'
   FULL_CONFIG = {
-      maxiter: 1,
-      dwell: 1,
-      schedule: 'boltzmann',
-      experiment_id: EXPERIMENT_ID,
-      user: 'user',
-      password: 'password',
-      lower_limit: [],
-      upper_limit: [],
-      parameters_ids: [],
-      start_point: [],
-      address: EM_ADDRESS,
-      http_schema: 'https'
+      'maxiter' => 1,
+      'dwell' => 1,
+      'schedule' => 'boltzmann',
+      'experiment_id' => EXPERIMENT_ID,
+      'user' => 'user',
+      'password' => 'password',
+      'lower_limit' => [],
+      'upper_limit' => [],
+      'parameters_ids' => [],
+      'start_point' => [],
+      'address' => EM_ADDRESS,
+      'http_schema' => 'https'
   }
   SIMULATED_ANNEALING_ID = 'simulated_annealing'
   SCRIPT_LOG_FILE_PATH = "log/supervisor_script_log_#{EXPERIMENT_ID}"
@@ -64,7 +64,7 @@ class ScriptStartingTest < ActionDispatch::IntegrationTest
     assert_equal response_hash['status'], 'ok'
     assert_equal response_hash['pid'], PID
     assert File.exists? SCRIPT_CONFIG_FILE_PATH
-    assert_equal FULL_CONFIG.to_json, File.read(SCRIPT_CONFIG_FILE_PATH)
+    assert_equal FULL_CONFIG, JSON.parse(File.read(SCRIPT_CONFIG_FILE_PATH))
   end
 
   def teardown
