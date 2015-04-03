@@ -29,6 +29,7 @@ gem 'bson_ext'
 gem 'mongo'
 
 gem 'mocha', '~> 1.1.0'
+gem 'rdoc', '~> 4.2.0'
 
 # Use ActiveModel has_secure_password
 # gem 'bcrypt', '~> 3.1.7'

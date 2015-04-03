@@ -128,6 +128,7 @@ DEPENDENCIES
   mocha (~> 1.1.0)
   mongo
   rails (= 4.1.1)
+  rdoc (~> 4.2.0)
   sass-rails (~> 4.0.3)
   sdoc (~> 0.4.0)
   spring
