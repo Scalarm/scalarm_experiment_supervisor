@@ -15,13 +15,14 @@ class SupervisorScriptController < ApplicationController
     begin
       supervisor_script = SupervisorScript.new({})
       pid = supervisor_script.start params[:script_id], JSON.parse(params[:config])
-      Rails.logger.debug supervisor_script
       supervisor_script.save
+      Rails.logger.debug supervisor_script
       response = {status: 'ok', pid: pid}
 
-    rescue Exception => e
+    rescue StandardError => e
       Rails.logger.debug("Error while starting new supervisor script: #{e.to_s}")
       response.merge!({status: 'error', reason: "[Experiment Supervisor] #{e.to_s}"})
+      supervisor_script.destroy
     end
 
     render json: response

@@ -38,37 +38,70 @@ class ScriptStartingTest < ActionDispatch::IntegrationTest
   SCRIPT_CONFIG_FILE_PATH = "/tmp/supervisor_script_config_#{EXPERIMENT_ID}"
   SCRIPT_MAIN_FILE = 'scalarm_supervisor_scrpits/simulated_annealing/anneal.py'
   SCRIPT_LIBRARY_FILE = 'scalarm_supervisor_scrpits/simulated_annealing/scalarmapi.py'
+  REASON_PREFIX = '[Experiment Supervisor]'
+  REASON = 'reason'
   PID = 1
 
-  test "starting simmulated annealing supervisor script" do
-    # mocks
+  def setup
+    super
+    # mock information service
     information_service = InformationService.new
-    information_service.expects(:get_list_of).with('experiment_managers').returns([EM_ADDRESS]).once
-    InformationService.expects(:new).returns(information_service).once
+    information_service.expects(:get_list_of).with('experiment_managers').returns([EM_ADDRESS])
+    InformationService.expects(:new).returns(information_service)
+  end
 
+  test "successful start of simulated annealing supervisor script" do
+    # mocks
+    # mock script starting with tests of proper calls
     Process.expects(:spawn).with("python2 #{SCRIPT_MAIN_FILE} #{SCRIPT_CONFIG_FILE_PATH}",
-                                 out: SCRIPT_LOG_FILE_PATH, err: SCRIPT_LOG_FILE_PATH).returns(PID).once
-    Process.expects(:detach).with(PID).once
+                                 out: SCRIPT_LOG_FILE_PATH, err: SCRIPT_LOG_FILE_PATH).returns(PID)
+    Process.expects(:detach).with(PID)
     # test
-
+    # check existence of sm script files
     assert File.exists? SCRIPT_MAIN_FILE
     assert File.exists? SCRIPT_LIBRARY_FILE
 
     assert_difference 'SupervisorScript.count', 1 do
       post start_supervisor_script_path script_id: SIMULATED_ANNEALING_ID, config: CONFIG_FROM_EM.to_json
     end
+    # check if only valid response params are present with proper value
     response_hash = JSON.parse(response.body)
     assert_nothing_raised do
       response_hash.assert_valid_keys('status', 'pid')
     end
     assert_equal response_hash['status'], 'ok'
     assert_equal response_hash['pid'], PID
+    # check existence of config file and its content
     assert File.exists? SCRIPT_CONFIG_FILE_PATH
     assert_equal FULL_CONFIG, JSON.parse(File.read(SCRIPT_CONFIG_FILE_PATH))
   end
 
+  test "proper response on error while starting script with cleanup" do
+    # mocks
+    # create file to test proper deletion on error
+    File.open(SCRIPT_LOG_FILE_PATH, 'w+')
+    # raise exception on staring supervisor script
+    Process.expects(:spawn).raises(StandardError, REASON)
+    # test
+    assert_no_difference 'SupervisorScript.count' do
+      post start_supervisor_script_path script_id: SIMULATED_ANNEALING_ID, config: CONFIG_FROM_EM.to_json
+    end
+    # check if only valid response params are present with proper value
+    response_hash = JSON.parse(response.body)
+    assert_nothing_raised do
+      response_hash.assert_valid_keys('status', 'reason')
+    end
+    assert_equal response_hash['status'], 'error'
+    assert_equal response_hash['reason'], "#{REASON_PREFIX} #{REASON}"
+    # check proper cleanup of redundant files
+    assert_not File.exists? SCRIPT_CONFIG_FILE_PATH
+    assert_not File.exists? SCRIPT_LOG_FILE_PATH
+  end
+
   def teardown
+    # cleanup if needed
     File.delete SCRIPT_CONFIG_FILE_PATH if File.exists? SCRIPT_CONFIG_FILE_PATH
+    File.delete SCRIPT_LOG_FILE_PATH if File.exists? SCRIPT_LOG_FILE_PATH
     super
   end
 
