@@ -3,10 +3,10 @@
 # its creation, monitoring and deletion.
 #
 # List of possible attributes:
-# * experiment_id - id of experiment that is supervised by script (sets by #start method)
-# * script_id - id of supervisor script, specify which script is used for supervising (sets by #start
+# * experiment_id - id of experiment that is supervised by script (set by #start method)
+# * script_id - id of supervisor script, specify which script is used for supervising (set by #start
 #   method)
-# * pid - pid of supervisor script process (sets by #start method)
+# * pid - pid of supervisor script process (set by #start method)
 class SupervisorScript < MongoActiveRecord
 
   ##

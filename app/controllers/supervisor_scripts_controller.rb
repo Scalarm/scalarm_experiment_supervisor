@@ -12,15 +12,15 @@ class SupervisorScriptsController < ApplicationController
     @apiGroup SupervisorScripts
     @apiDescription This action allows user to start new supervisor script with given parameters.
 
-    @apiParam {String} script_id Mandatory, id of supervisor script to be started
-    @apiParam {Object} config Mandatory, json object with config of supervisor script
-    @apiParam {String} config.experiment_id Mandatory, id of experiment to be managed
-    @apiParam {String} config.user Mandatory, username used in authentication in Experiment Manager
-    @apiParam {String} config.password Mandatory, password used in authentication in Experiment Manager
-    @apiParam {Number[]} config.lower_limits Mandatory, lower boundary of experiment input space
-    @apiParam {Number[]} config.upper_limits Mandatory, upper boundary of experiment input space
-    @apiParam {String[]} config.parameter_ids Mandatory, ids of input space parameter in correct order
-    @apiParam {Number[]} config.start_point Mandatory, start point of supervisor script
+    @apiParam {String} script_id ID of supervisor script to be started
+    @apiParam {Object} config json object with config of supervisor script
+    @apiParam {String} config.experiment_id ID of experiment to be managed
+    @apiParam {String} config.user Username used in authentication in Experiment Manager
+    @apiParam {String} config.password Password used in authentication in Experiment Manager
+    @apiParam {Number[]} config.lower_limits Lower boundary of experiment input space
+    @apiParam {Number[]} config.upper_limits Upper boundary of experiment input space
+    @apiParam {String[]} config.parameter_ids IDs of input space parameter in correct order
+    @apiParam {Number[]} config.start_point Start point of supervisor script
 
     @apiParamExample Params-Example
     script_id: 'simulated annealing'
