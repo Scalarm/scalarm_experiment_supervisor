@@ -23,12 +23,9 @@ class SupervisorScriptsController < ApplicationController
     @apiParam {Number[]} config.start_point Start point of supervisor script
 
     @apiParamExample Params-Example
-    script_id: 'simulated annealing'
+    script_id: 'supervisor_script'
     config:
     {
-      maxiter: 1,
-      dwell: 1,
-      schedule: 'boltzmann',
       experiment_id: '551fca1f2ab4f259fc000002',
       user: 'user',
       password: 'password',
@@ -36,6 +33,9 @@ class SupervisorScriptsController < ApplicationController
       upper_limit: [2, 3],
       parameters_ids: [c___g___x, c___g___y],
       start_point: [0, 0]
+      /*
+        Parameters of specific supervisor script.
+      */
     }
 
     @apiSuccess {Object} info json object with information about performed action

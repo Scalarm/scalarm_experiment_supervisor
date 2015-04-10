@@ -1,6 +1,31 @@
 require_relative 'abstract_supervisor_script_executor'
 
-#TODO apidojs description of simmulated anneling optimization
+=begin
+  @api {post} /start_supervisor_script.json Simulated Annealing Parameters
+  @apiName start_simulated_annealing
+  @apiGroup SupervisorScripts
+  @apiDescription Description of parameters needed to star simulated annealing.
+    Description of generic method params is in start_supervisor_script entry.
+
+  @apiParam {String} script_id ID of simulated annealing = 'simulated_annealing'
+  @apiParam {Object} config json Object with config of simulated annealing
+  @apiParam {Number} config.maxiter Maximum number of iterations
+  @apiParam {Number} config.dwell Value of dwell parameter
+  @apiParam {String} config.schedule Scheduling method
+
+  @apiParamExample Params-Example
+  script_id: 'simulated_annealing'
+  config:
+  {
+    maxiter: 1,
+    dwell: 1,
+    schedule: 'boltzmann',
+    /*
+      Other parameters needed in star_supervisor_script method
+    */
+  }
+
+=end
 class SimulatedAnnealingExecutor < AbstractSupervisorScriptExecutor
 
   SCRIPT_PATH = 'scalarm_supervisor_scrpits/simulated_annealing/anneal.py'
