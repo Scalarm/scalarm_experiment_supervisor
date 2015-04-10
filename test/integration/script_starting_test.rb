@@ -41,10 +41,10 @@ class ScriptStartingTest < ActionDispatch::IntegrationTest
   REASON_PREFIX = '[Experiment Supervisor]'
   REASON = 'reason'
   PID = 1
+  INCORRECT_ID = 'incorrect id'
+  INCORRECT_ID_MESSAGE = 'There is no supervisor script with given id'
 
-  def setup
-    super
-    # mock information service
+  def self.mock_information_service
     information_service = InformationService.new
     information_service.expects(:get_list_of).with('experiment_managers').returns([EM_ADDRESS])
     InformationService.expects(:new).returns(information_service)
@@ -52,6 +52,7 @@ class ScriptStartingTest < ActionDispatch::IntegrationTest
 
   test "successful start of simulated annealing supervisor script" do
     # mocks
+    self.class.mock_information_service
     # mock script starting with tests of proper calls
     Process.expects(:spawn).with("python2 #{SCRIPT_MAIN_FILE} #{SCRIPT_CONFIG_FILE_PATH}",
                                  out: SCRIPT_LOG_FILE_PATH, err: SCRIPT_LOG_FILE_PATH).returns(PID)
@@ -76,8 +77,9 @@ class ScriptStartingTest < ActionDispatch::IntegrationTest
     assert_equal FULL_CONFIG, JSON.parse(File.read(SCRIPT_CONFIG_FILE_PATH))
   end
 
-  test "proper response on error while starting script with cleanup" do
+  test "proper response on error while starting simmulated annealing script with cleanup" do
     # mocks
+    self.class.mock_information_service
     # create file to test proper deletion on error
     File.open(SCRIPT_LOG_FILE_PATH, 'w+')
     # raise exception on staring supervisor script
@@ -96,6 +98,22 @@ class ScriptStartingTest < ActionDispatch::IntegrationTest
     # check proper cleanup of redundant files
     assert_not File.exists? SCRIPT_CONFIG_FILE_PATH
     assert_not File.exists? SCRIPT_LOG_FILE_PATH
+  end
+
+  test "proper response when supervisor script id is incorrect" do
+    # test
+    assert_no_difference 'SupervisorScript.count' do
+      post start_supervisor_script_path script_id: INCORRECT_ID, config: CONFIG_FROM_EM.to_json
+    end
+    # check if only valid response params are present with proper value
+    response_hash = JSON.parse(response.body)
+    assert_nothing_raised do
+      response_hash.assert_valid_keys('status', 'reason')
+    end
+    assert_equal response_hash['status'], 'error'
+    assert_equal response_hash['reason'], "#{REASON_PREFIX} #{INCORRECT_ID_MESSAGE}"
+    # check proper cleanup of redundant files
+    assert_not File.exists? SCRIPT_CONFIG_FILE_PATH
   end
 
   def teardown
