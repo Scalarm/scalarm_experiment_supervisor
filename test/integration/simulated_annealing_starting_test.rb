@@ -31,7 +31,7 @@ class SimulatedAnnealingStartingTest < ActionDispatch::IntegrationTest
     assert_equal FULL_CONFIG_SIMULATED_ANNEALING, JSON.parse(File.read(SIMULATED_ANNEALING_CONFIG_FILE_PATH))
   end
 
-  test "proper response on error while starting simmulated annealing script with cleanup" do
+  test "proper response on error while starting simulated annealing script with cleanup" do
     # mocks
     self.class.mock_information_service
     # create file to test proper deletion on error
