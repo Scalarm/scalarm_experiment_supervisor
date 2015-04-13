@@ -1,7 +1,7 @@
 require 'supervisor_script_executors/supervisor_script_executors'
 require 'supervisor_script_executors/simulated_annealing_executor'
 ##
-# This class represents an instance of one supervisor script and maintenance
+# This class represents an instance of one supervisor script and maintains
 # its creation, monitoring and deletion.
 #
 # List of possible attributes:
@@ -29,7 +29,7 @@ class SupervisorScript < MongoActiveRecord
   # Returns
   # * pid of started script
   # Raises
-  # * Various StandardError exceptions caused by creating file or process starting.
+  # * Various StandardError exceptions caused by creating file or starting process.
   def start(id, config)
     raise 'There is no supervisor script with given id' unless SupervisorScriptExecutors.has_key? id
     self.script_id = id

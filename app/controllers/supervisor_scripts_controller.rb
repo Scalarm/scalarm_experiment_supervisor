@@ -34,7 +34,7 @@ class SupervisorScriptsController < ApplicationController
       parameters_ids: [c___g___x, c___g___y],
       start_point: [0, 0]
       /*
-        Parameters of specific supervisor script.
+        Parameters specific for 'supervisor_script'.
       */
     }
 

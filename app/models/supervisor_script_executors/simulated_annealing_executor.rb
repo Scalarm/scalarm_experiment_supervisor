@@ -4,11 +4,11 @@ require_relative 'abstract_supervisor_script_executor'
   @api {post} /start_supervisor_script.json Simulated Annealing Parameters
   @apiName start_simulated_annealing
   @apiGroup SupervisorScripts
-  @apiDescription Description of parameters needed to star simulated annealing.
+  @apiDescription Description of parameters needed to start simulated annealing.
     Description of generic method params is in start_supervisor_script entry.
 
   @apiParam {String} script_id ID of simulated annealing = 'simulated_annealing'
-  @apiParam {Object} config json Object with config of simulated annealing
+  @apiParam {Object} config json object with config of simulated annealing
   @apiParam {Number} config.maxiter Maximum number of iterations
   @apiParam {Number} config.dwell Value of dwell parameter
   @apiParam {String} config.schedule Scheduling method
@@ -21,7 +21,7 @@ require_relative 'abstract_supervisor_script_executor'
     dwell: 1,
     schedule: 'boltzmann',
     /*
-      Other parameters needed in star_supervisor_script method
+      Other parameters needed in start_supervisor_script method
     */
   }
 
