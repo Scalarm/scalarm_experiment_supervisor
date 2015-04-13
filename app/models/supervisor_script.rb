@@ -1,5 +1,5 @@
 require 'supervisor_script_executors/supervisor_script_executors'
-require 'supervisor_script_executors/simulated_annealing_executor'
+Dir[Rails.root.join('supervisor_scripts', 'executors', '*_executor.rb').to_s].each {|file| require file}
 ##
 # This class represents an instance of one supervisor script and maintains
 # its creation, monitoring and deletion.

@@ -34,8 +34,8 @@ module SupervisorScriptsTestsHelper
   SIMULATED_ANNEALING_ID = 'simulated_annealing'
   SIMULATED_ANNEALING_LOG_FILE_PATH = "log/supervisor_script_log_#{EXPERIMENT_ID}.log"
   SIMULATED_ANNEALING_CONFIG_FILE_PATH = "/tmp/supervisor_script_config_#{EXPERIMENT_ID}"
-  SIMULATED_ANNEALING_MAIN_FILE = 'scalarm_supervisor_scrpits/simulated_annealing/anneal.py'
-  SIMULATED_ANNEALING_LIBRARY_FILE = 'scalarm_supervisor_scrpits/simulated_annealing/scalarmapi.py'
+  SIMULATED_ANNEALING_MAIN_FILE = 'supervisor_scripts/simulated_annealing/anneal.py'
+  SIMULATED_ANNEALING_LIBRARY_FILE = 'supervisor_scripts/simulated_annealing/scalarmapi.py'
   REASON_PREFIX = '[Experiment Supervisor]'
   REASON = 'reason'
   PID = 1
