@@ -31,6 +31,7 @@ class SupervisorScript < MongoActiveRecord
   # * Gets Experiment Manager Address from Information Service
   # * Creates config file in /tmp/supervisor_script_config_<experiment_id>
   # * Starts supervisor script with output set to log/supervisor_script_log_<experiment_id>
+  # * Starts supervisor script watcher
   #
   # Required params
   # * id - id of supervisor script (for now only placeholder)
@@ -59,6 +60,7 @@ class SupervisorScript < MongoActiveRecord
     Process.detach(self.pid)
     Rails.logger.info "New supervisor script pid #{self.pid}"
     self.is_running = true
+    SupervisorScriptWatcher.start_watching
     self.pid
   end
 
@@ -85,6 +87,7 @@ class SupervisorScript < MongoActiveRecord
       raise 'There is no available experiment manager instance' if address.nil?
       schema = 'https' # TODO - temporary, change to config entry
 
+      Rails.logger.debug "Connecting to experiment manager on #{address}"
       res = RestClient::Request.execute(
           method: :post,
           url: "#{schema}://#{address}/experiments/#{self.experiment_id}/mark_as_complete.json",
@@ -93,6 +96,7 @@ class SupervisorScript < MongoActiveRecord
           password: self.experiment_manager_credentials['password'],
           verify_ssl: false
       )
+      Rails.logger.debug "Experiment manager response #{res}"
       raise 'Error while sending error message' if JSON.parse(res)['status'] != 'ok'
     rescue RestClient::Exception, StandardError => e
       Rails.logger.info "Unable to connect with experiment manager, please contact administrator: #{e.to_s}"
