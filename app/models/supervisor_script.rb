@@ -1,3 +1,4 @@
+require 'json'
 ##
 # This class represents an instance of one supervisor script and maintenance
 # its creation, monitoring and deletion.
@@ -7,6 +8,10 @@
 # * script_id - id of supervisor script, specify which script is used for supervising (set by #start
 #   method)
 # * pid - pid of supervisor script process (set by #start method)
+# * is_running - true when supervisor script is running, false otherwise (set by #start, modified by #check)
+# * experiment_manager_credentials - hash with credentials to experiment manager (set by #start):
+#   * user
+#   * password
 class SupervisorScript < MongoActiveRecord
 
   ##
@@ -37,6 +42,7 @@ class SupervisorScript < MongoActiveRecord
   def start(id, config)
     self.experiment_id = config['experiment_id']
     self.script_id = id
+    self.experiment_manager_credentials = {user: config['user'], password: config['password']}
     # TODO validate config
     # TODO use of id
     information_service = InformationService.new
@@ -52,8 +58,54 @@ class SupervisorScript < MongoActiveRecord
     self.pid = Process.spawn("python2 #{SM_PATH} #{script_config}", out: script_log, err: script_log)
     Process.detach(self.pid)
     Rails.logger.info "New supervisor script pid #{self.pid}"
+    self.is_running = true
     self.pid
   end
+
+  ##
+  # This functions checks if supervisor script is running
+  # Set is_running flag to false when script is not running
+  def check
+    result = `ps #{self.pid} | wc -l`.to_i
+    if result == 1
+      self.is_running = false
+      Rails.logger.info "Supervisor script is not running anymore: #{self.id}"
+      return false
+    end
+    true
+  end
+
+  ##
+  # This method notifies error with supervisor script to experiment manager.
+  # Execution of this action will put experiment to error state
+  def notify_error(reason)
+    begin
+      information_service = InformationService.new
+      address = information_service.get_list_of('experiment_managers').sample
+      raise 'There is no available experiment manager instance' if address.nil?
+      schema = 'https' # TODO - temporary, change to config entry
+
+      res = RestClient::Request.execute(
+          method: :post,
+          url: "#{schema}://#{address}/experiments/#{self.experiment_id}/mark_as_complete.json",
+          payload: {status: 'error', reason: reason},
+          user: self.experiment_manager_credentials['user'],
+          password: self.experiment_manager_credentials['password'],
+          verify_ssl: false
+      )
+      raise 'Error while sending error message' if JSON.parse(res)['status'] != 'ok'
+    rescue RestClient::Exception, StandardError => e
+      Rails.logger.info "Unable to connect with experiment manager, please contact administrator: #{e.to_s}"
+    end
+  end
+
+  ##
+  # Single monitoring loop
+  def monitoring_loop
+    raise 'Supervisor script is not running' unless self.is_running
+    notify_error('Supervisor script is not running') unless check
+  end
+
 
   ##
   # Overrides default destroy to make sure proper cleanup is run before destroying object.

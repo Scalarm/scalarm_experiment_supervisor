@@ -83,6 +83,9 @@ GEM
     rake (10.4.2)
     rdoc (4.2.0)
       json (~> 1.4)
+    rest-client (1.6.8)
+      mime-types (~> 1.16)
+      rdoc (>= 2.4.2)
     sdoc (0.4.1)
       json (~> 1.7, >= 1.7.7)
       rdoc (~> 4.0)
@@ -119,6 +122,7 @@ DEPENDENCIES
   mongo
   rails (= 4.1.1)
   rdoc (~> 4.2.0)
+  rest-client (~> 1.6.7)
   sdoc (~> 0.4.0)
   spring
   turbolinks
