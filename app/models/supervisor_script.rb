@@ -68,8 +68,8 @@ class SupervisorScript < MongoActiveRecord
   # This functions checks if supervisor script is running
   # Set is_running flag to false when script is not running
   def check
-    result = `ps #{self.pid} | wc -l`.to_i
-    if result == 1
+    `ps #{self.pid}`
+    unless $?.success?
       self.is_running = false
       Rails.logger.info "Supervisor script is not running anymore: #{self.id}"
       return false

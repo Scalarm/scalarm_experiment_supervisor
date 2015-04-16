@@ -17,16 +17,22 @@ class SupervisorScriptTest < ActiveSupport::TestCase
 
   test "check methods return true when script is running" do
     @supervisor_script.pid = PID
+    @supervisor_script.is_running = true
 
-    @supervisor_script.expects(:`).with("ps #{PID} | wc -l").returns('2')
+    @supervisor_script.expects(:`).with("ps #{PID}")
+    system('false')
+    $?.expects(:success?).returns(true)
     assert @supervisor_script.check, 'Check method should return true'
+    assert @supervisor_script.is_running, 'is_running flag should be true'
   end
 
   test "check methods return false when script is not running and set is_running to false" do
     @supervisor_script.pid = PID
     @supervisor_script.is_running = true
 
-    @supervisor_script.expects(:`).with("ps #{PID} | wc -l").returns('1')
+    @supervisor_script.expects(:`).with("ps #{PID}")
+    system('false')
+    $?.expects(:success?).returns(false)
     assert_not @supervisor_script.check, 'Check method should return false'
     assert_not @supervisor_script.is_running, 'is_running flag should be false'
   end
