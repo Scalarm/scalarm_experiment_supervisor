@@ -7,6 +7,17 @@ require 'thread'
 class SupervisorScriptWatcher
   @@is_running = false
   @@mutex = Mutex.new
+  @@sleep_duration_in_seconds = 60
+
+  ##
+  # Allows to set custom sleep time
+  def self.init
+    if Rails.application.secrets.include? :supervisor_script_watcher
+      if Rails.application.secrets.supervisor_script_watcher.has_key?("sleep_duration_in_seconds")
+        @@sleep_duration_in_seconds = Rails.application.secrets.supervisor_script_watcher["sleep_duration_in_seconds"]
+      end
+    end
+  end
 
   ##
   # Allows to start monitoring if needed
@@ -15,6 +26,8 @@ class SupervisorScriptWatcher
       unless @@is_running
         self.watch
         @@is_running = true
+      else
+        Rails.logger.debug 'Supervisor script watcher is already running'
       end
     end
   end
@@ -23,7 +36,6 @@ class SupervisorScriptWatcher
     def self.watch
       Rails.logger.debug 'Start supervisor script watcher'
       Thread.new do
-        sleep(10)
         while true
           @@mutex.synchronize do
             begin
@@ -44,7 +56,7 @@ class SupervisorScriptWatcher
                return
             end
           end
-          sleep(10)
+          sleep(@@sleep_duration_in_seconds)
         end
       end
   end
