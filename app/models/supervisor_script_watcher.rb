@@ -24,7 +24,10 @@ class SupervisorScriptWatcher
   def self.start_watching
     @@mutex.synchronize do
       unless @@is_running
-        self.watch
+        Rails.logger.debug 'Start supervisor script watcher'
+        Thread.new do
+          self.watching_loop
+        end
         @@is_running = true
       else
         Rails.logger.debug 'Supervisor script watcher is already running'
@@ -32,33 +35,30 @@ class SupervisorScriptWatcher
     end
   end
 
-  private
-    def self.watch
-      Rails.logger.debug 'Start supervisor script watcher'
-      Thread.new do
-        while true
-          @@mutex.synchronize do
-            begin
-              Rails.logger.debug 'Supervisor script watch loop'
-              running_scripts = SupervisorScript.where(is_running: true).all
-              if running_scripts.count == 0
-                Rails.logger.debug 'There is no more scripts to watch'
-                @@is_running = false
-                return
-              end
-              running_scripts.each do |s|
-                s.monitoring_loop
-                s.save
-              end
-            rescue RuntimeError => e
-               Rails.logger.info "Error while execution script monitoring loop #{e.to_s}"
-               @@is_running = false
-               return
-            end
+
+  def self.watching_loop
+    while true
+      @@mutex.synchronize do
+        begin
+          Rails.logger.debug 'Supervisor script watch loop'
+          running_scripts = SupervisorScript.find_all_by_query(is_running: true)
+          if running_scripts.count == 0
+            Rails.logger.debug 'There are no more scripts to watch'
+            @@is_running = false
+            return
           end
-          sleep(@@sleep_duration_in_seconds)
+          running_scripts.each do |s|
+            s.monitoring_loop
+            s.save
+          end
+        rescue RuntimeError => e
+           Rails.logger.info "Error while execution script monitoring loop #{e.to_s}"
+           @@is_running = false
+           return
         end
       end
+      sleep(@@sleep_duration_in_seconds)
+    end
   end
 
 end
