@@ -40,7 +40,7 @@ class ScriptStartingTest < ActionDispatch::IntegrationTest
   SCRIPT_LIBRARY_FILE = 'scalarm_supervisor_scrpits/simulated_annealing/scalarmapi.py'
   REASON_PREFIX = '[Experiment Supervisor]'
   REASON = 'reason'
-  PID = 1
+  PID = 1234
 
   def setup
     super
@@ -56,6 +56,7 @@ class ScriptStartingTest < ActionDispatch::IntegrationTest
     Process.expects(:spawn).with("python2 #{SCRIPT_MAIN_FILE} #{SCRIPT_CONFIG_FILE_PATH}",
                                  out: SCRIPT_LOG_FILE_PATH, err: SCRIPT_LOG_FILE_PATH).returns(PID)
     Process.expects(:detach).with(PID)
+    SupervisorScriptWatcher.expects(:start_watching)
     # test
     # check existence of sm script files
     assert File.exists? SCRIPT_MAIN_FILE
