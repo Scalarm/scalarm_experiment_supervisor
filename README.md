@@ -1,6 +1,6 @@
 Configuration
 -------------
-There are twa files with configuration: config/secrets.yml and config/scalarm.yml.
+There are two files with configuration: config/secrets.yml and config/scalarm.yml.
 
 The "secrets.yml" file is a standard configuration file added in Rails 4 to have a single place for all secrets in
 an application. We used this approach in our Scalarm platform.
