@@ -26,19 +26,32 @@ if __name__ == "__main__":
         config_file = open(sys.argv[1])
     config = json.load(config_file)
     config_file.close()
+
+    parameters_ids = []
+    lower_limit = []
+    upper_limit = []
+    start_point = []
+
+    for param in config["parameters"]:
+        parameters_ids.append(param["id"])
+        lower_limit.append(param["min"])
+        upper_limit.append(param["max"])
+        start_point.append(param["start_value"])
+
+
     scalarm = Scalarm(config['user'],
                       config['password'],
                       config['experiment_id'],
                       config['http_schema'],
                       config["address"],
-                      config["parameters_ids"])
+                      parameters_ids)
 
     res = scopt.anneal(func=call_scalarm,
-                       x0=config['start_point'],
+                       x0=start_point,
                        full_output=True,
                        schedule=config['schedule'],
-                       lower=config['lower_limit'],
-                       upper=config['upper_limit'],
+                       lower=lower_limit,
+                       upper=upper_limit,
                        maxiter=config['maxiter'],
                        dwell=config['dwell'])
 
