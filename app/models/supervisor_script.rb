@@ -1,4 +1,4 @@
-require 'supervisor_script_executors/supervisor_script_executors'
+require 'supervisor_script_executors/supervisor_script_executors_provider'
 Dir[Rails.root.join('supervisor_scripts', 'executors', '*_executor.rb').to_s].each {|file| require file}
 ##
 # This class represents an instance of one supervisor script and maintains
@@ -31,14 +31,14 @@ class SupervisorScript < MongoActiveRecord
   # Raises
   # * Various StandardError exceptions caused by creating file or starting process.
   def start(id, config)
-    raise 'There is no supervisor script with given id' unless SupervisorScriptExecutors.has_key? id
+    raise 'There is no supervisor script with given id' unless SupervisorScriptExecutorsProvider.has_key? id
     self.script_id = id
     self.experiment_id = config['experiment_id']
     # TODO validate config
     information_service = InformationService.new
     config['address'] = information_service.get_list_of('experiment_managers').sample
     config['http_schema'] = 'https' # TODO - temporary, change to config entry
-    self.pid = SupervisorScriptExecutors.get(id).start config
+    self.pid = SupervisorScriptExecutorsProvider.get(id).start config
     Rails.logger.info "New supervisor script pid #{self.pid}"
     self.pid
   end
@@ -46,7 +46,7 @@ class SupervisorScript < MongoActiveRecord
   ##
   # Overrides default destroy to make sure proper cleanup is run before destroying object.
   def destroy
-    SupervisorScriptExecutors.get(self.script_id).cleanup(self.experiment_id) unless self.script_id.nil?
+    SupervisorScriptExecutorsProvider.get(self.script_id).cleanup(self.experiment_id) unless self.script_id.nil?
     super
   end
 end
