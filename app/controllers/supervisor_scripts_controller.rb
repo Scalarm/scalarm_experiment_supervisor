@@ -13,29 +13,50 @@ class SupervisorScriptsController < ApplicationController
     @apiDescription This action allows user to start new supervisor script with given parameters.
 
     @apiParam {String} script_id ID of supervisor script to be started
-    @apiParam {Object} config json object with config of supervisor script
+    @apiParam {Object} config json object with config of supervisor script, serialized to string
     @apiParam {String} config.experiment_id ID of experiment to be managed
     @apiParam {String} config.user Username used in authentication in Experiment Manager
     @apiParam {String} config.password Password used in authentication in Experiment Manager
-    @apiParam {Number[]} config.lower_limits Lower boundary of experiment input space
-    @apiParam {Number[]} config.upper_limits Upper boundary of experiment input space
-    @apiParam {String[]} config.parameter_ids IDs of input space parameter in correct order
-    @apiParam {Number[]} config.start_point Start point of supervisor script
+    @apiParam {Number[]} config.parameters list of simulation parameters
+    @apiParam {Number[]} config.parameters.type parameter type
+    @apiParam {Number[]} config.parameters.id parameter id
+    @apiParam {Number[]} [config.parameters.min] parameter minimum value, only for type int and float
+    @apiParam {Number[]} [config.parameters.max] parameter maximum value, only for type int and float
+    @apiParam {Number[]} [config.parameters.allowed_vales] list of possible values, only for type string
+    @apiParam {Number[]} [config.parameters.start_value] start value for given parameter
 
     @apiParamExample Params-Example
-    script_id: 'supervisor_script'
+    script_id: 'simulated annealing'
     config:
     {
+      maxiter: 1,
+      dwell: 1,
+      schedule: 'boltzmann',
       experiment_id: '551fca1f2ab4f259fc000002',
       user: 'user',
       password: 'password',
-      lower_limit: [-2, -3],
-      upper_limit: [2, 3],
-      parameters_ids: [c___g___x, c___g___y],
-      start_point: [0, 0]
-      /*
-        Parameters specific for 'supervisor_script'.
-      */
+      parameters : [
+          {
+              type: 'float',
+              id: 'c___g___x',
+              min: -3,
+              max: 3,
+              start_value: 0
+          },
+          {
+              type: 'int',
+              id: 'c___g___y',
+              min: -2,
+              max: 2,
+              start_value: 0
+          },
+          {
+              type: 'string',
+              id: 'c___g___z',
+              allowed_values: [aaa, bbb, ccc],
+              start_value: 'aaa'
+          }
+      ]
     }
 
     @apiSuccess {Object} info json object with information about performed action
