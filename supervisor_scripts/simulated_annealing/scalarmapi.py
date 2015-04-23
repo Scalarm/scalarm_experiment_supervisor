@@ -27,7 +27,8 @@ class Scalarm:
         print json.dumps(params_dict)
         r = requests.post("%s://%s/experiments/%s/schedule_point.json" % (self.schema, self.address, self.experiment_id),
                           auth=HTTPBasicAuth(self.user, self.password),
-                          params={'point': json.dumps(params_dict)})
+                          params={'point': json.dumps(params_dict)},
+                          verify=False)
         print r.text
 
     def get_result(self, params):
@@ -37,7 +38,8 @@ class Scalarm:
         while True:
             r = requests.get("%s://%s/experiments/%s/get_result.json" % (self.schema, self.address, self.experiment_id),
                              auth=HTTPBasicAuth(self.user, self.password),
-                             params={'point': json.dumps(params_dict)})
+                             params={'point': json.dumps(params_dict)},
+                             verify=False)
             print r.text
             decoded_result = json.loads(r.text)
             if decoded_result["status"] == "error":
@@ -50,6 +52,7 @@ class Scalarm:
     def mark_as_complete(self, result):
         r = requests.post("%s://%s/experiments/%s/mark_as_complete.json" % (self.schema, self.address, self.experiment_id),
                           auth=HTTPBasicAuth(self.user, self.password),
-                          params={'results': json.dumps(result)})
+                          params={'results': json.dumps(result)},
+                          verify=False)
         print r.text
 
