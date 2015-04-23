@@ -11,6 +11,7 @@ class SimulatedAnnealingStartingTest < ActionDispatch::IntegrationTest
     Process.expects(:spawn).with("python2 #{SIMULATED_ANNEALING_MAIN_FILE} #{SIMULATED_ANNEALING_CONFIG_FILE_PATH}",
                                  out: SIMULATED_ANNEALING_LOG_FILE_PATH, err: SIMULATED_ANNEALING_LOG_FILE_PATH).returns(PID)
     Process.expects(:detach).with(PID)
+    SupervisorScriptWatcher.expects(:start_watching)
     # test
     # check existence of sm script files
     assert File.exists? SIMULATED_ANNEALING_MAIN_FILE

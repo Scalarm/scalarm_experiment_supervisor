@@ -38,7 +38,7 @@ module SupervisorScriptsTestsHelper
   SIMULATED_ANNEALING_LIBRARY_FILE = 'supervisor_scripts/simulated_annealing/scalarmapi.py'
   REASON_PREFIX = '[Experiment Supervisor]'
   REASON = 'reason'
-  PID = 1
+  PID = 1234
   INCORRECT_ID = 'incorrect id'
   INCORRECT_ID_MESSAGE = 'There is no supervisor script with given id'
 
