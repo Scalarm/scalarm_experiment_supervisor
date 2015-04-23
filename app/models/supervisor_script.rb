@@ -1,6 +1,7 @@
-require 'json'
+require 'supervisor_script_executors/supervisor_script_executors_provider'
+Dir[Rails.root.join('supervisor_scripts', 'executors', '*_executor.rb').to_s].each {|file| require file}
 ##
-# This class represents an instance of one supervisor script and maintenance
+# This class represents an instance of one supervisor script and maintains
 # its creation, monitoring and deletion.
 #
 # List of possible attributes:
@@ -21,43 +22,28 @@ class SupervisorScript < MongoActiveRecord
     'supervisor_scripts'
   end
 
-  SM_PATH = 'scalarm_supervisor_scrpits/simulated_annealing/anneal.py'
-  LOG_FILE_PREFIX = 'log/supervisor_script_log_'
-  LOG_FILE_SUFFIX = '.log'
-  CONFIG_FILE_PREFIX = '/tmp/supervisor_script_config_'
-
   ##
-  # Starts new supervised script (for now only simulated annealing one). Performed actions:
+  # Starts new supervised script. Performed actions:
   # * Gets Experiment Manager Address from Information Service
-  # * Creates config file in /tmp/supervisor_script_config_<experiment_id>
-  # * Starts supervisor script with output set to log/supervisor_script_log_<experiment_id>
-  # * Starts supervisor script watcher
+  # * Runs supervisor script using proper executor
   #
   # Required params
-  # * id - id of supervisor script (for now only placeholder)
+  # * id - id of supervisor script
   # * config - json with config for supervisor script (config is not validated)
   # Returns
-  # * pid of startes script
+  # * pid of started script
   # Raises
-  # * Various StandardError exceptions caused by creating file or process starting.
+  # * Various StandardError exceptions caused by creating file or starting process.
   def start(id, config)
-    self.experiment_id = config['experiment_id']
+    raise 'There is no supervisor script with given id' unless SupervisorScriptExecutorsProvider.has_key? id
     self.script_id = id
+    self.experiment_id = config['experiment_id']
     self.experiment_manager_credentials = {user: config['user'], password: config['password']}
     # TODO validate config
-    # TODO use of id
     information_service = InformationService.new
-
     config['address'] = information_service.get_list_of('experiment_managers').sample
     config['http_schema'] = 'https' # TODO - temporary, change to config entry
-
-    script_config = "#{CONFIG_FILE_PREFIX}#{self.experiment_id.to_s}"
-    File.open(script_config, 'w+') { |file| file.write(config.to_json) }
-
-    script_log = "#{LOG_FILE_PREFIX}#{self.experiment_id.to_s}#{LOG_FILE_SUFFIX}"
-
-    self.pid = Process.spawn("python2 #{SM_PATH} #{script_config}", out: script_log, err: script_log)
-    Process.detach(self.pid)
+    self.pid = SupervisorScriptExecutorsProvider.get(id).start config
     Rails.logger.info "New supervisor script pid #{self.pid}"
     self.is_running = true
     SupervisorScriptWatcher.start_watching
@@ -114,20 +100,7 @@ class SupervisorScript < MongoActiveRecord
   ##
   # Overrides default destroy to make sure proper cleanup is run before destroying object.
   def destroy
-    cleanup
+    SupervisorScriptExecutorsProvider.get(self.script_id).cleanup(self.experiment_id) unless self.script_id.nil?
     super
   end
-
-  private
-
-    ##
-    # Private method.
-    # Removes config and log files of supervisor script
-    def cleanup
-      if File.exists? "#{LOG_FILE_PREFIX}#{self.experiment_id.to_s}#{LOG_FILE_SUFFIX}"
-        File.delete "#{LOG_FILE_PREFIX}#{self.experiment_id.to_s}#{LOG_FILE_SUFFIX}"
-      end
-      File.delete "#{CONFIG_FILE_PREFIX}#{self.experiment_id.to_s}" if File.exists? "#{CONFIG_FILE_PREFIX}#{self.experiment_id.to_s}"
-    end
-
 end
