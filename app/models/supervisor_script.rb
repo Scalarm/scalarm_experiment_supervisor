@@ -1,48 +1,106 @@
-class SupervisorScript
-  attr_accessor :pid
+require 'supervisor_script_executors/supervisor_script_executors_provider'
+Dir[Rails.root.join('supervisor_scripts', 'executors', '*_executor.rb').to_s].each {|file| require file}
+##
+# This class represents an instance of one supervisor script and maintains
+# its creation, monitoring and deletion.
+#
+# List of possible attributes:
+# * experiment_id - id of experiment that is supervised by script (set by #start method)
+# * script_id - id of supervisor script, specify which script is used for supervising (set by #start
+#   method)
+# * pid - pid of supervisor script process (set by #start method)
+# * is_running - true when supervisor script is running, false otherwise (set by #start, modified by #check)
+# * experiment_manager_credentials - hash with credentials to experiment manager (set by #start):
+#   * user
+#   * password
+class SupervisorScript < MongoActiveRecord
 
-  def initialize(id, config, experiment_input)
-    @experiment_id = config['experiment_id']
-    @id = id
-    # TODO vailidate config
-    # TODO use of id
-
-    config['lower_limit'] = []
-    config['upper_limit'] = []
-    config['parameters_ids'] = []
-    Rails.logger.debug experiment_input
-    experiment_input.each do |category|
-      category['entities'].each do |entity|
-        entity['parameters'].each do |parameter|
-          config['lower_limit'].append parameter['min']
-          config['upper_limit'].append parameter['max']
-          config['parameters_ids'].append "#{category['id']}___#{entity['id']}___#{parameter['id']}"
-        end
-      end
-    end
-    if config['start_point'].nil?
-      config['start_point'] = []
-      config['lower_limit'].zip(config['upper_limit']).each do |e|
-        # TODO string params
-        config['start_point'].append((e[0]+e[1])/2)
-      end
-    end
-    @config = config
+  ##
+  # This method is needed for proper work of MongoActiveRecord,
+  # its specifies collections name in database
+  def self.collection_name
+    'supervisor_scripts'
   end
 
-  def start
-    # TODO use script id to chose proper optimization script
-
-    script_config = "/tmp/supervisor_script_config_#{@experiment_id.to_s}"
-    File.open(script_config, 'w+') {
-        |file| file.write(@config.to_json)
-    }
-    script_log = "log/supervisor_script_log_#{@experiment_id.to_s}"
-    path = 'scalarm_supervisor_scrpits/simulated_annealing/anneal.py'
-    pid = Process.spawn("python2 #{path} #{script_config}", out: script_log, err: script_log)
-    Process.detach(pid)
-    @pid = pid
-    Rails.logger.debug "New supervisor script pid #{@pid}"
+  ##
+  # Starts new supervised script. Performed actions:
+  # * Gets Experiment Manager Address from Information Service
+  # * Runs supervisor script using proper executor
+  #
+  # Required params
+  # * id - id of supervisor script
+  # * config - json with config for supervisor script (config is not validated)
+  # Returns
+  # * pid of started script
+  # Raises
+  # * Various StandardError exceptions caused by creating file or starting process.
+  def start(id, config)
+    raise 'There is no supervisor script with given id' unless SupervisorScriptExecutorsProvider.has_key? id
+    self.script_id = id
+    self.experiment_id = config['experiment_id']
+    self.experiment_manager_credentials = {user: config['user'], password: config['password']}
+    # TODO validate config
+    information_service = InformationService.new
+    config['address'] = information_service.get_list_of('experiment_managers').sample
+    config['http_schema'] = 'https' # TODO - temporary, change to config entry
+    self.pid = SupervisorScriptExecutorsProvider.get(id).start config
+    Rails.logger.info "New supervisor script pid #{self.pid}"
+    self.is_running = true
+    SupervisorScriptWatcher.start_watching
+    self.pid
   end
 
+  ##
+  # This functions checks if supervisor script is running
+  # Set is_running flag to false when script is not running
+  def check
+    `ps #{self.pid}`
+    unless $?.success?
+      self.is_running = false
+      Rails.logger.info "Supervisor script is not running anymore: #{self.id}"
+      return false
+    end
+    true
+  end
+
+  ##
+  # This method notifies error with supervisor script to experiment manager.
+  # Execution of this action will put experiment to error state
+  def notify_error(reason)
+    begin
+      information_service = InformationService.new
+      address = information_service.get_list_of('experiment_managers').sample
+      raise 'There is no available experiment manager instance' if address.nil?
+      schema = 'https' # TODO - temporary, change to config entry
+
+      Rails.logger.debug "Connecting to experiment manager on #{address}"
+      res = RestClient::Request.execute(
+          method: :post,
+          url: "#{schema}://#{address}/experiments/#{self.experiment_id}/mark_as_complete.json",
+          payload: {status: 'error', reason: reason},
+          user: self.experiment_manager_credentials['user'],
+          password: self.experiment_manager_credentials['password'],
+          verify_ssl: false
+      )
+      Rails.logger.debug "Experiment manager response #{res}"
+      raise 'Error while sending error message' if JSON.parse(res)['status'] != 'ok'
+    rescue RestClient::Exception, StandardError => e
+      Rails.logger.info "Unable to connect with experiment manager, please contact administrator: #{e.to_s}"
+    end
+  end
+
+  ##
+  # Single monitoring loop
+  def monitoring_loop
+    raise 'Supervisor script is not running' unless self.is_running
+    notify_error('Supervisor script is not running') unless check
+  end
+
+
+  ##
+  # Overrides default destroy to make sure proper cleanup is run before destroying object.
+  def destroy
+    SupervisorScriptExecutorsProvider.get(self.script_id).cleanup(self.experiment_id) unless self.script_id.nil?
+    super
+  end
 end
