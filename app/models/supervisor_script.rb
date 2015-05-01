@@ -15,6 +15,8 @@ Dir[Rails.root.join('supervisor_scripts', 'executors', '*_executor.rb').to_s].ea
 #   * password
 class SupervisorScript < MongoActiveRecord
 
+  EXECUTORS_PROVIDER = SupervisorScriptExecutorsProvider
+
   ##
   # This method is needed for proper work of MongoActiveRecord,
   # its specifies collections name in database
@@ -23,9 +25,7 @@ class SupervisorScript < MongoActiveRecord
   end
 
   ##
-  # Starts new supervised script. Performed actions:
-  # * Gets Experiment Manager Address from Information Service
-  # * Runs supervisor script using proper executor
+  # Starts new supervised script by using proper executor
   #
   # Required params
   # * id - id of supervisor script
@@ -43,11 +43,17 @@ class SupervisorScript < MongoActiveRecord
     information_service = InformationService.new
     config['address'] = information_service.get_list_of('experiment_managers').sample
     config['http_schema'] = 'https' # TODO - temporary, change to config entry
-    self.pid = SupervisorScriptExecutorsProvider.get(id).start config
+    self.pid = EXECUTORS_PROVIDER.get(id).start config
     Rails.logger.info "New supervisor script pid #{self.pid}"
     self.is_running = true
     SupervisorScriptWatcher.start_watching
     self.pid
+  end
+
+  ##
+  # Returns log_path for given supervisor script
+  def log_path
+    EXECUTORS_PROVIDER.get(self.script_id).log_path(self.experiment_id)
   end
 
   ##
@@ -100,7 +106,7 @@ class SupervisorScript < MongoActiveRecord
   ##
   # Overrides default destroy to make sure proper cleanup is run before destroying object.
   def destroy
-    SupervisorScriptExecutorsProvider.get(self.script_id).cleanup(self.experiment_id) unless self.script_id.nil?
+    EXECUTORS_PROVIDER.get(self.script_id).cleanup(self.experiment_id) unless self.script_id.nil?
     super
   end
 end
