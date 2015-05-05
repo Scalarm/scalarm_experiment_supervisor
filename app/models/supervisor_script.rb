@@ -96,10 +96,16 @@ class SupervisorScript < MongoActiveRecord
   end
 
   ##
+  # Returns last 100 lines of script log
+  def read_log()
+    IO.readlines(log_path)[-100..-1].join
+  end
+
+  ##
   # Single monitoring loop
   def monitoring_loop
     raise 'Supervisor script is not running' unless self.is_running
-    notify_error('Supervisor script is not running') unless check
+    notify_error("Supervisor script is not running\n#{read_log}") unless check
   end
 
 
