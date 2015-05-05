@@ -105,7 +105,7 @@ class SupervisorScript < MongoActiveRecord
   # Single monitoring loop
   def monitoring_loop
     raise 'Supervisor script is not running' unless self.is_running
-    notify_error("Supervisor script is not running\n#{read_log}") unless check
+    notify_error("Supervisor script is not running\nLast 100 lines of supervisor output:\n#{read_log}") unless check
   end
 
 
