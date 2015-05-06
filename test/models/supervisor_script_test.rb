@@ -98,4 +98,16 @@ class SupervisorScriptTest < ActiveSupport::TestCase
     # test
     @supervisor_script.notify_error REASON
   end
+
+  FILE_PATH = '/tmp/test.txt'
+
+  test "proper behavior od read_log method" do
+    @supervisor_script.stubs(:log_path).returns(FILE_PATH)
+
+    File.open(FILE_PATH, 'w+') do |file|
+      (1..200).each {|x| file.write("#{x}\n")}
+    end
+    assert_equal @supervisor_script.read_log, "#{(101..200).to_a.join("\n")}\n"
+    File.delete(FILE_PATH)
+  end
 end

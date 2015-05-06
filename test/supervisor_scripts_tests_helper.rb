@@ -32,7 +32,7 @@ module SupervisorScriptsTestsHelper
       'http_schema' => 'https'
   }
   SIMULATED_ANNEALING_ID = 'simulated_annealing'
-  SIMULATED_ANNEALING_LOG_FILE_PATH = "log/supervisor_script_log_#{EXPERIMENT_ID}.log"
+  SIMULATED_ANNEALING_LOG_FILE_PATH = Rails.root.join('log', "supervisor_script_#{EXPERIMENT_ID}.log").to_s
   SIMULATED_ANNEALING_CONFIG_FILE_PATH = "/tmp/supervisor_script_config_#{EXPERIMENT_ID}"
   SIMULATED_ANNEALING_MAIN_FILE = 'supervisor_scripts/simulated_annealing/anneal.py'
   SIMULATED_ANNEALING_LIBRARY_FILE = 'supervisor_scripts/simulated_annealing/scalarmapi.py'

@@ -20,4 +20,10 @@ class AbstractSupervisorScriptExecutor
   def self.cleanup(exeperiment_id)
     raise NOT_IMPLEMENTED
   end
+
+  ##
+  # Default log path. Override if needed.
+  def self.log_path(experiment_id)
+    Rails.root.join('log', "supervisor_script_#{experiment_id}.log")
+  end
 end
