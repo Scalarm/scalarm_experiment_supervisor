@@ -1,6 +1,6 @@
 require 'json'
 
-class SupervisorScriptsController < ApplicationController
+class SupervisorRunsController < ApplicationController
   skip_before_action :verify_authenticity_token
 
   def new
@@ -83,16 +83,16 @@ class SupervisorScriptsController < ApplicationController
     #TODO validate and check errors
     response = {}
     begin
-      supervisor_script = SupervisorScript.new({})
-      pid = supervisor_script.start params[:script_id], JSON.parse(params[:config])
-      supervisor_script.save
-      Rails.logger.debug supervisor_script
+      supervisor_run = SupervisorRun.new({})
+      pid = supervisor_run.start params[:script_id], JSON.parse(params[:config])
+      supervisor_run.save
+      Rails.logger.debug supervisor_run
       response = {status: 'ok', pid: pid}
 
     rescue StandardError => e
       Rails.logger.debug("Error while starting new supervisor script: #{e.to_s}")
       response.merge!({status: 'error', reason: "[Experiment Supervisor] #{e.to_s}"})
-      supervisor_script.destroy
+      supervisor_run.destroy
     end
 
     render json: response

@@ -1,10 +1,10 @@
 require 'test_helper'
 require 'mocha/test_unit'
 
-class SupervisorScriptTest < ActiveSupport::TestCase
+class SupervisorRunTest < ActiveSupport::TestCase
 
   PID = '123'
-  MESSAGE = 'Supervisor script is not running'
+  MESSAGE = "Supervisor script is not running\nLast 100 lines of supervisor output:\n"
   ADDRESS = 'address'
   REASON = 'reason'
   EXPERIMENT_ID = 'some_id'
@@ -12,7 +12,7 @@ class SupervisorScriptTest < ActiveSupport::TestCase
   PASSWORD = 'password'
 
   def setup
-    @supervisor_script = SupervisorScript.new({})
+    @supervisor_script = SupervisorRun.new({})
   end
 
   test "check methods return true when script is running" do
@@ -52,6 +52,7 @@ class SupervisorScriptTest < ActiveSupport::TestCase
     # mock
     @supervisor_script.expects(:check).returns(false)
     @supervisor_script.expects(:notify_error).with(MESSAGE)
+    @supervisor_script.expects(:read_log).returns('')
 
     # test
     @supervisor_script.monitoring_loop

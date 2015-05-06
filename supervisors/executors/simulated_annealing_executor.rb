@@ -1,4 +1,4 @@
-require 'supervisor_script_executors/abstract_supervisor_script_executor'
+require 'supervisor_executors/abstract_supervisor_executor'
 
 =begin
   @api {post} /start_supervisor_script.json Simulated Annealing Parameters
@@ -26,9 +26,9 @@ require 'supervisor_script_executors/abstract_supervisor_script_executor'
   }
 
 =end
-class SimulatedAnnealingExecutor < AbstractSupervisorScriptExecutor
+class SimulatedAnnealingExecutor < AbstractSupervisorExecutor
 
-  SCRIPT_PATH = 'supervisor_scripts/simulated_annealing/anneal.py'
+  SCRIPT_PATH = 'supervisors/simulated_annealing/anneal.py'
   CONFIG_FILE_PREFIX = '/tmp/supervisor_script_config_'
 
   # overrides parent method

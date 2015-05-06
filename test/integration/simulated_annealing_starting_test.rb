@@ -1,8 +1,8 @@
 require 'test_helper'
-require 'supervisor_scripts_tests_helper'
+require 'supervisor_run_tests_helper'
 
 class SimulatedAnnealingStartingTest < ActionDispatch::IntegrationTest
-  include SupervisorScriptsTestsHelper
+  include SupervisorRunTestsHelper
 
   test "successful start of simulated annealing supervisor script" do
     # mocks
@@ -11,14 +11,14 @@ class SimulatedAnnealingStartingTest < ActionDispatch::IntegrationTest
     Process.expects(:spawn).with("python2 #{SIMULATED_ANNEALING_MAIN_FILE} #{SIMULATED_ANNEALING_CONFIG_FILE_PATH}",
                                  out: SIMULATED_ANNEALING_LOG_FILE_PATH, err: SIMULATED_ANNEALING_LOG_FILE_PATH).returns(PID)
     Process.expects(:detach).with(PID)
-    SupervisorScriptWatcher.expects(:start_watching)
+    SupervisorRunWatcher.expects(:start_watching)
     # test
     # check existence of sm script files
     assert File.exists? SIMULATED_ANNEALING_MAIN_FILE
     assert File.exists? SIMULATED_ANNEALING_LIBRARY_FILE
 
-    assert_difference 'SupervisorScript.count', 1 do
-      post start_supervisor_script_path script_id: SIMULATED_ANNEALING_ID, config: CONFIG_FROM_EM_SIMULATED_ANNEALING.to_json
+    assert_difference 'SupervisorRun.count', 1 do
+      post supervisor_runs_path script_id: SIMULATED_ANNEALING_ID, config: CONFIG_FROM_EM_SIMULATED_ANNEALING.to_json
     end
     # check if only valid response params are present with proper value
     response_hash = JSON.parse(response.body)
@@ -40,8 +40,8 @@ class SimulatedAnnealingStartingTest < ActionDispatch::IntegrationTest
     # raise exception on staring supervisor script
     Process.expects(:spawn).raises(StandardError, REASON)
     # test
-    assert_no_difference 'SupervisorScript.count' do
-      post start_supervisor_script_path script_id: SIMULATED_ANNEALING_ID, config: CONFIG_FROM_EM_SIMULATED_ANNEALING.to_json
+    assert_no_difference 'SupervisorRun.count' do
+      post supervisor_runs_path script_id: SIMULATED_ANNEALING_ID, config: CONFIG_FROM_EM_SIMULATED_ANNEALING.to_json
     end
     # check if only valid response params are present with proper value
     response_hash = JSON.parse(response.body)

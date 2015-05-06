@@ -1,14 +1,14 @@
 require 'test_helper'
 require 'json'
-require 'supervisor_scripts_tests_helper'
+require 'supervisor_run_tests_helper'
 
-class GenericScriptStartingTest < ActionDispatch::IntegrationTest
-  include SupervisorScriptsTestsHelper
+class GenericSupervisorRunStartingTest < ActionDispatch::IntegrationTest
+  include SupervisorRunTestsHelper
 
   test "proper response when supervisor script id is incorrect" do
     # test
-    assert_no_difference 'SupervisorScript.count' do
-      post start_supervisor_script_path script_id: INCORRECT_ID, config: CONFIG_FROM_EM_SIMULATED_ANNEALING.to_json
+    assert_no_difference 'SupervisorRun.count' do
+      post supervisor_runs_path script_id: INCORRECT_ID, config: CONFIG_FROM_EM_SIMULATED_ANNEALING.to_json
     end
     # check if only valid response params are present with proper value
     response_hash = JSON.parse(response.body)

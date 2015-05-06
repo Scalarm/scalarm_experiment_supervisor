@@ -1,4 +1,4 @@
 unless Rails.env.test?
-  SupervisorScriptWatcher.init
-  SupervisorScriptWatcher.start_watching
+  SupervisorRunWatcher.init
+  SupervisorRunWatcher.start_watching
 end

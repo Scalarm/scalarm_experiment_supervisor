@@ -16,7 +16,7 @@
 /tmp
 
 .idea
-supervisor_scripts/simulated_annealing/*.pyc
+supervisors/simulated_annealing/*.pyc
 
 # Scalarm configuration
 config/scalarm.yml

@@ -1,5 +1,5 @@
-require 'supervisor_script_executors/supervisor_script_executors_provider'
-Dir[Rails.root.join('supervisor_scripts', 'executors', '*_executor.rb').to_s].each {|file| require file}
+require 'supervisor_executors/supervisor_executors_provider'
+Dir[Rails.root.join('supervisors', 'executors', '*_executor.rb').to_s].each {|file| require file}
 ##
 # This class represents an instance of one supervisor script and maintains
 # its creation, monitoring and deletion.
@@ -13,15 +13,15 @@ Dir[Rails.root.join('supervisor_scripts', 'executors', '*_executor.rb').to_s].ea
 # * experiment_manager_credentials - hash with credentials to experiment manager (set by #start):
 #   * user
 #   * password
-class SupervisorScript < MongoActiveRecord
+class SupervisorRun < MongoActiveRecord
 
-  EXECUTORS_PROVIDER = SupervisorScriptExecutorsProvider
+  PROVIDER = SupervisorExecutorsProvider
 
   ##
   # This method is needed for proper work of MongoActiveRecord,
   # its specifies collections name in database
   def self.collection_name
-    'supervisor_scripts'
+    'supervisors'
   end
 
   ##
@@ -35,7 +35,7 @@ class SupervisorScript < MongoActiveRecord
   # Raises
   # * Various StandardError exceptions caused by creating file or starting process.
   def start(id, config)
-    raise 'There is no supervisor script with given id' unless SupervisorScriptExecutorsProvider.has_key? id
+    raise 'There is no supervisor script with given id' unless PROVIDER.has_key? id
     self.script_id = id
     self.experiment_id = config['experiment_id']
     self.experiment_manager_credentials = {user: config['user'], password: config['password']}
@@ -43,17 +43,17 @@ class SupervisorScript < MongoActiveRecord
     information_service = InformationService.new
     config['address'] = information_service.get_list_of('experiment_managers').sample
     config['http_schema'] = 'https' # TODO - temporary, change to config entry
-    self.pid = EXECUTORS_PROVIDER.get(id).start config
+    self.pid = PROVIDER.get(id).start config
     Rails.logger.info "New supervisor script pid #{self.pid}"
     self.is_running = true
-    SupervisorScriptWatcher.start_watching
+    SupervisorRunWatcher.start_watching
     self.pid
   end
 
   ##
   # Returns log_path for given supervisor script
   def log_path
-    EXECUTORS_PROVIDER.get(self.script_id).log_path(self.experiment_id)
+    PROVIDER.get(self.script_id).log_path(self.experiment_id)
   end
 
   ##
@@ -112,7 +112,7 @@ class SupervisorScript < MongoActiveRecord
   ##
   # Overrides default destroy to make sure proper cleanup is run before destroying object.
   def destroy
-    EXECUTORS_PROVIDER.get(self.script_id).cleanup(self.experiment_id) unless self.script_id.nil?
+    PROVIDER.get(self.script_id).cleanup(self.experiment_id) unless self.script_id.nil?
     super
   end
 end

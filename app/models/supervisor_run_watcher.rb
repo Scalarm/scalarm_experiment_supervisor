@@ -4,7 +4,7 @@ require 'thread'
 # This class is used to watch if supervisor scripts are running by periodical call to
 # monitoring_loop of SupervisorScript class which is_running flag is true, in given
 # moment only one monitoring thread is running.
-class SupervisorScriptWatcher
+class SupervisorRunWatcher
   @@is_running = false
   @@mutex = Mutex.new
   @@sleep_duration_in_seconds = 60
@@ -41,7 +41,7 @@ class SupervisorScriptWatcher
       @@mutex.synchronize do
         begin
           Rails.logger.debug 'Supervisor script watch loop'
-          running_scripts = SupervisorScript.find_all_by_query(is_running: true)
+          running_scripts = SupervisorRun.find_all_by_query(is_running: true)
           if running_scripts.count == 0
             Rails.logger.debug 'There are no more scripts to watch'
             @@is_running = false
