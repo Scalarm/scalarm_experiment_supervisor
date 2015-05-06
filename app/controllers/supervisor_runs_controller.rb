@@ -3,7 +3,12 @@ require 'json'
 class SupervisorRunsController < ApplicationController
   skip_before_action :verify_authenticity_token
 
+  def index
+    # TODO
+  end
+
   def new
+    # TODO
   end
 
 =begin
@@ -97,4 +102,17 @@ class SupervisorRunsController < ApplicationController
 
     render json: response
   end
+
+  def show
+    # TODO
+  end
+
+  def stop
+    # TODO
+  end
+
+  def destroy
+    # TODO
+  end
+
 end
