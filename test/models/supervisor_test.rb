@@ -16,16 +16,16 @@ class SupervisorTest < ActiveSupport::TestCase
   end
 
   test 'getManiphests should return all yaml maniphest' do
-    maniphests = Supervisor.getManiphests
+    maniphests = Supervisor.get_maniphests
     assert_equal maniphests.length, @count
     assert maniphests.include?(PARSED_CONTENT), 'Parsed maniphests should contain test maniphest'
   end
 
   test 'getManiphest should return test yaml maniphest' do
-    assert_equal Supervisor.getManiphest(ID), PARSED_CONTENT
+    assert_equal Supervisor.get_maniphest(ID), PARSED_CONTENT
   end
 
   test 'getManiphest should return nil on invalid id' do
-    assert_nil Supervisor.getManiphest('bad id')
+    assert_nil Supervisor.get_maniphest('bad id')
   end
 end

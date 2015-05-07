@@ -1,11 +1,11 @@
 class SupervisorsController < ApplicationController
 
   def index
-    # TODO
+    render json: Supervisor.get_maniphests
   end
 
   def show
-    # TODO
+    render json: Supervisor.get_maniphest(params[:id]) || not_found
   end
 
   def new_member

@@ -4,7 +4,7 @@ class Supervisor
 
   YAML_READER = lambda {|file, id| YAML::load(IO.read(file)).symbolize_keys.merge({id: id})}
 
-  def self.getManiphests
+  def self.get_maniphests
     maniphests = []
     Dir[Rails.root.join('supervisors', 'maniphest', '*.yml').to_s].each do |file|
       maniphests.append YAML_READER.call file, File.basename(file, File.extname(file))
@@ -12,7 +12,7 @@ class Supervisor
     maniphests
   end
 
-  def self.getManiphest(id)
+  def self.get_maniphest(id)
     path = Rails.root.join('supervisors', 'maniphest', "#{id}.yml")
     return YAML_READER.call(path, id) if File.exists? path
     nil
