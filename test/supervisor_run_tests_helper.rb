@@ -1,4 +1,5 @@
 require 'db_helper'
+require 'test_helper'
 
 module SupervisorRunTestsHelper
   include DBHelper
@@ -45,8 +46,8 @@ module SupervisorRunTestsHelper
 
   def teardown
     # cleanup if needed
-    File.delete SIMULATED_ANNEALING_CONFIG_FILE_PATH if File.exists? SIMULATED_ANNEALING_CONFIG_FILE_PATH
-    File.delete SIMULATED_ANNEALING_LOG_FILE_PATH if File.exists? SIMULATED_ANNEALING_LOG_FILE_PATH
+    remove_file_if_exists SIMULATED_ANNEALING_CONFIG_FILE_PATH
+    remove_file_if_exists SIMULATED_ANNEALING_LOG_FILE_PATH
     super
   end
 

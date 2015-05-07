@@ -7,8 +7,8 @@ Rails.application.routes.draw do
   end
   resources :supervisors, only: [:index, :show] do
     member do
-      get 'new', to: 'supervisors#new_member'
-      post :create, to: 'supervisors#create_member'
+      get :start_panel, to: 'supervisors#start_panel'
+      post :create_run, to: 'supervisor_runs#create'
     end
   end
 

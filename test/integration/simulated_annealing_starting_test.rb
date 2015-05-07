@@ -18,15 +18,16 @@ class SimulatedAnnealingStartingTest < ActionDispatch::IntegrationTest
     assert File.exists? SIMULATED_ANNEALING_LIBRARY_FILE
 
     assert_difference 'SupervisorRun.count', 1 do
-      post supervisor_runs_path script_id: SIMULATED_ANNEALING_ID, config: CONFIG_FROM_EM_SIMULATED_ANNEALING.to_json
+      post supervisor_runs_path supervisor_id: SIMULATED_ANNEALING_ID, config: CONFIG_FROM_EM_SIMULATED_ANNEALING.to_json
     end
     # check if only valid response params are present with proper value
     response_hash = JSON.parse(response.body)
     assert_nothing_raised do
-      response_hash.assert_valid_keys('status', 'pid')
+      response_hash.assert_valid_keys('status', 'pid', 'supervisor_run_id')
     end
     assert_equal response_hash['status'], 'ok'
     assert_equal response_hash['pid'], PID
+    assert_equal response_hash['supervisor_run_id'], SupervisorRun.first.id.to_s
     # check existence of config file and its content
     assert File.exists? SIMULATED_ANNEALING_CONFIG_FILE_PATH
     assert_equal FULL_CONFIG_SIMULATED_ANNEALING, JSON.parse(File.read(SIMULATED_ANNEALING_CONFIG_FILE_PATH))
@@ -41,7 +42,7 @@ class SimulatedAnnealingStartingTest < ActionDispatch::IntegrationTest
     Process.expects(:spawn).raises(StandardError, REASON)
     # test
     assert_no_difference 'SupervisorRun.count' do
-      post supervisor_runs_path script_id: SIMULATED_ANNEALING_ID, config: CONFIG_FROM_EM_SIMULATED_ANNEALING.to_json
+      post supervisor_runs_path supervisor_id: SIMULATED_ANNEALING_ID, config: CONFIG_FROM_EM_SIMULATED_ANNEALING.to_json
     end
     # check if only valid response params are present with proper value
     response_hash = JSON.parse(response.body)

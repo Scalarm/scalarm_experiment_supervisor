@@ -4,11 +4,12 @@ require 'supervisor_run_tests_helper'
 
 class GenericSupervisorRunStartingTest < ActionDispatch::IntegrationTest
   include SupervisorRunTestsHelper
+  ID = 'id'
 
   test "proper response when supervisor script id is incorrect" do
     # test
     assert_no_difference 'SupervisorRun.count' do
-      post supervisor_runs_path script_id: INCORRECT_ID, config: CONFIG_FROM_EM_SIMULATED_ANNEALING.to_json
+      post supervisor_runs_path supervisor_id: INCORRECT_ID, config: CONFIG_FROM_EM_SIMULATED_ANNEALING.to_json
     end
     # check if only valid response params are present with proper value
     response_hash = JSON.parse(response.body)
@@ -19,6 +20,18 @@ class GenericSupervisorRunStartingTest < ActionDispatch::IntegrationTest
     assert_equal response_hash['reason'], "#{REASON_PREFIX} #{INCORRECT_ID_MESSAGE}"
     # check proper cleanup of redundant files
     assert_not File.exists? SIMULATED_ANNEALING_CONFIG_FILE_PATH
+  end
+
+  test "id should be recognized as supervisor_id" do
+    supervisor_run = mock do
+      expects(:start).with(ID, {}).returns(1)
+      expects(:save)
+      expects(:id).returns(ID)
+    end
+    SupervisorRun.expects(:new).with({}).returns(supervisor_run)
+
+    post create_run_supervisor_path(ID), config: {}.to_json
+
   end
 
 end

@@ -6,7 +6,7 @@ Dir[Rails.root.join('supervisors', 'executors', '*_executor.rb').to_s].each {|fi
 #
 # List of possible attributes:
 # * experiment_id - id of experiment that is supervised by script (set by #start method)
-# * script_id - id of supervisor script, specify which script is used for supervising (set by #start
+# * supervisor_id - id of supervisor, specify which script is used for supervising (set by #start
 #   method)
 # * pid - pid of supervisor script process (set by #start method)
 # * is_running - true when supervisor script is running, false otherwise (set by #start, modified by #check)
@@ -36,7 +36,7 @@ class SupervisorRun < MongoActiveRecord
   # * Various StandardError exceptions caused by creating file or starting process.
   def start(id, config)
     raise 'There is no supervisor script with given id' unless PROVIDER.has_key? id
-    self.script_id = id
+    self.supervisor_id = id
     self.experiment_id = config['experiment_id']
     self.experiment_manager_credentials = {user: config['user'], password: config['password']}
     # TODO validate config
@@ -53,7 +53,7 @@ class SupervisorRun < MongoActiveRecord
   ##
   # Returns log_path for given supervisor script
   def log_path
-    PROVIDER.get(self.script_id).log_path(self.experiment_id)
+    PROVIDER.get(self.supervisor_id).log_path(self.experiment_id)
   end
 
   ##
@@ -112,7 +112,7 @@ class SupervisorRun < MongoActiveRecord
   ##
   # Overrides default destroy to make sure proper cleanup is run before destroying object.
   def destroy
-    PROVIDER.get(self.script_id).cleanup(self.experiment_id) unless self.script_id.nil?
+    PROVIDER.get(self.supervisor_id).cleanup(self.experiment_id) unless self.supervisor_id.nil?
     super
   end
 end

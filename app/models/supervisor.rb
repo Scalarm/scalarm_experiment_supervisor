@@ -18,4 +18,9 @@ class Supervisor
     nil
   end
 
+  def self.view_path(id)
+    path = Dir[Rails.root.join('supervisors', 'views', "#{id}.*")].first.to_s
+    File.exists?(path) ? path : nil
+  end
+
 end

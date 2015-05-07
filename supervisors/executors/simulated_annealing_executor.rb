@@ -28,7 +28,7 @@ require 'supervisor_executors/abstract_supervisor_executor'
 =end
 class SimulatedAnnealingExecutor < AbstractSupervisorExecutor
 
-  SCRIPT_PATH = 'supervisors/simulated_annealing/anneal.py'
+  SCRIPT_PATH = 'supervisors/executables/simulated_annealing/anneal.py'
   CONFIG_FILE_PREFIX = '/tmp/supervisor_script_config_'
 
   # overrides parent method
