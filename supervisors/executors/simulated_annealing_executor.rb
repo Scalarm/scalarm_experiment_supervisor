@@ -1,9 +1,9 @@
 require 'supervisor_executors/abstract_supervisor_executor'
 
 =begin
-  @api {post} /start_supervisor_script.json Simulated Annealing Parameters
-  @apiName start_simulated_annealing
-  @apiGroup SupervisorScripts
+  @api {get} /supervisors New SupervisorRun view
+  @apiName supervisor_runs#new
+  @apiGroup SupervisorRuns
   @apiDescription Description of parameters needed to start simulated annealing.
     Description of generic method params is in start_supervisor_script entry.
 

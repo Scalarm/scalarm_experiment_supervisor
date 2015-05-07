@@ -7,14 +7,23 @@ class SupervisorRunsController < ApplicationController
     # TODO
   end
 
+=begin
+  @api {get} /supervisor_runs New SupervisorRun view
+  @apiName supervisor_runs#new
+  @apiGroup SupervisorRuns
+  @apiDescription Returns partial form to configure SupervisorRun
+
+  @apiParam {String} supervisor_id ID of Supervisor to show view
+
+=end
   def new
     redirect_to :controller=>'supervisors', :action => 'start_panel', :id => params[:supervisor_id]
   end
 
 =begin
-    @api {post} /start_supervisor_script.json Start Supervisor Run
-    @apiName start_supervisor_script
-    @apiGroup SupervisorScripts
+    @api {post} /supervisor_runs Start SupervisorRun
+    @apiName supervisor_runs#create
+    @apiGroup SupervisorRuns
     @apiDescription This action allows user to start new supervisor with given parameters.
 
     @apiParam {String} supervisor_id ID of supervisor to be started
