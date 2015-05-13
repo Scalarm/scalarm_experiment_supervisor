@@ -18,17 +18,17 @@ class SupervisorTest < ActiveSupport::TestCase
     remove_file_if_exists VIEW_TEST_FILE
   end
 
-  test 'get_maniphests should return all yaml manifest' do
+  test 'get_manifests should return all yaml manifest' do
     manifest = Supervisor.get_manifests
     assert_equal manifest.length, @count
     assert manifest.include?(PARSED_CONTENT), 'Parsed manifest should contain test manifest'
   end
 
-  test 'get_maniphest should return test yaml manifest' do
+  test 'get_manifest should return test yaml manifest' do
     assert_equal Supervisor.get_manifest(ID), PARSED_CONTENT
   end
 
-  test 'get_maniphest should return nil on invalid id' do
+  test 'get_manifest should return nil on invalid id' do
     assert_nil Supervisor.get_manifest('bad id')
   end
 
