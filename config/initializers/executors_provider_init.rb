@@ -1,3 +1,3 @@
-require 'supervisor_script_executors/supervisor_script_executors_provider'
+require 'supervisor_executors/supervisor_executors_provider'
 
-SupervisorScriptExecutorsProvider.init
+SupervisorExecutorsProvider.init

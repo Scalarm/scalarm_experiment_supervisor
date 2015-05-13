@@ -1,9 +1,9 @@
-require 'supervisor_script_executors/abstract_supervisor_script_executor'
+require 'supervisor_executors/abstract_supervisor_executor'
 
 =begin
-  @api {post} /start_supervisor_script.json Simulated Annealing Parameters
-  @apiName start_simulated_annealing
-  @apiGroup SupervisorScripts
+  @api {get} /supervisors New SupervisorRun view
+  @apiName supervisor_runs#new
+  @apiGroup SupervisorRuns
   @apiDescription Description of parameters needed to start simulated annealing.
     Description of generic method params is in start_supervisor_script entry.
 
@@ -26,9 +26,9 @@ require 'supervisor_script_executors/abstract_supervisor_script_executor'
   }
 
 =end
-class SimulatedAnnealingExecutor < AbstractSupervisorScriptExecutor
+class SimulatedAnnealingExecutor < AbstractSupervisorExecutor
 
-  SCRIPT_PATH = 'supervisor_scripts/simulated_annealing/anneal.py'
+  SCRIPT_PATH = 'supervisors/executables/simulated_annealing/anneal.py'
   CONFIG_FILE_PREFIX = '/tmp/supervisor_script_config_'
 
   # overrides parent method

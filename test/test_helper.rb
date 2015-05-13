@@ -11,4 +11,7 @@ class ActiveSupport::TestCase
 
   # Add more helper methods to be used by all tests here...
 
+  def remove_file_if_exists(file)
+    File.delete file if File.exists? file
+  end
 end
