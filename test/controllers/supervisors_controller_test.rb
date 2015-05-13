@@ -25,10 +25,14 @@ class SupervisorsControllerTest < ActionController::TestCase
     assert_equal manifest, MANIFEST
   end
 
-  test 'show should return 404 on non existing id' do
-    assert_raises ActionController::RoutingError do
-      get :show, id: 'bad id'
-    end
+  test 'show should redirect to index on non existing id (html)' do
+    get :show, id: 'bad id'
+    assert_redirected_to action: :index
+  end
+
+  test 'show should return 404 on non existing id (json)' do
+    get :show, format: :json, id: 'bad id'
+    assert_equal response.status, 404
   end
 
   test 'new_member should return proper view' do
@@ -37,10 +41,14 @@ class SupervisorsControllerTest < ActionController::TestCase
     assert_equal response.body, ID
   end
 
-  test 'new_member should return 404 on non existing id' do
-    assert_raises ActionController::RoutingError do
-      get :start_panel, id: ID
-    end
+  test 'new_member should redirect to index on non existing id (html)' do
+    get :start_panel, id: ID
+    assert_redirected_to action: :index
+  end
+
+  test 'new_member should return 404 on non existing id (json)' do
+    get :start_panel, format: :json, id: ID
+    assert_equal response.status, 404
   end
 
 end
