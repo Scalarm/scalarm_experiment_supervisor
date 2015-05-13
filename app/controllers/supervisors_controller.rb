@@ -41,7 +41,7 @@ class SupervisorsController < ApplicationController
 
 =end
   def show
-    render json: Supervisor.get_maniphest(params[:id]) || not_found
+    render json: Supervisor.get_maniphest(params[:id]) || resource_not_found
   end
 
 =begin
@@ -53,6 +53,6 @@ class SupervisorsController < ApplicationController
   @apiParam {String} id ID of Supervisor to show view
 =end
   def start_panel
-    render Supervisor.view_path(params[:id]) || not_found, layout: false
+    render Supervisor.view_path(params[:id]) || resource_not_found, layout: false
   end
 end
