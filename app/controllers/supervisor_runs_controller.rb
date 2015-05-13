@@ -11,7 +11,7 @@ class SupervisorRunsController < ApplicationController
   @api {get} /supervisor_runs New SupervisorRun view
   @apiName supervisor_runs#new
   @apiGroup SupervisorRuns
-  @apiDescription Returns partial form to configure SupervisorRun
+  @apiDescription Returns partial form to configure SupervisorRun by redirection to /supervisors/:supervisor_id/start_panel
 
   @apiParam {String} supervisor_id ID of Supervisor to show view
 
