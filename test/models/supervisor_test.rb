@@ -12,6 +12,7 @@ class SupervisorTest < ActiveSupport::TestCase
     File.open(VIEW_TEST_FILE, 'w+') {|f| f.write ID }
     @count =  Dir[Rails.root.join('supervisors', 'manifest', '*.yml').to_s].count
   end
+
   def teardown
     remove_file_if_exists MANIFEST_TEST_FILE
     remove_file_if_exists VIEW_TEST_FILE
@@ -32,7 +33,7 @@ class SupervisorTest < ActiveSupport::TestCase
   end
 
   test 'view_path test with supervisor id' do
-      assert_equal Supervisor.view_path(ID), VIEW_TEST_FILE.to_s
+    assert_equal Supervisor.view_path(ID), VIEW_TEST_FILE.to_s
   end
 
   test 'view_path should return nil on non exist view file' do
