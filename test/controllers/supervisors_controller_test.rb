@@ -3,7 +3,7 @@ require 'json'
 
 class SupervisorsControllerTest < ActionController::TestCase
 
-  MANIPHEST = {'test' => 'test', 'test2' => ['foo', 'bar', 42]}
+  MANIFEST = {'test' => 'test', 'test2' => ['foo', 'bar', 42]}
   ID = 'test'
   VIEW_TEST_FILE = Rails.root.join('supervisors', 'views', "#{ID}.html")
 
@@ -12,17 +12,17 @@ class SupervisorsControllerTest < ActionController::TestCase
   end
 
   test 'index should return maniphests of supervisors' do
-    Supervisor.expects(:get_maniphests).returns([MANIPHEST])
+    Supervisor.expects(:get_maniphests).returns([MANIFEST])
     get :index
     maniphests = JSON.parse(response.body)
-    assert_equal maniphests, [MANIPHEST]
+    assert_equal maniphests, [MANIFEST]
   end
 
   test 'show should return maniphests of given supervisor id' do
-    Supervisor.expects(:get_maniphest).with(ID).returns(MANIPHEST)
+    Supervisor.expects(:get_maniphest).with(ID).returns(MANIFEST)
     get :show, id: ID
     maniphests = JSON.parse(response.body)
-    assert_equal maniphests, MANIPHEST
+    assert_equal maniphests, MANIFEST
   end
 
   test 'show should return 404 on non existing id' do

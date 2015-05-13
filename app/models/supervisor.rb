@@ -6,14 +6,14 @@ class Supervisor
 
   def self.get_maniphests
     maniphests = []
-    Dir[Rails.root.join('supervisors', 'maniphest', '*.yml').to_s].each do |file|
+    Dir[Rails.root.join('supervisors', 'manifest', '*.yml').to_s].each do |file|
       maniphests.append YAML_READER.call file, File.basename(file, File.extname(file))
     end
     maniphests
   end
 
   def self.get_maniphest(id)
-    path = Rails.root.join('supervisors', 'maniphest', "#{id}.yml")
+    path = Rails.root.join('supervisors', 'manifest', "#{id}.yml")
     return YAML_READER.call(path, id) if File.exists? path
     nil
   end
