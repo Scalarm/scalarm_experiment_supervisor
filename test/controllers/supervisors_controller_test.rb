@@ -11,18 +11,18 @@ class SupervisorsControllerTest < ActionController::TestCase
     remove_file_if_exists VIEW_TEST_FILE
   end
 
-  test 'index should return maniphests of supervisors' do
-    Supervisor.expects(:get_maniphests).returns([MANIFEST])
+  test 'index should return manifest of supervisors' do
+    Supervisor.expects(:get_manifests).returns([MANIFEST])
     get :index
-    maniphests = JSON.parse(response.body)
-    assert_equal maniphests, [MANIFEST]
+    manifest = JSON.parse(response.body)
+    assert_equal manifest, [MANIFEST]
   end
 
-  test 'show should return maniphests of given supervisor id' do
-    Supervisor.expects(:get_maniphest).with(ID).returns(MANIFEST)
+  test 'show should return manifest of given supervisor id' do
+    Supervisor.expects(:get_manifest).with(ID).returns(MANIFEST)
     get :show, id: ID
-    maniphests = JSON.parse(response.body)
-    assert_equal maniphests, MANIFEST
+    manifest = JSON.parse(response.body)
+    assert_equal manifest, MANIFEST
   end
 
   test 'show should return 404 on non existing id' do

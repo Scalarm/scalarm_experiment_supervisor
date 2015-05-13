@@ -20,7 +20,7 @@ class SupervisorsController < ApplicationController
     ]
 =end
   def index
-    render json: Supervisor.get_maniphests
+    render json: Supervisor.get_manifests
   end
 
 =begin
@@ -41,7 +41,7 @@ class SupervisorsController < ApplicationController
 
 =end
   def show
-    render json: Supervisor.get_maniphest(params[:id]) || resource_not_found
+    render json: Supervisor.get_manifest(params[:id]) || resource_not_found
   end
 
 =begin

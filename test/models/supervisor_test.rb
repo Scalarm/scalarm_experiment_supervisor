@@ -19,17 +19,17 @@ class SupervisorTest < ActiveSupport::TestCase
   end
 
   test 'get_maniphests should return all yaml manifest' do
-    maniphests = Supervisor.get_maniphests
-    assert_equal maniphests.length, @count
-    assert maniphests.include?(PARSED_CONTENT), 'Parsed maniphests should contain test manifest'
+    manifest = Supervisor.get_manifests
+    assert_equal manifest.length, @count
+    assert manifest.include?(PARSED_CONTENT), 'Parsed manifest should contain test manifest'
   end
 
   test 'get_maniphest should return test yaml manifest' do
-    assert_equal Supervisor.get_maniphest(ID), PARSED_CONTENT
+    assert_equal Supervisor.get_manifest(ID), PARSED_CONTENT
   end
 
   test 'get_maniphest should return nil on invalid id' do
-    assert_nil Supervisor.get_maniphest('bad id')
+    assert_nil Supervisor.get_manifest('bad id')
   end
 
   test 'view_path test with supervisor id' do
