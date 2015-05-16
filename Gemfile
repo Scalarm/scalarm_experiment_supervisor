@@ -47,3 +47,5 @@ gem 'haml'
 # Use debugger
 # gem 'debugger', group: [:development, :test]
 
+gem 'thin'
+
