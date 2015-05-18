@@ -7,6 +7,18 @@ Rails.application.load_tasks
 
 LOCAL_MONGOS_PATH = 'bin/mongos'
 
+namespace :service do
+  desc 'Start the service'
+  task :start => :environment do
+    %x[thin start -d -C config/thin.yml]
+  end
+
+  desc 'Stop the service'
+  task :stop => :environment do
+    %x[thin stop -C config/thin.yml]
+  end
+end
+
 namespace :db_router do
   desc 'Start MongoDB router'
   task :start, [:debug] => [:environment, :setup] do |t, args|
