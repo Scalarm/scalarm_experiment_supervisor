@@ -51,7 +51,7 @@ class SupervisorRunWatcher
             s.monitoring_loop
             s.save
           end
-        rescue RuntimeError => e
+        rescue => e
            Rails.logger.info "Error while execution script monitoring loop #{e.to_s}"
            @@is_running = false
            return
