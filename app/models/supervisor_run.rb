@@ -21,7 +21,7 @@ class SupervisorRun < MongoActiveRecord
   # This method is needed for proper work of MongoActiveRecord,
   # its specifies collections name in database
   def self.collection_name
-    'supervisors'
+    'supervisor_runs'
   end
 
   ##
@@ -97,8 +97,15 @@ class SupervisorRun < MongoActiveRecord
 
   ##
   # Returns last 100 lines of script log
-  def read_log()
-    IO.readlines(log_path)[-100..-1].join
+  def read_log
+    begin
+      log = IO.readlines(log_path)
+      log = log[-100..-1] if log.size > 100
+      log.join
+    rescue => e
+      Rails.logger.debug "Unable to load log file #{e.to_s}"
+      ''
+    end
   end
 
   ##

@@ -102,13 +102,39 @@ class SupervisorRunTest < ActiveSupport::TestCase
 
   FILE_PATH = '/tmp/test.txt'
 
-  test "proper behavior od read_log method" do
-    @supervisor_script.stubs(:log_path).returns(FILE_PATH)
+  test "proper behavior od read_log method when lines number is greater than 100" do
+    @supervisor_script.expects(:log_path).returns(FILE_PATH)
 
     File.open(FILE_PATH, 'w+') do |file|
-      (1..200).each {|x| file.write("#{x}\n")}
+      (1..101).each {|x| file.write("#{x}\n")}
     end
-    assert_equal @supervisor_script.read_log, "#{(101..200).to_a.join("\n")}\n"
+    assert_equal @supervisor_script.read_log, "#{(2..101).to_a.join("\n")}\n"
     File.delete(FILE_PATH)
+  end
+
+  test "proper behavior od read_log method when lines number is lower than 100" do
+    @supervisor_script.expects(:log_path).returns(FILE_PATH)
+
+    File.open(FILE_PATH, 'w+') do |file|
+      (1..99).each {|x| file.write("#{x}\n")}
+    end
+    assert_equal @supervisor_script.read_log, "#{(1..99).to_a.join("\n")}\n"
+    File.delete(FILE_PATH)
+  end
+
+  test "proper behavior od read_log method when lines number is equal 100" do
+    @supervisor_script.expects(:log_path).returns(FILE_PATH)
+
+    File.open(FILE_PATH, 'w+') do |file|
+      (1..100).each {|x| file.write("#{x}\n")}
+    end
+    assert_equal @supervisor_script.read_log, "#{(1..100).to_a.join("\n")}\n"
+    File.delete(FILE_PATH)
+  end
+
+  test "proper behavior od read_log method on file reading error" do
+    @supervisor_script.expects(:log_path).returns(FILE_PATH)
+    IO.expects(:readlines).with(FILE_PATH).throws(StandardError)
+    assert_equal @supervisor_script.read_log, ''
   end
 end
