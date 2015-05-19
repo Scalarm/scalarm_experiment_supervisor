@@ -133,8 +133,8 @@ class SupervisorRunTest < ActiveSupport::TestCase
   end
 
   test "proper behavior od read_log method on file reading error" do
-    @supervisor_script.expects(:log_path).returns(FILE_PATH)
+    @supervisor_script.expects(:log_path).times(3).returns(FILE_PATH)
     IO.expects(:readlines).with(FILE_PATH).throws(StandardError)
-    assert_equal @supervisor_script.read_log, ''
+    assert_equal @supervisor_script.read_log, "Unable to load log file: #{FILE_PATH}"
   end
 end

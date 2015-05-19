@@ -103,8 +103,8 @@ class SupervisorRun < MongoActiveRecord
       log = log[-100..-1] if log.size > 100
       log.join
     rescue => e
-      Rails.logger.debug "Unable to load log file #{e.to_s}"
-      ''
+      Rails.logger.debug "Unable to load log file: #{log_path}\n#{e.to_s}"
+      "Unable to load log file: #{log_path}"
     end
   end
 
