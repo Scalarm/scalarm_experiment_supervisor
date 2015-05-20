@@ -1,5 +1,6 @@
 class SupervisorsController < ApplicationController
 
+  before_filter :add_cors_header, only: [:start_panel]
 =begin
   @api {get} /supervisors Supervisors description
   @apiName supervisor#index
@@ -53,6 +54,10 @@ class SupervisorsController < ApplicationController
   @apiParam {String} id ID of Supervisor to show view
 =end
   def start_panel
-    render Supervisor.view_path(params[:id]) || resource_not_found, layout: false
+    render Supervisor.view_path(params[:id]) || resource_not_found#, layout: false
+  end
+
+  def add_cors_header
+    response['Access-Control-Allow-Origin'] = '*'
   end
 end
