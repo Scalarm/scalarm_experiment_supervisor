@@ -1,9 +1,9 @@
-require 'supervisor_script_executors/abstract_supervisor_script_executor'
+require 'supervisor_executors/abstract_supervisor_executor'
 
 =begin
-  @api {post} /start_supervisor_script.json Simulated Annealing Parameters
-  @apiName start_simulated_annealing
-  @apiGroup SupervisorScripts
+  @api {get} /supervisors New SupervisorRun view
+  @apiName supervisor_runs#new
+  @apiGroup SupervisorRuns
   @apiDescription Description of parameters needed to start simulated annealing.
     Description of generic method params is in start_supervisor_script entry.
 
@@ -26,22 +26,16 @@ require 'supervisor_script_executors/abstract_supervisor_script_executor'
   }
 
 =end
-class SimulatedAnnealingExecutor < AbstractSupervisorScriptExecutor
+class SimulatedAnnealingExecutor < AbstractSupervisorExecutor
 
-  SCRIPT_PATH = 'supervisor_scripts/simulated_annealing/anneal.py'
-  LOG_FILE_PREFIX = 'log/supervisor_script_log_'
-  LOG_FILE_SUFFIX = '.log'
+  SCRIPT_PATH = 'supervisors/executables/simulated_annealing/anneal.py'
   CONFIG_FILE_PREFIX = '/tmp/supervisor_script_config_'
 
   # overrides parent method
-  # * Creates config file in /tmp/supervisor_script_config_<experiment_id>
-  # * Starts simulated annealing script with output set to log/supervisor_script_log_<experiment_id>.log
   def self.start(config)
     script_config = "#{CONFIG_FILE_PREFIX}#{config['experiment_id']}"
     File.open(script_config, 'w+') { |file| file.write(config.to_json) }
-
-    script_log = "#{LOG_FILE_PREFIX}#{config['experiment_id']}#{LOG_FILE_SUFFIX}"
-
+    script_log = self.log_path(config['experiment_id']).to_s
     pid = Process.spawn("python2 #{SCRIPT_PATH} #{script_config}", out: script_log, err: script_log)
     Process.detach(pid)
     pid
@@ -49,9 +43,7 @@ class SimulatedAnnealingExecutor < AbstractSupervisorScriptExecutor
 
   # overrides parent method
   def self.cleanup(experiment_id)
-    if File.exists? "#{LOG_FILE_PREFIX}#{experiment_id}#{LOG_FILE_SUFFIX}"
-      File.delete "#{LOG_FILE_PREFIX}#{experiment_id}#{LOG_FILE_SUFFIX}"
-    end
+    File.delete self.log_path(experiment_id) if File.exists? self.log_path(experiment_id)
     File.delete "#{CONFIG_FILE_PREFIX}#{experiment_id}" if File.exists? "#{CONFIG_FILE_PREFIX}#{experiment_id}"
   end
 end

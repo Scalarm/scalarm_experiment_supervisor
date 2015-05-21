@@ -1,31 +1,31 @@
-require 'supervisor_script_executors/supervisor_script_executors_provider'
-Dir[Rails.root.join('supervisor_scripts', 'executors', '*_executor.rb').to_s].each {|file| require file}
+require 'supervisor_executors/supervisor_executors_provider'
+Dir[Rails.root.join('supervisors', 'executors', '*_executor.rb').to_s].each {|file| require file}
 ##
 # This class represents an instance of one supervisor script and maintains
 # its creation, monitoring and deletion.
 #
 # List of possible attributes:
 # * experiment_id - id of experiment that is supervised by script (set by #start method)
-# * script_id - id of supervisor script, specify which script is used for supervising (set by #start
+# * supervisor_id - id of supervisor, specify which script is used for supervising (set by #start
 #   method)
 # * pid - pid of supervisor script process (set by #start method)
 # * is_running - true when supervisor script is running, false otherwise (set by #start, modified by #check)
 # * experiment_manager_credentials - hash with credentials to experiment manager (set by #start):
 #   * user
 #   * password
-class SupervisorScript < MongoActiveRecord
+class SupervisorRun < MongoActiveRecord
+
+  PROVIDER = SupervisorExecutorsProvider
 
   ##
   # This method is needed for proper work of MongoActiveRecord,
   # its specifies collections name in database
   def self.collection_name
-    'supervisor_scripts'
+    'supervisor_runs'
   end
 
   ##
-  # Starts new supervised script. Performed actions:
-  # * Gets Experiment Manager Address from Information Service
-  # * Runs supervisor script using proper executor
+  # Starts new supervised script by using proper executor
   #
   # Required params
   # * id - id of supervisor script
@@ -35,19 +35,25 @@ class SupervisorScript < MongoActiveRecord
   # Raises
   # * Various StandardError exceptions caused by creating file or starting process.
   def start(id, config)
-    raise 'There is no supervisor script with given id' unless SupervisorScriptExecutorsProvider.has_key? id
-    self.script_id = id
+    raise 'There is no supervisor script with given id' unless PROVIDER.has_key? id
+    self.supervisor_id = id
     self.experiment_id = config['experiment_id']
     self.experiment_manager_credentials = {user: config['user'], password: config['password']}
     # TODO validate config
     information_service = InformationService.new
     config['address'] = information_service.get_list_of('experiment_managers').sample
     config['http_schema'] = 'https' # TODO - temporary, change to config entry
-    self.pid = SupervisorScriptExecutorsProvider.get(id).start config
+    self.pid = PROVIDER.get(id).start config
     Rails.logger.info "New supervisor script pid #{self.pid}"
     self.is_running = true
-    SupervisorScriptWatcher.start_watching
+    SupervisorRunWatcher.start_watching
     self.pid
+  end
+
+  ##
+  # Returns log_path for given supervisor script
+  def log_path
+    PROVIDER.get(self.supervisor_id).log_path(self.experiment_id)
   end
 
   ##
@@ -90,17 +96,30 @@ class SupervisorScript < MongoActiveRecord
   end
 
   ##
+  # Returns last 100 lines of script log
+  def read_log
+    begin
+      log = IO.readlines(log_path)
+      log = log[-100..-1] if log.size > 100
+      log.join
+    rescue => e
+      Rails.logger.debug "Unable to load log file: #{log_path}\n#{e.to_s}"
+      "Unable to load log file: #{log_path}"
+    end
+  end
+
+  ##
   # Single monitoring loop
   def monitoring_loop
     raise 'Supervisor script is not running' unless self.is_running
-    notify_error('Supervisor script is not running') unless check
+    notify_error("Supervisor script is not running\nLast 100 lines of supervisor output:\n#{read_log}") unless check
   end
 
 
   ##
   # Overrides default destroy to make sure proper cleanup is run before destroying object.
   def destroy
-    SupervisorScriptExecutorsProvider.get(self.script_id).cleanup(self.experiment_id) unless self.script_id.nil?
+    PROVIDER.get(self.supervisor_id).cleanup(self.experiment_id) unless self.supervisor_id.nil?
     super
   end
 end

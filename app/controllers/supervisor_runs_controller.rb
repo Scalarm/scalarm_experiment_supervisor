@@ -1,19 +1,33 @@
 require 'json'
 
-class SupervisorScriptsController < ApplicationController
+class SupervisorRunsController < ApplicationController
   skip_before_action :verify_authenticity_token
 
-  def new
+  def index
+    # TODO
   end
 
 =begin
-    @api {post} /start_supervisor_script.json Start Supervisor Script
-    @apiName start_supervisor_script
-    @apiGroup SupervisorScripts
-    @apiDescription This action allows user to start new supervisor script with given parameters.
+  @api {get} /supervisor_runs New SupervisorRun view
+  @apiName supervisor_runs#new
+  @apiGroup SupervisorRuns
+  @apiDescription Returns partial form to configure SupervisorRun by redirection to /supervisors/:supervisor_id/start_panel
 
-    @apiParam {String} script_id ID of supervisor script to be started
-    @apiParam {Object} config json object with config of supervisor script, serialized to string
+  @apiParam {String} supervisor_id ID of Supervisor to show view
+
+=end
+  def new
+    redirect_to :controller=>'supervisors', :action => 'start_panel', :id => params[:supervisor_id]
+  end
+
+=begin
+    @api {post} /supervisor_runs Start SupervisorRun
+    @apiName supervisor_runs#create
+    @apiGroup SupervisorRuns
+    @apiDescription This action allows user to start new supervisor with given parameters.
+
+    @apiParam {String} supervisor_id ID of supervisor to be started
+    @apiParam {Object} config json object with config of supervisor run, serialized to string
     @apiParam {String} config.experiment_id ID of experiment to be managed
     @apiParam {String} config.user Username used in authentication in Experiment Manager
     @apiParam {String} config.password Password used in authentication in Experiment Manager
@@ -26,7 +40,7 @@ class SupervisorScriptsController < ApplicationController
     @apiParam {Number[]} [config.parameters.start_value] start value for given parameter
 
     @apiParamExample Params-Example
-    script_id: 'simulated annealing'
+    supervisor_id: 'simulated annealing'
     config:
     {
       maxiter: 1,
@@ -61,12 +75,14 @@ class SupervisorScriptsController < ApplicationController
 
     @apiSuccess {Object} info json object with information about performed action
     @apiSuccess {String} info.status status of performed action, on success always 'ok'
-    @apiSuccess {Number} info.pid pid of supervisor script managing experiment
+    @apiSuccess {Number} info.pid pid of supervisor run managing experiment
+    @apiSuccess {String} info.supervisor_run_id id of new supervisor run
 
     @apiSuccessExample {json} Success-Response
     {
       'status': 'ok'
       'pid': 1234
+      'supervisor_run_id': 'id'
     }
 
     @apiError {Object} info json object with information about performed action
@@ -83,18 +99,31 @@ class SupervisorScriptsController < ApplicationController
     #TODO validate and check errors
     response = {}
     begin
-      supervisor_script = SupervisorScript.new({})
-      pid = supervisor_script.start params[:script_id], JSON.parse(params[:config])
-      supervisor_script.save
-      Rails.logger.debug supervisor_script
-      response = {status: 'ok', pid: pid}
+      supervisor_run = SupervisorRun.new({})
+      pid = supervisor_run.start (params[:supervisor_id] || params[:id]), JSON.parse(params[:config])
+      supervisor_run.save
+      Rails.logger.debug supervisor_run
+      response = {status: 'ok', pid: pid, supervisor_run_id: supervisor_run.id.to_s}
 
     rescue StandardError => e
       Rails.logger.debug("Error while starting new supervisor script: #{e.to_s}")
       response.merge!({status: 'error', reason: "[Experiment Supervisor] #{e.to_s}"})
-      supervisor_script.destroy
+      supervisor_run.destroy
     end
 
     render json: response
   end
+
+  def show
+    # TODO
+  end
+
+  def stop
+    # TODO
+  end
+
+  def destroy
+    # TODO
+  end
+
 end

@@ -41,6 +41,8 @@ GEM
     coffee-script-source (1.9.1)
     erubis (2.7.0)
     execjs (2.4.0)
+    haml (4.0.5)
+      tilt
     hike (1.2.3)
     i18n (0.7.0)
     jbuilder (2.2.11)
@@ -116,6 +118,7 @@ PLATFORMS
 DEPENDENCIES
   bson
   bson_ext
+  haml
   jbuilder (~> 2.0)
   jquery-rails
   mocha (~> 1.1.0)
