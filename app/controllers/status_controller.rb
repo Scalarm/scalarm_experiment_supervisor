@@ -14,7 +14,7 @@ class StatusController < ApplicationController
 #   @apiSuccess {String="ok","error"} status ok if everything is OK
 #   @apiSuccess {String} [message] Additional status message, eg. if some tests failed
 # =end
-  def index
+  def status
     tests = Scalarm::ServiceCore::Utils.parse_json_if_string(params[:tests])
 
     status = 'ok'
