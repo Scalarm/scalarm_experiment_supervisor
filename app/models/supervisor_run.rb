@@ -1,5 +1,12 @@
 require 'supervisor_executors/supervisor_executors_provider'
+
+require 'scalarm/database/core/mongo_active_record'
+require 'scalarm/database/model/experiment'
+
 Dir[Rails.root.join('supervisors', 'executors', '*_executor.rb').to_s].each {|file| require file}
+
+# TODO: maybe move model to scalarm-database
+
 ##
 # This class represents an instance of one supervisor script and maintains
 # its creation, monitoring and deletion.
@@ -13,16 +20,13 @@ Dir[Rails.root.join('supervisors', 'executors', '*_executor.rb').to_s].each {|fi
 # * experiment_manager_credentials - hash with credentials to experiment manager (set by #start):
 #   * user
 #   * password
-class SupervisorRun < MongoActiveRecord
+# TODO: I think we should add simulation_manager_temp_password_id to avoid redundancy
+class SupervisorRun < Scalarm::Database::MongoActiveRecord
+  use_collection 'supervisor_runs'
+
+  attr_join :experiment, Scalarm::Database::Model::Experiment
 
   PROVIDER = SupervisorExecutorsProvider
-
-  ##
-  # This method is needed for proper work of MongoActiveRecord,
-  # its specifies collections name in database
-  def self.collection_name
-    'supervisor_runs'
-  end
 
   ##
   # Starts new supervised script by using proper executor
@@ -40,11 +44,11 @@ class SupervisorRun < MongoActiveRecord
     self.experiment_id = config['experiment_id']
     self.experiment_manager_credentials = {user: config['user'], password: config['password']}
     # TODO validate config
-    information_service = InformationService.new
+    information_service = InformationService.instance
     config['address'] = information_service.get_list_of('experiment_managers').sample
     config['http_schema'] = 'https' # TODO - temporary, change to config entry
     self.pid = PROVIDER.get(id).start config
-    Rails.logger.info "New supervisor script pid #{self.pid}"
+    Rails.logger.info "New supervisor run for #{id}, pid: #{self.pid}"
     self.is_running = true
     SupervisorRunWatcher.start_watching
     self.pid
@@ -74,7 +78,7 @@ class SupervisorRun < MongoActiveRecord
   # Execution of this action will put experiment to error state
   def notify_error(reason)
     begin
-      information_service = InformationService.new
+      information_service = InformationService.instance
       address = information_service.get_list_of('experiment_managers').sample
       raise 'There is no available experiment manager instance' if address.nil?
       schema = 'https' # TODO - temporary, change to config entry

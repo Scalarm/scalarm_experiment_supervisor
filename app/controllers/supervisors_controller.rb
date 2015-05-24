@@ -20,6 +20,9 @@ class SupervisorsController < ApplicationController
     ]
 =end
   def index
+    # TODO: each supervisor in manifest should have boolean field "public"
+    # if it is true, all users can view and start it
+    # else, ScalarmUser should have special permissions (eg. belong to group)
     render json: Supervisor.get_manifests
   end
 
@@ -41,6 +44,9 @@ class SupervisorsController < ApplicationController
 
 =end
   def show
+    # TODO: each supervisor in manifest should have boolean field "public"
+    # if it is true, all users can view and start it
+    # else, ScalarmUser should have special permissions (eg. belong to group)
     render json: Supervisor.get_manifest(params[:id]) || resource_not_found
   end
 
@@ -53,6 +59,9 @@ class SupervisorsController < ApplicationController
   @apiParam {String} id ID of Supervisor to show view
 =end
   def start_panel
+    # TODO: each supervisor in manifest should have boolean field "public"
+    # if it is true, all users can view and start it
+    # else, ScalarmUser should have special permissions (eg. belong to group)
     render Supervisor.view_path(params[:id]) || resource_not_found, layout: false
   end
 end

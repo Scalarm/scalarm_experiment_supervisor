@@ -47,5 +47,14 @@ gem 'haml'
 # Use debugger
 # gem 'debugger', group: [:development, :test]
 
-gem 'thin'
+gem 'puma'
+
+# for local development - set path to scalarm-database
+#gem 'scalarm-database', path: '/home/jliput/Scalarm/scalarm-database'
+gem 'scalarm-database', '>= 0.2', git: 'git://github.com/Scalarm/scalarm-database.git'
+
+# for local development - set path to scalarm-core
+#gem 'scalarm-service_core', path: '/home/jliput/Scalarm/scalarm-service_core'
+gem 'scalarm-service_core', '>= 0.1', git: 'git://github.com/Scalarm/scalarm-service_core.git'
+
 
