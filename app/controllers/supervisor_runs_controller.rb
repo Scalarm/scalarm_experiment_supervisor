@@ -100,6 +100,7 @@ class SupervisorRunsController < ApplicationController
     response = {}
     begin
       supervisor_run = SupervisorRun.new({})
+      # TODO: params[:config] can be not only JSON but also Hash (parsed by Rails)
       pid = supervisor_run.start (params[:supervisor_id] || params[:id]), JSON.parse(params[:config])
       supervisor_run.save
       Rails.logger.debug supervisor_run
