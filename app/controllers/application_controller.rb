@@ -7,7 +7,7 @@ class ApplicationController < ActionController::Base
 
   # Prevent CSRF attacks by raising an exception.
   # For APIs, you may want to use :null_session instead.
-  protect_from_forgery with: :exception
+  protect_from_forgery with: :null_session
 
   before_filter :authenticate, :except => [:status]
 
@@ -17,7 +17,22 @@ class ApplicationController < ActionController::Base
     raise ResourceNotFound.new('Resource with given id not found')
   end
 
-  private
+  def authentication_failed
+    Rails.logger.debug('[authentication] failed -> 401')
+    @user_session.destroy unless @user_session.nil?
+    headers['WWW-Authenticate'] = %(Basic realm="Scalarm")
+
+    respond_to do |format|
+      format.html do
+        render html: 'Authentication failed', status: :unauthorized
+      end
+
+      format.json do
+        render json: {status: 'error', reason: 'Authentication failed'}, status: :unauthorized
+      end
+    end
+  end
+
   def resource_not_found_handler(exception)
     respond_to do |format|
       format.json do
@@ -29,5 +44,8 @@ class ApplicationController < ActionController::Base
       end
     end
   end
+
+  protected :authentication_failed
+  private :resource_not_found_handler
 
 end
