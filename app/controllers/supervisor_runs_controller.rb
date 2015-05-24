@@ -4,7 +4,10 @@ class SupervisorRunsController < ApplicationController
   skip_before_action :verify_authenticity_token
 
   def index
-    # TODO
+    # TODO should return array of objects representing simulation runs
+    # security: show objects with experiment_id user has permission to view ->
+    # security: get all experiment ids that user has permission to view, then
+    # security: all simulation_run objects with matching experiment_id
   end
 
 =begin
@@ -17,6 +20,7 @@ class SupervisorRunsController < ApplicationController
 
 =end
   def new
+    # security: handled by SupervisorsController#start_panel
     redirect_to :controller=>'supervisors', :action => 'start_panel', :id => params[:supervisor_id]
   end
 
@@ -96,6 +100,12 @@ class SupervisorRunsController < ApplicationController
     }
 =end
   def create
+    # TODO: security
+    # must meet constraints:
+    # config.experiment_id -> allow only owner and shared user
+    # config.user -> maybe we should check it SimulationManagerTempPassword (or user) belongs to @current_user
+    #  because no one could invoke supervisor on behalf of other user
+
     #TODO validate and check errors
     response = {}
     begin
@@ -116,15 +126,23 @@ class SupervisorRunsController < ApplicationController
   end
 
   def show
-    # TODO
+    # TODO should return single object of supervisor run
+    # security: show only if object with experiment_id user has permission to view ->
+    # security: get all experiment ids that user has permission to view, then
+    # security: check if chosen supervisor_run objects with matching experiment_id
   end
 
   def stop
-    # TODO
+    # TODO should cause supervisor run to stop
+    # TODO: security: only creator of supervisor_run can stop it
+    # TODO: supervisor_run.user_id must be created
   end
 
   def destroy
-    # TODO
+    # TODO should cause supervisor run to stop (if running)
+    # and destroy its record from db
+    # TODO: security: only creator of supervisor_run can stop it
+    # TODO: supervisor_run.user_id must be created
   end
 
 end

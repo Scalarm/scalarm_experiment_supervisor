@@ -20,6 +20,7 @@ Dir[Rails.root.join('supervisors', 'executors', '*_executor.rb').to_s].each {|fi
 # * experiment_manager_credentials - hash with credentials to experiment manager (set by #start):
 #   * user
 #   * password
+# TODO: I think we should add simulation_manager_temp_password_id to avoid redundancy
 class SupervisorRun < Scalarm::Database::MongoActiveRecord
   use_collection 'supervisor_runs'
 
