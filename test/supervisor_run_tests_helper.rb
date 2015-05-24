@@ -1,8 +1,10 @@
 require 'scalarm/service_core/test_utils/db_helper'
 require 'test_helper'
 
+require 'mocha/mock'
+
 module SupervisorRunTestsHelper
-  include Scalarm::ServiceCore::TestUtils::DBHelper
+  include Scalarm::ServiceCore::TestUtils::DbHelper
 
   EXPERIMENT_ID = 'some_id'
   CONFIG_FROM_EM_SIMULATED_ANNEALING = {
@@ -59,7 +61,7 @@ module SupervisorRunTestsHelper
   module ClassMethods
     # all methods placed here will be class methods for class that includes SupervisorScriptsTestsHelper
     def mock_information_service
-      information_service = mock 'InformationService'
+      information_service = Mocha::Mock.new 'InformationService'
       information_service.expects(:get_list_of).with('experiment_managers').returns([EM_ADDRESS])
       InformationService.expects(:instance).returns(information_service)
     end

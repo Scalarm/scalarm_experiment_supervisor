@@ -7,6 +7,10 @@ class SupervisorsControllerTest < ActionController::TestCase
   ID = 'test'
   VIEW_TEST_FILE = Rails.root.join('supervisors', 'views', "#{ID}.html")
 
+  def setup
+    stub_authentication
+  end
+
   def teardown
     remove_file_if_exists VIEW_TEST_FILE
   end

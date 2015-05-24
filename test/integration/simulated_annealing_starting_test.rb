@@ -4,6 +4,11 @@ require 'supervisor_run_tests_helper'
 class SimulatedAnnealingStartingTest < ActionDispatch::IntegrationTest
   include SupervisorRunTestsHelper
 
+  def setup
+    super
+    stub_authentication
+  end
+
   test "successful start of simulated annealing supervisor script" do
     # mocks
     self.class.mock_information_service
