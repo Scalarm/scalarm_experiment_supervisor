@@ -1,5 +1,7 @@
 Rails.application.routes.draw do
 
+  get 'status' => 'status#index'
+
   resources :supervisor_runs, except: [:update, :edit] do
     member do
       post :stop

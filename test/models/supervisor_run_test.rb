@@ -69,9 +69,9 @@ class SupervisorRunTest < ActiveSupport::TestCase
     @supervisor_script.experiment_id = EXPERIMENT_ID
     @supervisor_script.experiment_manager_credentials = {'user' => USER, 'password' => PASSWORD}
     # mocks
-    information_service = mock()
+    information_service = mock 'InformationService'
     information_service.expects(:get_list_of).with('experiment_managers').returns([ADDRESS])
-    InformationService.expects(:new).returns(information_service)
+    InformationService.expects(:instance).returns(information_service)
 
     RestClient::Request.expects(:execute).with(
         method: :post,
@@ -90,9 +90,9 @@ class SupervisorRunTest < ActiveSupport::TestCase
     @supervisor_script.experiment_id = EXPERIMENT_ID
     @supervisor_script.experiment_manager_credentials = {'user' => USER, 'password' => PASSWORD}
     # mocks
-    information_service = mock()
+    information_service = mock 'InformationService'
     information_service.expects(:get_list_of).with('experiment_managers').returns([])
-    InformationService.expects(:new).returns(information_service)
+    InformationService.expects(:instance).returns(information_service)
 
     RestClient::Request.expects(:execute).never
 
@@ -137,4 +137,5 @@ class SupervisorRunTest < ActiveSupport::TestCase
     IO.expects(:readlines).with(FILE_PATH).throws(StandardError)
     assert_equal @supervisor_script.read_log, "Unable to load log file: #{FILE_PATH}"
   end
+
 end

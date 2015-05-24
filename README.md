@@ -1,6 +1,6 @@
 Configuration
 -------------
-There are two files with configuration: config/secrets.yml and config/scalarm.yml.
+There are two files with configuration: config/secrets.yml and config/thin.yml.
 
 The "secrets.yml" file is a standard configuration file added in Rails 4 to have a single place for all secrets in
 an application. We used this approach in our Scalarm platform.
@@ -30,14 +30,4 @@ production:
   information_service_pass: "<%= ENV["INFORMATION_SERVICE_PASSWORD"] %>"
 ```
 
-In this "config/scalarm.yml" file we have various information Scalarm configuration - typically there is no need to change them:
-
-```
-# mongo_activerecord config
-db_name: 'scalarm_db'
-
-monitoring:
-  db_name: 'scalarm_monitoring'
-  metrics: 'cpu:memory:storage'
-  interval: 60
-```
+In config/thin.yml configuration of Thin server is stored. There is an example file: config/thin.yml.
