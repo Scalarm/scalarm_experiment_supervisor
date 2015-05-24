@@ -1,9 +1,15 @@
+require 'scalarm/service_core/scalarm_authentication'
+
 require 'exceptions/resource_not_found'
 
 class ApplicationController < ActionController::Base
+  include Scalarm::ServiceCore::ScalarmAuthentication
+
   # Prevent CSRF attacks by raising an exception.
   # For APIs, you may want to use :null_session instead.
   protect_from_forgery with: :exception
+
+  before_filter :authenticate, :except => [:status]
 
   rescue_from ResourceNotFound, with: :resource_not_found_handler
 
