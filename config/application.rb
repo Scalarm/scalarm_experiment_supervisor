@@ -16,6 +16,8 @@ module ScalarmExperimentSupervisor
     # max session time in seconds - currently it is 30 minutes
     config.session_threshold = 30*60
 
+    config.force_ssl = (Rails.env == 'production')
+
     # Settings in config/environments/* take precedence over those specified here.
     # Application configuration should go into files in config/initializers
     # -- all .rb files in that directory are automatically loaded.
