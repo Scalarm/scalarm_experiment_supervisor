@@ -79,7 +79,7 @@ class SupervisorRun < Scalarm::Database::MongoActiveRecord
   def notify_error(reason)
     begin
       information_service = InformationService.instance
-      address = information_service.get_list_of('experiment_managers').sample
+      address = information_service.sample_public_url('experiment_managers')
       raise 'There is no available experiment manager instance' if address.nil?
       schema = 'https' # TODO - temporary, change to config entry
 
@@ -92,7 +92,7 @@ class SupervisorRun < Scalarm::Database::MongoActiveRecord
           password: self.experiment_manager_credentials['password'],
           verify_ssl: false
       )
-      Rails.logger.debug "Experiment manager response #{res}"
+      Rails.logger.debug "Experiment manager response: #{res}"
       raise 'Error while sending error message' if JSON.parse(res)['status'] != 'ok'
     rescue RestClient::Exception, StandardError => e
       Rails.logger.info "Unable to connect with experiment manager, please contact administrator: #{e.to_s}"

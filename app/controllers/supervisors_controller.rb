@@ -1,5 +1,6 @@
 class SupervisorsController < ApplicationController
 
+  before_filter :add_cors_header, only: [:start_panel]
 =begin
   @api {get} /supervisors Supervisors description
   @apiName supervisor#index
@@ -62,6 +63,11 @@ class SupervisorsController < ApplicationController
     # TODO: each supervisor in manifest should have boolean field "public"
     # if it is true, all users can view and start it
     # else, ScalarmUser should have special permissions (eg. belong to group)
-    render Supervisor.view_path(params[:id]) || resource_not_found, layout: false
+    render Supervisor.view_path(params[:id]) || resource_not_found#, layout: false
+  end
+
+  def add_cors_header
+    response['Access-Control-Allow-Origin'] = request.env['HTTP_ORIGIN']
+    response['Access-Control-Allow-Credentials'] = 'true'
   end
 end
