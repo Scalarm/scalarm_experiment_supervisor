@@ -10,7 +10,7 @@ gem 'rails', '4.1.1'
 # Use CoffeeScript for .js.coffee assets and views
 # gem 'coffee-rails', '~> 4.0.0'
 # See https://github.com/sstephenson/execjs#readme for more supported runtimes
-# gem 'therubyracer',  platforms: :ruby
+gem 'therubyracer',  platforms: :ruby
 
 # Use jquery as the JavaScript library
 gem 'jquery-rails'
@@ -46,4 +46,15 @@ gem 'haml'
 
 # Use debugger
 # gem 'debugger', group: [:development, :test]
+
+gem 'puma'
+
+# for local development - set path to scalarm-database
+#gem 'scalarm-database', path: '/home/jliput/Scalarm/scalarm-database'
+gem 'scalarm-database', '>= 0.2', git: 'git://github.com/Scalarm/scalarm-database.git'
+
+# for local development - set path to scalarm-core
+#gem 'scalarm-service_core', path: '/home/jliput/Scalarm/scalarm-service_core'
+gem 'scalarm-service_core', '>= 0.1', git: 'git://github.com/Scalarm/scalarm-service_core.git'
+
 

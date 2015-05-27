@@ -13,6 +13,7 @@
 
 # Ignore all logfiles and tempfiles.
 /log/*.log
+/log/*.log.err
 /tmp
 
 .idea
@@ -21,3 +22,9 @@ supervisors/executables/simulated_annealing/*.pyc
 # Scalarm configuration
 config/scalarm.yml
 config/secrets.yml
+config/thin.yml
+config/puma.rb
+
+# PIDs
+puma.pid
+

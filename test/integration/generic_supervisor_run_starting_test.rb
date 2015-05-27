@@ -6,6 +6,11 @@ class GenericSupervisorRunStartingTest < ActionDispatch::IntegrationTest
   include SupervisorRunTestsHelper
   ID = 'id'
 
+  def setup
+    super
+    stub_authentication
+  end
+
   test "proper response when supervisor script id is incorrect" do
     # test
     assert_no_difference 'SupervisorRun.count' do

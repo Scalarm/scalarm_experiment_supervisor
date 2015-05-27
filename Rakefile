@@ -7,10 +7,34 @@ Rails.application.load_tasks
 
 LOCAL_MONGOS_PATH = 'bin/mongos'
 
+namespace :service do
+  desc 'Start the service'
+  task :start => [:ensure_config, :environment] do
+    puts 'puma -C config/puma.rb'
+    %x[puma -C config/puma.rb]
+  end
+
+  desc 'Stop the service'
+  task :stop => :environment do
+    puts 'pumactl -F config/puma.rb -T scalarm stop'
+    %x[pumactl -F config/puma.rb -T scalarm stop]
+  end
+
+  desc 'Restart the service'
+  task restart: [:stop, :start] do
+  end
+
+  desc 'Create default configuration files if these do not exist'
+  task :ensure_config do
+    copy_example_config_if_not_exists('config/secrets.yml')
+    copy_example_config_if_not_exists('config/puma.rb')
+  end
+end
+
 namespace :db_router do
   desc 'Start MongoDB router'
   task :start, [:debug] => [:environment, :setup] do |t, args|
-    information_service = InformationService.new
+    information_service = InformationService.instance
 
     config_services = information_service.get_list_of('db_config_services')
     puts "Config services: #{config_services.inspect}"
@@ -133,4 +157,15 @@ def os_version
              'i686'
          end
   [os, arch]
+end
+
+
+def copy_example_config_if_not_exists(base_name, prefix='example')
+  config = base_name
+  example_config = "#{base_name}.example"
+
+  unless File.exists?(config)
+    puts "Copying #{example_config} to #{config}"
+    FileUtils.cp(example_config, config)
+  end
 end
