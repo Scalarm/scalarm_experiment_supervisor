@@ -45,7 +45,12 @@ class ApplicationController < ActionController::Base
     end
   end
 
-  protected :authentication_failed
+  def add_cors_header
+    response['Access-Control-Allow-Origin'] = request.env['HTTP_ORIGIN']
+    response['Access-Control-Allow-Credentials'] = 'true'
+  end
+
+  protected :authentication_failed, :add_cors_header
   private :resource_not_found_handler
 
 end

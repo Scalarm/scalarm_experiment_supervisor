@@ -70,7 +70,7 @@ class SupervisorRunTest < ActiveSupport::TestCase
     @supervisor_script.experiment_manager_credentials = {'user' => USER, 'password' => PASSWORD}
     # mocks
     information_service = mock 'InformationService'
-    information_service.expects(:get_list_of).with('experiment_managers').returns([ADDRESS])
+    information_service.expects(:sample_public_url).with('experiment_managers').returns(ADDRESS)
     InformationService.expects(:instance).returns(information_service)
 
     RestClient::Request.expects(:execute).with(
@@ -91,7 +91,7 @@ class SupervisorRunTest < ActiveSupport::TestCase
     @supervisor_script.experiment_manager_credentials = {'user' => USER, 'password' => PASSWORD}
     # mocks
     information_service = mock 'InformationService'
-    information_service.expects(:get_list_of).with('experiment_managers').returns([])
+    information_service.expects(:sample_public_url).with('experiment_managers').returns(nil)
     InformationService.expects(:instance).returns(information_service)
 
     RestClient::Request.expects(:execute).never
