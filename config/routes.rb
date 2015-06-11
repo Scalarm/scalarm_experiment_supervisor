@@ -1,5 +1,6 @@
 Rails.application.routes.draw do
 
+  root 'application#index'
   get 'status' => 'status#status'
 
   resources :supervisor_runs, except: [:update, :edit] do
@@ -7,6 +8,7 @@ Rails.application.routes.draw do
       post :stop
     end
   end
+
   resources :supervisors, only: [:index, :show] do
     member do
       get :start_panel, to: 'supervisors#start_panel'

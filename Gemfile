@@ -31,7 +31,7 @@ gem 'mongo'
 gem 'mocha', '~> 1.1.0'
 gem 'rdoc', '~> 4.2.0'
 
-gem 'rest-client', '~> 1.6.7'
+gem 'rest-client', '~> 1.8'
 
 gem 'haml'
 
@@ -55,6 +55,6 @@ gem 'scalarm-database', '>= 0.2', git: 'git://github.com/Scalarm/scalarm-databas
 
 # for local development - set path to scalarm-core
 #gem 'scalarm-service_core', path: '/home/jliput/Scalarm/scalarm-service_core'
-gem 'scalarm-service_core', '>= 0.1', git: 'git://github.com/Scalarm/scalarm-service_core.git'
+gem 'scalarm-service_core', '>= 0.2', git: 'git://github.com/Scalarm/scalarm-service_core.git'
 
 

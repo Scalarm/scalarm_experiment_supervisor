@@ -14,6 +14,17 @@ class ApplicationController < ActionController::Base
 
   rescue_from ResourceNotFound, with: :resource_not_found_handler
 
+  ##
+  # Render trivial json if Accept: application/json specified,
+  # for testing and authentication tests purposes
+  def index
+    respond_to do |format|
+      format.json { render json: {status: 'ok',
+                                  message: 'Welcome to Scalarm',
+                                  user_id: @current_user.id.to_s } }
+    end
+  end
+
   def resource_not_found
     raise ResourceNotFound.new('Resource with given id not found')
   end
