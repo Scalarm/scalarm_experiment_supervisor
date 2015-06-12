@@ -9,10 +9,11 @@ GIT
       encryptor
       mongo
 
-PATH
-  remote: /home/jliput/Scalarm/scalarm-service_core
+GIT
+  remote: git://github.com/Scalarm/scalarm-service_core.git
+  revision: f1451d67ebe818f59dd2800e8ff2bea485e6a2f2
   specs:
-    scalarm-service_core (0.1)
+    scalarm-service_core (0.2.1)
       actionpack (~> 4.1)
       activesupport (~> 4.1)
       rest-client (~> 1.8)
@@ -164,7 +165,7 @@ DEPENDENCIES
   rdoc (~> 4.2.0)
   rest-client (~> 1.8)
   scalarm-database (>= 0.2)!
-  scalarm-service_core!
+  scalarm-service_core (~> 0.2.1)!
   sdoc (~> 0.4.0)
   spring
   therubyracer
