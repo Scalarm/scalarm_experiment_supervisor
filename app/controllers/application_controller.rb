@@ -13,8 +13,7 @@ class ApplicationController < ActionController::Base
   before_filter :cors_preflight_check
   before_filter :authenticate, :except => [:status]
 
-  rescue_from ResourceNotFound, with: :resource_not_found_handler
-  rescue_from ResourceForbidden, with: :resource_forbidden_handler
+  rescue_from ResourceNotFound, ResourceForbidden, with: :exception_handler
 
   ##
   # Render trivial json if Accept: application/json specified,
@@ -51,22 +50,10 @@ class ApplicationController < ActionController::Base
     end
   end
 
-  def resource_not_found_handler(exception)
+  def exception_handler(exception)
     respond_to do |format|
       format.json do
-        render json: {status: 404, reason: exception.to_s}, status: 404
-      end
-      format.html do
-        flash[:error] = exception.to_s
-        redirect_to action: :index
-      end
-    end
-  end
-
-  def resource_forbidden_handler(exception)
-    respond_to do |format|
-      format.json do
-        render json: {status: 403, reason: exception.to_s}, status: 403
+        render json: {status: exception.status, reason: exception.to_s}, status: exception.status
       end
       format.html do
         flash[:error] = exception.to_s
@@ -98,6 +85,6 @@ class ApplicationController < ActionController::Base
   end
 
   protected :authentication_failed, :add_cors_header, :cors_preflight_check
-  private :resource_not_found_handler
+  private :exception_handler
 
 end

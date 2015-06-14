@@ -48,9 +48,9 @@ class SupervisorsController < ApplicationController
 =end
   def show
     allowed_supervisors = @current_user.allowed_supervisors
-    manifest = Supervisor.get_manifest(params[:id])
+    manifest = Supervisor.get_manifest(params[:id]) || resource_not_found
     allowed = (
-        manifest[:public] or
+        ((not manifest.blank?) and manifest[:public])  or
         ((not allowed_supervisors.blank?) and allowed_supervisors.include? manifest[:id])
     )
     render json: allowed ? manifest : resource_forbidden
