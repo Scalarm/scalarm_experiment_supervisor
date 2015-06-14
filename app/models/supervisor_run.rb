@@ -16,7 +16,7 @@ Dir[Rails.root.join('supervisors', 'executors', '*_executor.rb').to_s].each {|fi
 # * supervisor_id - id of supervisor, specify which script is used for supervising (set by #start
 #   method)
 # * pid - pid of supervisor script process (set by #start method)
-# * is_running - true when supervisor script is running, false otherwise (set by #start, modified by #check)
+# * is_running - true when supervisor script is running, false otherwise (set by #start, modified by #check, #stop)
 # * experiment_manager_credentials - hash with credentials to experiment manager (set by #start):
 #   * user
 #   * password
@@ -64,6 +64,7 @@ class SupervisorRun < Scalarm::Database::MongoActiveRecord
   # This functions checks if supervisor script is running
   # Set is_running flag to false when script is not running
   def check
+    return false unless self.pid
     `ps #{self.pid}`
     unless $?.success?
       self.is_running = false
@@ -119,10 +120,23 @@ class SupervisorRun < Scalarm::Database::MongoActiveRecord
     notify_error("Supervisor script is not running\nLast 100 lines of supervisor output:\n#{read_log}") unless check
   end
 
+  ##
+  # Stops supervisor run execution
+  def stop
+    return unless self.pid
+    return unless check
+    Process.kill('TERM', self.pid)
+    sleep 1
+    if check
+      Process.kill('INT', self.pid)
+      self.is_running = false
+    end
+  end
 
   ##
   # Overrides default destroy to make sure proper cleanup is run before destroying object.
   def destroy
+    stop if check
     PROVIDER.get(self.supervisor_id).cleanup(self.experiment_id) unless self.supervisor_id.nil?
     super
   end

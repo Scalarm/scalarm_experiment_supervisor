@@ -1,7 +1,9 @@
 require 'test_helper'
 require 'mocha/test_unit'
+require 'scalarm/service_core/test_utils/db_helper'
 
 class SupervisorRunTest < ActiveSupport::TestCase
+  include Scalarm::ServiceCore::TestUtils::DbHelper
 
   PID = '123'
   MESSAGE = "Supervisor script is not running\nLast 100 lines of supervisor output:\n"
@@ -12,6 +14,7 @@ class SupervisorRunTest < ActiveSupport::TestCase
   PASSWORD = 'password'
 
   def setup
+    super
     @supervisor_script = SupervisorRun.new({})
   end
 
@@ -136,6 +139,28 @@ class SupervisorRunTest < ActiveSupport::TestCase
     @supervisor_script.expects(:log_path).times(3).returns(FILE_PATH)
     IO.expects(:readlines).with(FILE_PATH).throws(StandardError)
     assert_equal @supervisor_script.read_log, "Unable to load log file: #{FILE_PATH}"
+  end
+
+  test "proper behaviour of stop method" do
+    @supervisor_script.pid = PID
+    @supervisor_script.is_running = true
+    @supervisor_script.expects(:check).returns(true).twice
+    Process.expects(:kill).with('INT', PID)
+    Process.expects(:kill).with('TERM', PID)
+
+    @supervisor_script.stop
+
+    assert_equal false, @supervisor_script.is_running
+  end
+
+
+  test "proper behaviour of destory method" do
+    @supervisor_script.expects(:check)
+    @supervisor_script.save
+
+    assert_difference 'SupervisorRun.count', -1 do
+      @supervisor_script.destroy
+    end
   end
 
 end

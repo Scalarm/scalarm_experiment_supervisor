@@ -2,6 +2,7 @@ require 'json'
 
 class SupervisorRunsController < ApplicationController
   skip_before_action :verify_authenticity_token
+  before_filter :load_supervisor_run, only: [:show, :stop, :destroy]
 
   def index
     # TODO should return array of objects representing simulation runs
@@ -133,16 +134,23 @@ class SupervisorRunsController < ApplicationController
   end
 
   def stop
-    # TODO should cause supervisor run to stop
     # TODO: security: only creator of supervisor_run can stop it
     # TODO: supervisor_run.user_id must be created
+    @supervisor_run.stop
+    @supervisor_run.save
+    render json: {status: 'ok'}
   end
 
   def destroy
-    # TODO should cause supervisor run to stop (if running)
-    # and destroy its record from db
     # TODO: security: only creator of supervisor_run can stop it
     # TODO: supervisor_run.user_id must be created
+    @supervisor_run.destroy
+    render json: {status: 'ok'}
+  end
+
+  private
+  def load_supervisor_run
+    @supervisor_run = SupervisorRun.find_by_id(params[:id]) || resource_not_found
   end
 
 end
