@@ -1,0 +1,2 @@
+class ResourceForbidden < ActionController::ActionControllerError
+end

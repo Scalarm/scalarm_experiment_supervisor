@@ -1,6 +1,7 @@
 require 'scalarm/service_core/scalarm_authentication'
 
 require 'exceptions/resource_not_found'
+require 'exceptions/resource_forbidden'
 
 class ApplicationController < ActionController::Base
   include Scalarm::ServiceCore::ScalarmAuthentication
@@ -13,6 +14,7 @@ class ApplicationController < ActionController::Base
   before_filter :authenticate, :except => [:status]
 
   rescue_from ResourceNotFound, with: :resource_not_found_handler
+  rescue_from ResourceForbidden, with: :resource_forbidden_handler
 
   ##
   # Render trivial json if Accept: application/json specified,
@@ -27,6 +29,10 @@ class ApplicationController < ActionController::Base
 
   def resource_not_found
     raise ResourceNotFound.new('Resource with given id not found')
+  end
+
+  def resource_forbidden
+    raise ResourceForbidden.new('Resource with given id is unavailable for current user')
   end
 
   def authentication_failed
@@ -49,6 +55,18 @@ class ApplicationController < ActionController::Base
     respond_to do |format|
       format.json do
         render json: {status: 404, reason: exception.to_s}, status: 404
+      end
+      format.html do
+        flash[:error] = exception.to_s
+        redirect_to action: :index
+      end
+    end
+  end
+
+  def resource_forbidden_handler(exception)
+    respond_to do |format|
+      format.json do
+        render json: {status: 403, reason: exception.to_s}, status: 403
       end
       format.html do
         flash[:error] = exception.to_s
