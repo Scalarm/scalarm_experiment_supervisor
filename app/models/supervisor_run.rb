@@ -128,7 +128,7 @@ class SupervisorRun < Scalarm::Database::MongoActiveRecord
     Process.kill('TERM', self.pid)
     sleep 1
     if check
-      Process.kill('INT', self.pid)
+      Process.kill('KILL', self.pid)
       self.is_running = false
     end
   end

@@ -145,7 +145,7 @@ class SupervisorRunTest < ActiveSupport::TestCase
     @supervisor_script.pid = PID
     @supervisor_script.is_running = true
     @supervisor_script.expects(:check).returns(true).twice
-    Process.expects(:kill).with('INT', PID)
+    Process.expects(:kill).with('KILL', PID)
     Process.expects(:kill).with('TERM', PID)
 
     @supervisor_script.stop
