@@ -55,4 +55,13 @@ class SupervisorsControllerTest < ActionController::TestCase
     assert_equal response.status, 404
   end
 
+  test 'start_panel should support CORS on valid request' do
+    origin = 'test_localhost'
+    File.open(VIEW_TEST_FILE, 'w+') {|file| file.write ID}
+
+    request.headers['Origin'] = origin
+    get :start_panel, {id: ID}
+    assert_equal origin, response.headers['Access-Control-Allow-Origin']
+  end
+
 end
