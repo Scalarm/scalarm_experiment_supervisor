@@ -124,13 +124,10 @@ class SupervisorRun < Scalarm::Database::MongoActiveRecord
   ##
   # Stops supervisor run execution
   def stop
-    return unless self.pid
-    return unless check
+    return unless self.pid && check
     Process.kill('TERM', self.pid)
     sleep 1
-    if check
-      Process.kill('KILL', self.pid)
-    end
+    Process.kill('KILL', self.pid) if check
     self.is_running = false
   end
 
