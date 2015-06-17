@@ -26,7 +26,7 @@ class SupervisorRunTest < ActiveSupport::TestCase
     system('false')
     $?.expects(:success?).returns(true)
     assert @supervisor_script.check, 'Check method should return true'
-    assert @supervisor_script.is_running, 'is_running flag should be true'
+    assert @supervisor_script.is_running, 'is_running flag should not be modified'
   end
 
   test "check methods return false when script is not running and set is_running to false" do
@@ -37,7 +37,7 @@ class SupervisorRunTest < ActiveSupport::TestCase
     system('false')
     $?.expects(:success?).returns(false)
     assert_not @supervisor_script.check, 'Check method should return false'
-    assert_not @supervisor_script.is_running, 'is_running flag should be false'
+    assert @supervisor_script.is_running, 'is_running flag should not be modified'
   end
 
   test "monitoring loop proper behavior when script is running" do
@@ -48,6 +48,7 @@ class SupervisorRunTest < ActiveSupport::TestCase
 
     # test
     @supervisor_script.monitoring_loop
+    assert @supervisor_script.is_running, 'is_running flag should be true'
   end
 
   test "monitoring loop proper behavior when script is not running" do
@@ -59,6 +60,7 @@ class SupervisorRunTest < ActiveSupport::TestCase
 
     # test
     @supervisor_script.monitoring_loop
+    assert_not @supervisor_script.is_running, 'is_running flag should be false'
   end
 
   test "monitoring loop should raise exception when script is not running" do
@@ -141,11 +143,22 @@ class SupervisorRunTest < ActiveSupport::TestCase
     assert_equal @supervisor_script.read_log, "Unable to load log file: #{FILE_PATH}"
   end
 
-  test "proper behaviour of stop method" do
+  test "proper behaviour of stop method with stubborn process" do
     @supervisor_script.pid = PID
     @supervisor_script.is_running = true
     @supervisor_script.expects(:check).returns(true).twice
+    Process.expects(:kill).with('TERM', PID)
     Process.expects(:kill).with('KILL', PID)
+
+    @supervisor_script.stop
+
+    assert_equal false, @supervisor_script.is_running
+  end
+
+  test "proper behaviour of stop method with cooperating process" do
+    @supervisor_script.pid = PID
+    @supervisor_script.is_running = true
+    @supervisor_script.expects(:check).returns(true).then.returns(false).twice
     Process.expects(:kill).with('TERM', PID)
 
     @supervisor_script.stop
@@ -154,7 +167,7 @@ class SupervisorRunTest < ActiveSupport::TestCase
   end
 
 
-  test "proper behaviour of destory method" do
+  test "proper behaviour of destroy method" do
     @supervisor_script.expects(:check)
     @supervisor_script.save
 
