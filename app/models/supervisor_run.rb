@@ -120,6 +120,8 @@ class SupervisorRun < Scalarm::Database::MongoActiveRecord
     notify_error("Supervisor script is not running\nLast 100 lines of supervisor output:\n#{read_log}") unless check
   end
 
+  ##
+  # Returns hash with supervisor_run_id and STATE_ALLOWED_KEYS
   def state
     res = {supervisor_run_id: self.id.to_s}
     res.merge self.attributes.select {|x| STATE_ALLOWED_KEYS.include? x}
