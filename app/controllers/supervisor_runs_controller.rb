@@ -5,10 +5,10 @@ class SupervisorRunsController < ApplicationController
   before_filter :load_supervisor_run, only: [:show, :stop, :destroy]
 
   def index
-    # TODO should return array of objects representing simulation runs
     # security: show objects with experiment_id user has permission to view ->
     # security: get all experiment ids that user has permission to view, then
     # security: all simulation_run objects with matching experiment_id
+    render json: SupervisorRun.all.to_a.map {|x| x.state}
   end
 
 =begin
@@ -127,10 +127,10 @@ class SupervisorRunsController < ApplicationController
   end
 
   def show
-    # TODO should return single object of supervisor run
     # security: show only if object with experiment_id user has permission to view ->
     # security: get all experiment ids that user has permission to view, then
     # security: check if chosen supervisor_run objects with matching experiment_id
+    render json: @supervisor_run.state
   end
 
   def stop
@@ -146,6 +146,11 @@ class SupervisorRunsController < ApplicationController
     # TODO: supervisor_run.user_id must be created
     @supervisor_run.destroy
     render json: {status: 'ok'}
+  end
+
+  private
+  def load_supervisor_run
+    @supervisor_run = SupervisorRun.find_by_id(params[:id]) || resource_not_found
   end
 
   private

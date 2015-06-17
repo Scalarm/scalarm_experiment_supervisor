@@ -27,6 +27,7 @@ class SupervisorRun < Scalarm::Database::MongoActiveRecord
   attr_join :experiment, Scalarm::Database::Model::Experiment
 
   PROVIDER = SupervisorExecutorsProvider
+  STATE_ALLOWED_KEYS = %w(experiment_id supervisor_id pid is_running)
 
   ##
   # Starts new supervised script by using proper executor
@@ -129,6 +130,14 @@ class SupervisorRun < Scalarm::Database::MongoActiveRecord
     sleep 1
     Process.kill('KILL', self.pid) if check
     self.is_running = false
+  end
+  
+  ##
+  # Returns hash with supervisor_run_id and STATE_ALLOWED_KEYS
+  def state
+    res = {supervisor_run_id: self.id.to_s}
+    res.merge self.attributes.select {|x| STATE_ALLOWED_KEYS.include? x}
+    res.symbolize_keys
   end
 
   ##
