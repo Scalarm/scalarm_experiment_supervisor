@@ -138,4 +138,13 @@ class SupervisorRunTest < ActiveSupport::TestCase
     assert_equal @supervisor_script.read_log, "Unable to load log file: #{FILE_PATH}"
   end
 
+  STATE_ALLOWED_KEYS = [:experiment_id, :supervisor_id, :pid, :is_running, :supervisor_run_id]
+
+  test "state returns only allowed keys" do
+    state = @supervisor_script.state
+    assert_nothing_raised do
+      state.assert_valid_keys(STATE_ALLOWED_KEYS)
+    end
+  end
+
 end
