@@ -167,8 +167,18 @@ class SupervisorRunTest < ActiveSupport::TestCase
   end
 
 
-  test "proper behaviour of destroy method" do
-    @supervisor_script.expects(:check)
+  test "proper behaviour of destroy method when script is not running" do
+    @supervisor_script.expects(:check).returns(false)
+    @supervisor_script.save
+
+    assert_difference 'SupervisorRun.count', -1 do
+      @supervisor_script.destroy
+    end
+  end
+
+  test "proper behaviour of destroy method when script is running" do
+    @supervisor_script.expects(:check).returns(true)
+    @supervisor_script.expects(:stop)
     @supervisor_script.save
 
     assert_difference 'SupervisorRun.count', -1 do
