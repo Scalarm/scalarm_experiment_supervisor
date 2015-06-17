@@ -27,6 +27,7 @@ class SupervisorRun < Scalarm::Database::MongoActiveRecord
   attr_join :experiment, Scalarm::Database::Model::Experiment
 
   PROVIDER = SupervisorExecutorsProvider
+  STATE_ALLOWED_KEYS = %w(experiment_id supervisor_id pid is_running)
 
   ##
   # Starts new supervised script by using proper executor
@@ -119,6 +120,10 @@ class SupervisorRun < Scalarm::Database::MongoActiveRecord
     notify_error("Supervisor script is not running\nLast 100 lines of supervisor output:\n#{read_log}") unless check
   end
 
+  def state
+    res = {supervisor_run_id: self.id.to_s}
+    res.merge self.attributes.select {|x| STATE_ALLOWED_KEYS.include? x}
+  end
 
   ##
   # Overrides default destroy to make sure proper cleanup is run before destroying object.
