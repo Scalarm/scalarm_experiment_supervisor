@@ -16,7 +16,7 @@ Dir[Rails.root.join('supervisors', 'executors', '*_executor.rb').to_s].each {|fi
 # * supervisor_id - id of supervisor, specify which script is used for supervising (set by #start
 #   method)
 # * pid - pid of supervisor script process (set by #start method)
-# * is_running - true when supervisor script is running, false otherwise (set by #start, modified by #check)
+# * is_running - true when supervisor script is running, false otherwise (set by #start, modified by #monitoring_loop, #stop)
 # * experiment_manager_credentials - hash with credentials to experiment manager (set by #start):
 #   * user
 #   * password
@@ -27,6 +27,7 @@ class SupervisorRun < Scalarm::Database::MongoActiveRecord
   attr_join :experiment, Scalarm::Database::Model::Experiment
 
   PROVIDER = SupervisorExecutorsProvider
+  STATE_ALLOWED_KEYS = %w(experiment_id supervisor_id pid is_running)
 
   ##
   # Starts new supervised script by using proper executor
@@ -61,12 +62,11 @@ class SupervisorRun < Scalarm::Database::MongoActiveRecord
   end
 
   ##
-  # This functions checks if supervisor script is running
-  # Set is_running flag to false when script is not running
+  # Checks if supervisor script is running
   def check
+    return false unless self.pid
     `ps #{self.pid}`
     unless $?.success?
-      self.is_running = false
       Rails.logger.info "Supervisor script is not running anymore: #{self.id}"
       return false
     end
@@ -116,13 +116,34 @@ class SupervisorRun < Scalarm::Database::MongoActiveRecord
   # Single monitoring loop
   def monitoring_loop
     raise 'Supervisor script is not running' unless self.is_running
-    notify_error("Supervisor script is not running\nLast 100 lines of supervisor output:\n#{read_log}") unless check
+    unless check
+      self.is_running = false
+      notify_error("Supervisor script is not running\nLast 100 lines of supervisor output:\n#{read_log}")
+    end
   end
 
+  ##
+  # Stops supervisor run execution
+  def stop
+    return unless self.pid && check
+    Process.kill('TERM', self.pid)
+    sleep 1
+    Process.kill('KILL', self.pid) if check
+    self.is_running = false
+  end
+  
+  ##
+  # Returns hash with supervisor_run_id and STATE_ALLOWED_KEYS
+  def state
+    res = {supervisor_run_id: self.id.to_s}
+    res.merge self.attributes.select {|x| STATE_ALLOWED_KEYS.include? x}
+    res.symbolize_keys
+  end
 
   ##
   # Overrides default destroy to make sure proper cleanup is run before destroying object.
   def destroy
+    stop if check
     PROVIDER.get(self.supervisor_id).cleanup(self.experiment_id) unless self.supervisor_id.nil?
     super
   end

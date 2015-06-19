@@ -1,10 +1,12 @@
 require 'scalarm/service_core/scalarm_authentication'
+require 'scalarm/service_core/cors_support'
 
 require 'exceptions/resource_not_found'
 require 'exceptions/resource_forbidden'
 
 class ApplicationController < ActionController::Base
   include Scalarm::ServiceCore::ScalarmAuthentication
+  include Scalarm::ServiceCore::CorsSupport
 
   # Prevent CSRF attacks by raising an exception.
   # For APIs, you may want to use :null_session instead.
@@ -62,29 +64,7 @@ class ApplicationController < ActionController::Base
     end
   end
 
-  def add_cors_header
-    # TODO: list of allowed origins from config
-    headers['Access-Control-Allow-Origin'] = request.env['HTTP_ORIGIN']
-    headers['Access-Control-Allow-Credentials'] = 'true'
-    headers['Access-Control-Allow-Methods'] = 'GET, OPTIONS'
-    headers['Access-Control-Allow-Headers'] = 'Origin, Content-Type, Accept, Authorization, Token'
-    headers['Access-Control-Max-Age'] = '1728000'
-  end
-
-  def cors_preflight_check
-    if request.method == 'OPTIONS'
-      # TODO: list of allowed origins from config
-      headers['Access-Control-Allow-Origin'] = request.env['HTTP_ORIGIN']
-      headers['Access-Control-Allow-Credentials'] = 'true'
-      headers['Access-Control-Allow-Methods'] = 'OPTIONS'
-      headers['Access-Control-Allow-Headers'] = 'X-Requested-With, X-Prototype-Version, Token'
-      headers['Access-Control-Max-Age'] = '1728000'
-
-      render :text => '', :content_type => 'text/plain'
-    end
-  end
-
-  protected :authentication_failed, :add_cors_header, :cors_preflight_check
+  protected :authentication_failed
   private :exception_handler
 
 end

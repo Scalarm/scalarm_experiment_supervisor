@@ -1,6 +1,8 @@
 class SupervisorsController < ApplicationController
 
-  before_filter :add_cors_header, only: [:start_panel]
+  before_filter :check_request_origin, only: [:start_panel]
+  before_filter :cors_preflight_check, only: [:start_panel]
+  after_filter :add_cors_header, only: [:start_panel]
 
 =begin
   @api {get} /supervisors Supervisors description
