@@ -15,6 +15,14 @@ class ActiveSupport::TestCase
     File.delete file if File.exists? file
   end
 
+  def create_directory_if_not_exists(dir)
+    Dir.mkdir dir unless Dir.exist? dir
+  end
+
+  def remove_directory_if_exists(dir)
+    Dir.rmdir dir if Dir.exist? dir
+  end
+
   ##
   # A @user variable will contain session's ScalarmUser
   def stub_authentication

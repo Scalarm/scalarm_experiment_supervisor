@@ -5,14 +5,17 @@ class SupervisorsControllerTest < ActionController::TestCase
 
   MANIFEST = {'test' => 'test', 'test2' => ['foo', 'bar', 42]}
   ID = 'test'
-  VIEW_TEST_FILE = Rails.root.join('supervisors', 'views', "#{ID}.html")
+  SUPERVISOR_DIRECTORY = Rails.root.join('supervisors', "#{ID}").to_s
+  VIEW_TEST_FILE = Rails.root.join('supervisors', "#{ID}", 'start_panel.html')
 
   def setup
+    create_directory_if_not_exists SUPERVISOR_DIRECTORY
     stub_authentication
   end
 
   def teardown
     remove_file_if_exists VIEW_TEST_FILE
+    remove_directory_if_exists SUPERVISOR_DIRECTORY
   end
 
   test 'index should return manifest of supervisors' do

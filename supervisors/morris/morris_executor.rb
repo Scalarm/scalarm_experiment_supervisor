@@ -14,7 +14,7 @@ require 'supervisor_executors/abstract_supervisor_executor'
 # [sensitivity analysis library] should be in executables/morris/SensitivityAnalysis.dll
 class MorrisExecutor < AbstractSupervisorExecutor
 
-  BIN_DIR = 'supervisors/executables/morris/'
+  BIN_DIR = 'supervisors/morris/'
   BIN_NAME = 'sensitivity_analysis.exe'
   CONFIG_FILE_PREFIX = '/tmp/morris_config_'
 

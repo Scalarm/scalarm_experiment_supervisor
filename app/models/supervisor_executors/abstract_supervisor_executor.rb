@@ -1,6 +1,6 @@
 ##
 # This class defines interface of supervisor script execution.
-# Child classes must be declared in supervisors/executors directory
+# Child classes must be declared in supervisors/<supervisor_name> directory
 # Given executor must follow ruby class name convention (i.e. some_class.rb -> SomeClass)
 # Class name of executor must be <script_id>Executor (filename <script_id>_executor.rb)
 # Executor will be accessible under <script_id> id by SupervisorScriptExecutorsProvider.get method.

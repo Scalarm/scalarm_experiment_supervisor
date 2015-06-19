@@ -2,20 +2,23 @@ require 'test_helper'
 
 class SupervisorTest < ActiveSupport::TestCase
   ID = 'test'
-  MANIFEST_TEST_FILE = Rails.root.join('supervisors', 'manifest', "#{ID}.yml")
-  VIEW_TEST_FILE = Rails.root.join('supervisors', 'views', "#{ID}.html")
+  SUPERVISOR_DIRECTORY = Rails.root.join('supervisors', "#{ID}").to_s
+  MANIFEST_TEST_FILE = Rails.root.join('supervisors', "#{ID}", 'manifest.yml')
+  VIEW_TEST_FILE = Rails.root.join('supervisors', "#{ID}", 'start_panel.html')
   CONTENT = {foo: 'bar', number: 42}
   PARSED_CONTENT = CONTENT.merge({id: ID})
 
   def setup
+    create_directory_if_not_exists SUPERVISOR_DIRECTORY
     File.open(MANIFEST_TEST_FILE, 'w+') {|f| f.write CONTENT.to_yaml }
     File.open(VIEW_TEST_FILE, 'w+') {|f| f.write ID }
-    @count =  Dir[Rails.root.join('supervisors', 'manifest', '*.yml').to_s].count
+    @count =  Dir[Rails.root.join('supervisors', '*', 'manifest.yml').to_s].count
   end
 
   def teardown
     remove_file_if_exists MANIFEST_TEST_FILE
     remove_file_if_exists VIEW_TEST_FILE
+    remove_directory_if_exists SUPERVISOR_DIRECTORY
   end
 
   test 'get_manifests should return all yaml manifest' do

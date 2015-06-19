@@ -1,4 +1,4 @@
-Dir[Rails.root.join('supervisors', 'executors', '*_executor.rb').to_s].each {|file| require file}
+Dir[Rails.root.join('supervisors', '*', '*_executor.rb').to_s].each {|file| require file}
 require_relative 'abstract_supervisor_executor'
 ##
 # This class translates simulation scripts id to their executor
@@ -12,7 +12,7 @@ class SupervisorExecutorsProvider
   # All executors are autoloaded from supervisors/executors directory
   # Mapping is <script_id> -> <script_id>Executor (symbol to class)
   def self.init
-    Dir[Rails.root.join('supervisors', 'executors', '*_executor.rb').to_s].each do|file|
+    Dir[Rails.root.join('supervisors', '*', '*_executor.rb').to_s].each do|file|
       name = File.basename(file, File.extname(file))
       SUPERVISOR_SCRIPT_EXECUTORS[name.rpartition('_executor').first.to_sym] = Object.const_get name.camelize
     end
