@@ -3,7 +3,7 @@ require 'supervisor_executors/supervisor_executors_provider'
 require 'scalarm/database/core/mongo_active_record'
 require 'scalarm/database/model/experiment'
 
-Dir[Rails.root.join('supervisors', 'executors', '*_executor.rb').to_s].each {|file| require file}
+Dir[Rails.root.join('supervisors', '*', '*_executor.rb').to_s].each {|file| require file}
 
 # TODO: maybe move model to scalarm-database
 
