@@ -19,7 +19,6 @@ class Scalarm:
         self.parameters_ids = parameters_ids
         self.schema = http_schema
         self.verify = verify
-        print self.verify
 
     def schedule_point(self, params):
         params_dict = {}
