@@ -60,6 +60,7 @@ class SupervisorsControllerTest < ActionController::TestCase
 
   test 'start_panel should support CORS on valid request' do
     origin = 'test_localhost'
+    Supervisor.expects(:get_manifest).with(ID).returns(PUBLIC_MANIFEST.symbolize_keys)
     File.open(VIEW_TEST_FILE, 'w+') {|file| file.write ID}
 
     request.headers['Origin'] = origin
