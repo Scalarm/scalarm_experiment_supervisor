@@ -2,6 +2,8 @@ class SupervisorsController < ApplicationController
 
   before_filter :check_request_origin, only: [:start_panel]
   before_filter :cors_preflight_check, only: [:start_panel]
+  before_filter :get_users_allowed_supervisors
+  before_filter :check_if_supervisor_allowed, except: [:index]
   after_filter :add_cors_header, only: [:start_panel]
 
 =begin
@@ -24,9 +26,8 @@ class SupervisorsController < ApplicationController
     ]
 =end
   def index
-    allowed_supervisors = current_user.allowed_supervisors || []
     allowed_manifests = Supervisor.get_manifests.select do |m|
-      m[:public] or ((not allowed_supervisors.blank?) and allowed_supervisors.include? m[:id])
+      m[:public] or ((not @allowed_supervisors.blank?) and @allowed_supervisors.include? m[:id])
     end
     render json: allowed_manifests
   end
@@ -49,13 +50,7 @@ class SupervisorsController < ApplicationController
 
 =end
   def show
-    allowed_supervisors = current_user.allowed_supervisors || []
-    manifest = Supervisor.get_manifest(params[:id]) || resource_not_found
-    allowed = (
-        ((not manifest.blank?) and manifest[:public])  or
-        ((not allowed_supervisors.blank?) and allowed_supervisors.include? manifest[:id])
-    )
-    render json: allowed ? manifest : resource_forbidden
+    render json: @supervisor_allowed ? @manifest : resource_forbidden
   end
 
 =begin
@@ -67,14 +62,23 @@ class SupervisorsController < ApplicationController
   @apiParam {String} id ID of Supervisor to show view
 =end
   def start_panel
-    allowed_supervisors = current_user.allowed_supervisors || []
-    manifest = Supervisor.get_manifest(params[:id])
     path = Supervisor.view_path(params[:id]) || resource_not_found
-    allowed = (
-        ((not manifest.blank?) and manifest[:public]) or
-        ((not allowed_supervisors.blank?) and allowed_supervisors.include? manifest[:id])
+    render @supervisor_allowed ? path : resource_forbidden, layout: false
+  end
+
+
+  private
+
+  def get_users_allowed_supervisors
+    @allowed_supervisors = current_user.allowed_supervisors || []
+  end
+
+  def check_if_supervisor_allowed
+    @manifest = Supervisor.get_manifest(params[:id]) || resource_not_found
+    @supervisor_allowed = (
+      ((not @manifest.blank?) and @manifest[:public]) or
+      ((not @allowed_supervisors.blank?) and @allowed_supervisors.include? manifest[:id])
     )
-    render allowed ? path : resource_forbidden, layout: false
   end
 
 end
