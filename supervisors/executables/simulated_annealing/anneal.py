@@ -44,7 +44,8 @@ if __name__ == "__main__":
                       config['experiment_id'],
                       config['http_schema'],
                       config["address"],
-                      parameters_ids)
+                      parameters_ids,
+                      config['verifySSL'] if 'verifySSL' in config else False)
 
     res = scopt.anneal(func=call_scalarm,
                        x0=start_point,
