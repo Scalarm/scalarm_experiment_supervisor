@@ -18,17 +18,17 @@ class SupervisorsControllerTest < ActionController::TestCase
   end
 
   test 'index should return manifest of supervisors' do
-    Supervisor.expects(:get_manifests).returns([PUBLIC_MANIFEST])
+    Supervisor.expects(:get_manifests).returns([PUBLIC_MANIFEST.symbolize_keys])
     get :index
     manifest = JSON.parse(response.body)
-    assert_equal manifest, [PUBLIC_MANIFEST]
+    assert_equal [PUBLIC_MANIFEST], manifest
   end
 
   test 'show should return manifest of given supervisor id' do
-    Supervisor.expects(:get_manifest).with(ID).returns(PUBLIC_MANIFEST)
+    Supervisor.expects(:get_manifest).with(ID).returns(PUBLIC_MANIFEST.symbolize_keys)
     get :show, id: ID
     manifest = JSON.parse(response.body)
-    assert_equal manifest, PUBLIC_MANIFEST
+    assert_equal PUBLIC_MANIFEST, manifest
   end
 
   test 'show should redirect to index on non existing id (html)' do
@@ -38,13 +38,14 @@ class SupervisorsControllerTest < ActionController::TestCase
 
   test 'show should return 404 on non existing id (json)' do
     get :show, format: :json, id: 'bad id'
-    assert_equal response.status, 404
+    assert_equal 404, response.status
   end
 
   test 'new_member should return proper view' do
+    Supervisor.expects(:get_manifest).with(ID).returns(PUBLIC_MANIFEST.symbolize_keys)
     File.open(VIEW_TEST_FILE, 'w+') {|file| file.write ID}
     get :start_panel, id: ID
-    assert_equal response.body, ID
+    assert_equal ID, response.body
   end
 
   test 'new_member should redirect to index on non existing id (html)' do
@@ -54,7 +55,7 @@ class SupervisorsControllerTest < ActionController::TestCase
 
   test 'new_member should return 404 on non existing id (json)' do
     get :start_panel, format: :json, id: ID
-    assert_equal response.status, 404
+    assert_equal 404, response.status
   end
 
 end

@@ -1,8 +1,11 @@
 ENV['RAILS_ENV'] ||= 'test'
 require File.expand_path('../../config/environment', __FILE__)
 require 'rails/test_help'
+require 'scalarm/service_core/test_utils/test_helper_extensions'
 
 class ActiveSupport::TestCase
+  include Scalarm::ServiceCore::TestUtils::TestHelperExtensions
+
   # Setup all fixtures in test/fixtures/*.yml for all tests in alphabetical order.
   #
   # Note: You'll currently still have to declare fixtures explicitly in integration tests
@@ -15,12 +18,4 @@ class ActiveSupport::TestCase
     File.delete file if File.exists? file
   end
 
-  ##
-  # A @user variable will contain session's ScalarmUser
-  def stub_authentication
-    # bypass authentication
-    ApplicationController.any_instance.stubs(:authenticate)
-    @user = Scalarm::ServiceCore::ScalarmUser.new(login: 'login')
-    ApplicationController.stubs(:instance_variable_get).with(:@current_user).returns(@user)
-  end
 end
