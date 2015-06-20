@@ -27,7 +27,7 @@ class SupervisorsController < ApplicationController
 =end
   def index
     allowed_manifests = Supervisor.get_manifests.select do |m|
-      m[:public] or ((not @allowed_supervisors.blank?) and @allowed_supervisors.include? m[:id])
+      m[:public] or @allowed_supervisors.include? m[:id]
     end
     render json: allowed_manifests
   end
@@ -50,7 +50,7 @@ class SupervisorsController < ApplicationController
 
 =end
   def show
-    render json: @supervisor_allowed ? @manifest : resource_forbidden
+    render json: @supervisor_allowed ? (@manifest || resource_not_found) : resource_forbidden
   end
 
 =begin
@@ -74,11 +74,11 @@ class SupervisorsController < ApplicationController
   end
 
   def check_if_supervisor_allowed
-    @manifest = Supervisor.get_manifest(params[:id]) || resource_not_found
-    @supervisor_allowed = (
-      ((not @manifest.blank?) and @manifest[:public]) or
-      ((not @allowed_supervisors.blank?) and (@allowed_supervisors.include? @manifest[:id]))
-    )
+    @manifest = Supervisor.get_manifest(params[:id])
+    @supervisor_allowed = (@allowed_supervisors.include? params[:id])
+    unless @manifest.blank?
+      @supervisor_allowed ||= @manifest[:public]
+    end
   end
 
 end

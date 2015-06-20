@@ -153,9 +153,4 @@ class SupervisorRunsController < ApplicationController
     @supervisor_run = SupervisorRun.find_by_id(params[:id]) || resource_not_found
   end
 
-  private
-  def load_supervisor_run
-    @supervisor_run = SupervisorRun.find_by_id(params[:id]) || resource_not_found
-  end
-
 end
