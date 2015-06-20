@@ -47,21 +47,21 @@ class SupervisorsControllerTest < ActionController::TestCase
     assert_equal 404, response.status
   end
 
-  test 'new_member should return proper view' do
+  test 'start_panel should return proper view' do
     Supervisor.expects(:get_manifest).with(ID).returns(PUBLIC_MANIFEST.symbolize_keys)
     File.open(VIEW_TEST_FILE, 'w+') {|file| file.write ID}
     get :start_panel, id: ID
     assert_equal ID, response.body
   end
 
-  test 'new_member should redirect to index on non existing id (html)' do
+  test 'start_panel should redirect to index on non existing id (html)' do
     Supervisor.expects(:get_manifest).with(BAD_ID).returns(nil)
 
     get :start_panel, id: BAD_ID
     assert_redirected_to action: :index
   end
 
-  test 'new_member should return 404 on non existing id (json)' do
+  test 'start_panel should return 404 on non existing id (json)' do
     @user.allowed_supervisors = [BAD_ID]
     Supervisor.expects(:get_manifest).with(BAD_ID).returns(nil)
 
