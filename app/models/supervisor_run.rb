@@ -27,7 +27,7 @@ class SupervisorRun < Scalarm::Database::MongoActiveRecord
   attr_join :experiment, Scalarm::Database::Model::Experiment
 
   PROVIDER = SupervisorExecutorsProvider
-  STATE_ALLOWED_KEYS = %w(experiment_id supervisor_id pid is_running)
+  STATE_ALLOWED_KEYS = %w(supervisor_id user_id experiment_id pid is_running)
 
   ##
   # Starts new supervised script by using proper executor
@@ -39,9 +39,10 @@ class SupervisorRun < Scalarm::Database::MongoActiveRecord
   # * pid of started script
   # Raises
   # * Various StandardError exceptions caused by creating file or starting process.
-  def start(id, config)
+  def start(id, user_id, config)
     raise 'There is no supervisor script with given id' unless PROVIDER.has_key? id
     self.supervisor_id = id
+    self.user_id = user_id
     self.experiment_id = config['experiment_id']
     self.experiment_manager_credentials = {user: config['user'], password: config['password']}
     # TODO validate config

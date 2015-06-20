@@ -2,8 +2,8 @@ class SupervisorsController < ApplicationController
 
   before_filter :check_request_origin, only: [:start_panel]
   before_filter :cors_preflight_check, only: [:start_panel]
-  before_filter :get_users_allowed_supervisors
-  before_filter :check_if_supervisor_allowed, except: [:index]
+  before_filter :load_allowed_supervisors
+  before_filter :load_manifest, only: [:show, :start_panel]
   after_filter :add_cors_header, only: [:start_panel]
 
 =begin
@@ -50,7 +50,7 @@ class SupervisorsController < ApplicationController
 
 =end
   def show
-    render json: @supervisor_allowed ? (@manifest || resource_not_found) : resource_forbidden
+    render json: @manifest
   end
 
 =begin
@@ -63,22 +63,24 @@ class SupervisorsController < ApplicationController
 =end
   def start_panel
     path = Supervisor.view_path(params[:id]) || resource_not_found
-    render @supervisor_allowed ? path : resource_forbidden, layout: false
+    render path, layout: false
   end
 
 
   private
-
-  def get_users_allowed_supervisors
+  def load_allowed_supervisors
     @allowed_supervisors = current_user.allowed_supervisors || []
   end
 
-  def check_if_supervisor_allowed
+  private
+  def load_manifest
     @manifest = Supervisor.get_manifest(params[:id])
-    @supervisor_allowed = (@allowed_supervisors.include? params[:id])
+    supervisor_allowed = (@allowed_supervisors.include? params[:id])
     unless @manifest.blank?
-      @supervisor_allowed ||= @manifest[:public]
+      supervisor_allowed ||= @manifest[:public]
     end
+    resource_forbidden unless supervisor_allowed
+    resource_not_found unless @manifest
   end
 
 end
