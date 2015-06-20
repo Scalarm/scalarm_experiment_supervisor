@@ -147,14 +147,12 @@ class SupervisorRunsController < ApplicationController
 
   private
   def load_supervisor_run
-    @supervisor_run = SupervisorRun.find_by_id(params[:id]) ||= resource_not_found
+    @supervisor_run = SupervisorRun.find_by_id(params[:id]) || resource_not_found
 
     experiment = Scalarm::Database::Model::Experiment.where(
         {'_id' => @supervisor_run.experiment_id},
         fields: %w(user_id shared_with)).first
-
     resource_forbidden unless (experiment.shared_with + [experiment.user_id]).include? current_user.id
-
   end
 
   private

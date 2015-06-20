@@ -103,7 +103,7 @@ class SupervisorsControllerTest < ActionController::TestCase
     assert_equal [PUBLIC_MANIFEST, EXPL_NON_PUBLIC_MANIFEST, IMPL_NON_PUBLIC_MANIFEST], manifests
   end
 
-  # since permissions checking happens in before filter, following test applies to all non-index routes
+  # since permissions checking happens in before filter, following test applies to other routes
   test 'show should return manifest to user with permissions' do
     @user.allowed_supervisors = [EXPL_NON_PUBLIC_MANIFEST['id']]
     Supervisor.expects(:get_manifest).with(EXPL_NON_PUBLIC_MANIFEST['id'])
@@ -114,7 +114,7 @@ class SupervisorsControllerTest < ActionController::TestCase
     assert_equal EXPL_NON_PUBLIC_MANIFEST, manifest
   end
 
-  # since permissions checking happens in before filter, following test applies to all non-index routes
+  # since permissions checking happens in before filter, following test applies to other routes
   test 'show should redirect user without permissions to index (html)' do
     Supervisor.expects(:get_manifest).with(EXPL_NON_PUBLIC_MANIFEST['id'])
         .returns(EXPL_NON_PUBLIC_MANIFEST.symbolize_keys)
@@ -123,7 +123,7 @@ class SupervisorsControllerTest < ActionController::TestCase
     assert_redirected_to action: :index
   end
 
-  # since permissions checking happens in before filter, following test applies to all non-index routes
+  # since permissions checking happens in before filter, following test applies to other routes
   test 'show should return 403 to user without permissions (json)' do
     Supervisor.expects(:get_manifest).with(EXPL_NON_PUBLIC_MANIFEST['id'])
         .returns(EXPL_NON_PUBLIC_MANIFEST.symbolize_keys)
@@ -132,7 +132,7 @@ class SupervisorsControllerTest < ActionController::TestCase
     assert_equal 403, response.status
   end
 
-  # since permissions checking happens in before filter, following test applies to all non-index routes
+  # since permissions checking happens in before filter, following test applies to other routes
   test 'show should redirect user without permissions to index on not existing id(html)' do
     Supervisor.expects(:get_manifest).with(BAD_ID).returns(nil)
 
@@ -140,7 +140,7 @@ class SupervisorsControllerTest < ActionController::TestCase
     assert_redirected_to action: :index
   end
 
-  # since permissions checking happens in before filter, following test applies to all non-index routes
+  # since permissions checking happens in before filter, following test applies to other routes
   test 'show should return 403 to user without permissions on not existing id (json)' do
     Supervisor.expects(:get_manifest).with(BAD_ID).returns(nil)
 
