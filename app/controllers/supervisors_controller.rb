@@ -77,7 +77,7 @@ class SupervisorsController < ApplicationController
     @manifest = Supervisor.get_manifest(params[:id]) || resource_not_found
     @supervisor_allowed = (
       ((not @manifest.blank?) and @manifest[:public]) or
-      ((not @allowed_supervisors.blank?) and @allowed_supervisors.include? manifest[:id])
+      ((not @allowed_supervisors.blank?) and (@allowed_supervisors.include? @manifest[:id]))
     )
   end
 

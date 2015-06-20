@@ -3,10 +3,11 @@ require 'json'
 
 class SupervisorsControllerTest < ActionController::TestCase
 
-  PUBLIC_MANIFEST = {'test' => 'test', 'test2' => ['foo', 'bar', 42], 'public' => true}
-  NON_PUBLIC_MANIFEST_EXPL = {'a' => 'a', 'bc3' => ['b', 'c', 3], 'public' => false}
-  RESTRICTED_MANIFEST_IMPL = {'a' => 'a', 'bc3' => ['b', 'c', 3]}
   ID = 'test'
+  BAD_ID = 'bad_id'
+  PUBLIC_MANIFEST = {'id' => ID, 'test' => 'test', 'test2' => ['foo', 'bar', 42], 'public' => true}
+  NON_PUBLIC_MANIFEST_EXPL = {'id' => 'non_public_expl', 'a' => 'a', 'bc3' => ['b', 'c', 3], 'public' => false}
+  NON_PUBLIC_MANIFEST_IMPL = {'id' => 'non_public_impl', 'a' => 'a', 'bc3' => ['b', 'c', 3]}
   VIEW_TEST_FILE = Rails.root.join('supervisors', 'views', "#{ID}.html")
 
   def setup
@@ -20,8 +21,8 @@ class SupervisorsControllerTest < ActionController::TestCase
   test 'index should return manifest of supervisors' do
     Supervisor.expects(:get_manifests).returns([PUBLIC_MANIFEST.symbolize_keys])
     get :index
-    manifest = JSON.parse(response.body)
-    assert_equal [PUBLIC_MANIFEST], manifest
+    manifests = JSON.parse(response.body)
+    assert_equal [PUBLIC_MANIFEST], manifests
   end
 
   test 'show should return manifest of given supervisor id' do
@@ -32,12 +33,16 @@ class SupervisorsControllerTest < ActionController::TestCase
   end
 
   test 'show should redirect to index on non existing id (html)' do
-    get :show, id: 'bad id'
+    Supervisor.expects(:get_manifest).with(BAD_ID).returns(nil)
+
+    get :show, id: BAD_ID
     assert_redirected_to action: :index
   end
 
   test 'show should return 404 on non existing id (json)' do
-    get :show, format: :json, id: 'bad id'
+    Supervisor.expects(:get_manifest).with(BAD_ID).returns(nil)
+
+    get :show, format: :json, id: BAD_ID
     assert_equal 404, response.status
   end
 
@@ -66,6 +71,56 @@ class SupervisorsControllerTest < ActionController::TestCase
     request.headers['Origin'] = origin
     get :start_panel, {id: ID}
     assert_equal origin, response.headers['Access-Control-Allow-Origin']
+  end
+
+  test 'index should return only public manifests to user without permissions' do
+    Supervisor.expects(:get_manifests).returns([PUBLIC_MANIFEST.symbolize_keys,
+                                                NON_PUBLIC_MANIFEST_EXPL.symbolize_keys,
+                                                NON_PUBLIC_MANIFEST_IMPL.symbolize_keys])
+
+    get :index
+    manifests = JSON.parse(response.body)
+    assert_equal [PUBLIC_MANIFEST], manifests
+  end
+
+  test 'index should return all allowed manifests to user with permissions' do
+    @user.allowed_supervisors = %w(non_public_expl non_public_impl)
+    Supervisor.expects(:get_manifests).returns([PUBLIC_MANIFEST.symbolize_keys,
+                                                NON_PUBLIC_MANIFEST_EXPL.symbolize_keys,
+                                                NON_PUBLIC_MANIFEST_IMPL.symbolize_keys])
+
+    get :index
+    manifests = JSON.parse(response.body)
+    assert_equal [PUBLIC_MANIFEST, NON_PUBLIC_MANIFEST_EXPL, NON_PUBLIC_MANIFEST_IMPL], manifests
+  end
+
+  # since permissions checking happens in before filter, following test applies to all non-index routes
+  test 'show should return manifest to user with permissions' do
+    @user.allowed_supervisors = %w(non_public_expl)
+    Supervisor.expects(:get_manifest).with(NON_PUBLIC_MANIFEST_EXPL['id'])
+        .returns(NON_PUBLIC_MANIFEST_EXPL.symbolize_keys)
+
+    get :show, format: :json, id: NON_PUBLIC_MANIFEST_EXPL['id']
+    manifest = JSON.parse(response.body)
+    assert_equal NON_PUBLIC_MANIFEST_EXPL, manifest
+  end
+
+  # since permissions checking happens in before filter, following test applies to all non-index routes
+  test 'show should return 403 to user without permissions' do
+    Supervisor.expects(:get_manifest).with(NON_PUBLIC_MANIFEST_EXPL['id'])
+        .returns(NON_PUBLIC_MANIFEST_EXPL.symbolize_keys)
+
+    get :show, format: :json, id: NON_PUBLIC_MANIFEST_EXPL['id']
+    assert_equal 403, response.status
+  end
+
+  # since permissions checking happens in before filter, following test applies to all non-index routes
+  test 'show should redirect user without permissions to index(html)' do
+    Supervisor.expects(:get_manifest).with(NON_PUBLIC_MANIFEST_EXPL['id'])
+        .returns(NON_PUBLIC_MANIFEST_EXPL.symbolize_keys)
+
+    get :show, id: NON_PUBLIC_MANIFEST_EXPL['id']
+    assert_redirected_to action: :index
   end
 
 end
