@@ -1,6 +1,6 @@
 require 'scalarm/service_core/test_utils/db_helper'
 
-class SimulatedAnnealingStartingTest < ActionDispatch::IntegrationTest
+class DatabaseIntegrationTest < ActionDispatch::IntegrationTest
   include Scalarm::ServiceCore::TestUtils::DbHelper
 
   test 'supervisor_run should return experiment with joined attribute' do
