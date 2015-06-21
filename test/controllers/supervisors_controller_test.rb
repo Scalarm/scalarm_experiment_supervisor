@@ -45,7 +45,7 @@ class SupervisorsControllerTest < ActionController::TestCase
     Supervisor.expects(:get_manifest).with(BAD_ID).returns(nil)
 
     get :show, format: :json, id: BAD_ID
-    assert_equal 404, response.status
+    assert_response :not_found
   end
 
   test 'start_panel should return proper view' do
@@ -68,7 +68,7 @@ class SupervisorsControllerTest < ActionController::TestCase
     Supervisor.expects(:get_manifest).with(BAD_ID).returns(nil)
 
     get :start_panel, format: :json, id: BAD_ID
-    assert_equal 404, response.status
+    assert_response :not_found
   end
 
   test 'start_panel should support CORS on valid request' do
@@ -129,7 +129,7 @@ class SupervisorsControllerTest < ActionController::TestCase
         .returns(EXPL_NON_PUBLIC_MANIFEST.symbolize_keys)
 
     get :show, format: :json, id: EXPL_NON_PUBLIC_MANIFEST['id']
-    assert_equal 403, response.status
+    assert_response :forbidden
   end
 
   # since permissions checking happens in before filter, following test applies to other routes
@@ -145,7 +145,7 @@ class SupervisorsControllerTest < ActionController::TestCase
     Supervisor.expects(:get_manifest).with(BAD_ID).returns(nil)
 
     get :show, format: :json, id: BAD_ID
-    assert_equal 403, response.status
+    assert_response :forbidden
   end
 
 end

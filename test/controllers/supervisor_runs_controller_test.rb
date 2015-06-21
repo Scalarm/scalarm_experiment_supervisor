@@ -4,7 +4,7 @@ class SupervisorRunsControllerTest < ActionController::TestCase
 
   SUPERVISOR_ID = 'supervisor_id'
   EXPERIMENT_ID = 'experiment_id'
-  STATE = '{state: :state}'
+  STATE = {'state' => 'state'}
 
   def setup
     stub_authentication
@@ -69,7 +69,7 @@ class SupervisorRunsControllerTest < ActionController::TestCase
     @experiment.stubs(:user_id).returns('bad user id')
 
     post :stop, format: :json, id: SUPERVISOR_ID
-    assert_equal 403, response.status
+    assert_response :forbidden
   end
 
   test 'destroy should destroy proper supervisor run' do
