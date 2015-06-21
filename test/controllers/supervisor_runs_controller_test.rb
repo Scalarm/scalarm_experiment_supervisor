@@ -1,8 +1,6 @@
 require 'test_helper'
 
 class SupervisorRunsControllerTest < ActionController::TestCase
-  ## workaround for MiniTest errors on some configurations
-  tests SupervisorRunsController
 
   SUPERVISOR_ID = 'supervisor_id'
   EXPERIMENT_ID = 'experiment_id'
@@ -59,11 +57,19 @@ class SupervisorRunsControllerTest < ActionController::TestCase
   end
 
   # since permissions checking happens in before filter, following test applies to other routes
+  test 'stop should return error when not executed by owner (json)' do
+    @experiment.stubs(:user_id).returns('bad user id')
+
+    post :stop, format: :json, id: SUPERVISOR_ID
+    assert_equal 'error', JSON::parse(response.body)['status']
+  end
+
+  # since permissions checking happens in before filter, following test applies to other routes
   test 'stop should return 403 when not executed by owner (json)' do
     @experiment.stubs(:user_id).returns('bad user id')
 
     post :stop, format: :json, id: SUPERVISOR_ID
-    assert_equal 403, JSON::parse(response.body)['status']
+    assert_equal 403, response.status
   end
 
   test 'destroy should destroy proper supervisor run' do

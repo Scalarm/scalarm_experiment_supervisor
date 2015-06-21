@@ -1,5 +1,5 @@
 class ResourceForbidden < ActionController::ActionControllerError
   def status
-    403
+    :forbidden
   end
 end

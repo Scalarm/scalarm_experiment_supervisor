@@ -2,8 +2,6 @@ require 'test_helper'
 require 'json'
 
 class SupervisorsControllerTest < ActionController::TestCase
-  ## workaround for MiniTest errors on some configurations
-  tests SupervisorsController
 
   ID = 'test'
   BAD_ID = 'bad_id'

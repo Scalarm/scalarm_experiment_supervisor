@@ -53,7 +53,7 @@ class ApplicationController < ActionController::Base
   def generic_exception_handler(exception)
     respond_to do |format|
       format.json do
-        render json: {status: exception.status, reason: exception.to_s}, status: exception.status
+        render json: {status: 'error', reason: exception.to_s}, status: exception.status
       end
       format.html do
         flash[:error] = exception.to_s
