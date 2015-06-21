@@ -6,13 +6,11 @@ require 'exceptions/resource_forbidden'
 
 class ApplicationController < ActionController::Base
   include Scalarm::ServiceCore::ScalarmAuthentication
-  include Scalarm::ServiceCore::CorsSupport
 
   # Prevent CSRF attacks by raising an exception.
   # For APIs, you may want to use :null_session instead.
   protect_from_forgery with: :null_session
 
-  before_filter :cors_preflight_check
   before_filter :authenticate, :except => [:status]
 
   rescue_from ResourceNotFound, ResourceForbidden, with: :exception_handler
@@ -52,7 +50,7 @@ class ApplicationController < ActionController::Base
     end
   end
 
-  def exception_handler(exception)
+  def resource_exception_handler(exception)
     respond_to do |format|
       format.json do
         render json: {status: exception.status, reason: exception.to_s}, status: exception.status

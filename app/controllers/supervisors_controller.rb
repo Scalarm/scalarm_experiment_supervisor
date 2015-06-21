@@ -1,4 +1,5 @@
 class SupervisorsController < ApplicationController
+  include Scalarm::ServiceCore::CorsSupport
 
   before_filter :check_request_origin, only: [:start_panel]
   before_filter :cors_preflight_check, only: [:start_panel]

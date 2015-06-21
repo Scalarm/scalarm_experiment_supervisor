@@ -145,7 +145,6 @@ class SupervisorRunsController < ApplicationController
     render json: {status: 'ok'}
   end
 
-  private
   def load_supervisor_run
     @supervisor_run = SupervisorRun.find_by_id(params[:id]) || resource_not_found
 
@@ -155,7 +154,6 @@ class SupervisorRunsController < ApplicationController
     resource_forbidden unless (experiment.shared_with + [experiment.user_id]).include? current_user.id
   end
 
-  private
   def check_supervisor_owners
     supervisor_owners = [@supervisor_run.user_id]
     supervisor_owners << Scalarm::Database::Model::Experiment.where(
@@ -164,5 +162,7 @@ class SupervisorRunsController < ApplicationController
     supervisor_owners.uniq!
     resource_forbidden unless supervisor_owners.include? current_user.id
   end
+
+  private :load_supervisor_run, :check_supervisor_owners
 
 end
