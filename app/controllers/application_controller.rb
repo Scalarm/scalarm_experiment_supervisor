@@ -13,7 +13,7 @@ class ApplicationController < ActionController::Base
 
   before_filter :authenticate, :except => [:status]
 
-  rescue_from ResourceNotFound, ResourceForbidden, with: :exception_handler
+  rescue_from ResourceNotFound, ResourceForbidden, with: :generic_exception_handler
 
   ##
   # Render trivial json if Accept: application/json specified,
@@ -50,7 +50,7 @@ class ApplicationController < ActionController::Base
     end
   end
 
-  def resource_exception_handler(exception)
+  def generic_exception_handler(exception)
     respond_to do |format|
       format.json do
         render json: {status: exception.status, reason: exception.to_s}, status: exception.status
@@ -63,6 +63,6 @@ class ApplicationController < ActionController::Base
   end
 
   protected :authentication_failed
-  private :exception_handler
+  private :generic_exception_handler
 
 end

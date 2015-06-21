@@ -67,13 +67,10 @@ class SupervisorsController < ApplicationController
     render path, layout: false
   end
 
-
-  private
   def load_allowed_supervisors
     @allowed_supervisors = current_user.allowed_supervisors || []
   end
 
-  private
   def load_manifest
     @manifest = Supervisor.get_manifest(params[:id])
     supervisor_allowed = (@allowed_supervisors.include? params[:id])
@@ -83,5 +80,7 @@ class SupervisorsController < ApplicationController
     resource_forbidden unless supervisor_allowed
     resource_not_found unless @manifest
   end
+
+  private :load_allowed_supervisors, :load_manifest
 
 end

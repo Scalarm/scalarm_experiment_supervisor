@@ -1,6 +1,8 @@
 require 'test_helper'
 
 class SupervisorRunsControllerTest < ActionController::TestCase
+  ## workaround for MiniTest errors on some configurations
+  tests SupervisorRunsController
 
   SUPERVISOR_ID = 'supervisor_id'
   EXPERIMENT_ID = 'experiment_id'
