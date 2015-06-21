@@ -1,4 +1,3 @@
-require 'test_helper'
 require 'scalarm/service_core/test_utils/db_helper'
 
 class SimulatedAnnealingStartingTest < ActionDispatch::IntegrationTest

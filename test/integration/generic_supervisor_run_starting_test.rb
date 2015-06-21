@@ -9,6 +9,12 @@ class GenericSupervisorRunStartingTest < ActionDispatch::IntegrationTest
   def setup
     super
     stub_authentication
+    @user_id = @user.id
+    experiment = mock do
+      stubs(:user_id).returns(@user_id)
+      stubs(:shared_with).returns([])
+    end
+    Scalarm::Database::Model::Experiment.stubs(:where).returns([experiment])
   end
 
   test "proper response when supervisor script id is incorrect" do
@@ -29,7 +35,7 @@ class GenericSupervisorRunStartingTest < ActionDispatch::IntegrationTest
 
   test "id should be recognized as supervisor_id" do
     supervisor_run = mock do
-      expects(:start).with(ID, {}).returns(1)
+      expects(:start).with(ID, @user_id, {}).returns(1)
       expects(:save)
       expects(:id).returns(ID)
     end
