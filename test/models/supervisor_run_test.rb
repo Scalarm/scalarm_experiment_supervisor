@@ -188,11 +188,17 @@ class SupervisorRunTest < ActiveSupport::TestCase
 
   STATE_ALLOWED_KEYS = [:experiment_id, :supervisor_id, :pid, :is_running, :supervisor_run_id]
 
-  test "state returns only allowed keys" do
+  test "state returns all and only allowed keys" do
+    @supervisor_script.experiment_id = 'val'
+    @supervisor_script.supervisor_id = 'val'
+    @supervisor_script.pid = 'val'
+    @supervisor_script.is_running = 'val'
+
     state = @supervisor_script.state
     assert_nothing_raised do
       state.assert_valid_keys(STATE_ALLOWED_KEYS)
     end
+    STATE_ALLOWED_KEYS.each {|key| assert state.has_key?(key), "State should contains key #{key}"}
   end
 
 end
