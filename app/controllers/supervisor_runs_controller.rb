@@ -3,12 +3,14 @@ require 'json'
 class SupervisorRunsController < ApplicationController
   skip_before_action :verify_authenticity_token
   before_filter :load_supervisor_run, only: [:show, :stop, :destroy]
+  before_filter :check_supervisor_owners, only: [:stop, :destroy]
 
   def index
-    # security: show objects with experiment_id user has permission to view ->
-    # security: get all experiment ids that user has permission to view, then
-    # security: all simulation_run objects with matching experiment_id
-    render json: SupervisorRun.all.to_a.map {|x| x.state}
+    user_experiments_ids = Scalarm::Database::Model::Experiment.where(
+        {'$or' => ['user_id' => current_user.id, 'shared_with' => current_user.id]},
+        fields: ['_id']).map { |e| e.id}
+
+    render json: SupervisorRun.where('experiment_id' => {'$in' => user_experiments_ids}).map { |sr| sr.state}
   end
 
 =begin
@@ -21,7 +23,6 @@ class SupervisorRunsController < ApplicationController
 
 =end
   def new
-    # security: handled by SupervisorsController#start_panel
     redirect_to :controller=>'supervisors', :action => 'start_panel', :id => params[:supervisor_id]
   end
 
@@ -102,17 +103,20 @@ class SupervisorRunsController < ApplicationController
 =end
   def create
     # TODO: security
-    # must meet constraints:
-    # config.experiment_id -> allow only owner and shared user
-    # config.user -> maybe we should check it SimulationManagerTempPassword (or user) belongs to @current_user
+    # config.user -> maybe we should check if SimulationManagerTempPassword (or user) belongs to @current_user
     #  because no one could invoke supervisor on behalf of other user
+    config = JSON.parse(params[:config])
+    experiment = Scalarm::Database::Model::Experiment.where(
+        {'_id' => config['experiment_id']},
+        fields: %w(user_id shared_with)).first
+    resource_forbidden unless (experiment.shared_with + [experiment.user_id]).include? current_user.id
 
     #TODO validate and check errors
     response = {}
     begin
       supervisor_run = SupervisorRun.new({})
       # TODO: params[:config] can be not only JSON but also Hash (parsed by Rails)
-      pid = supervisor_run.start (params[:supervisor_id] || params[:id]), JSON.parse(params[:config])
+      pid = supervisor_run.start (params[:supervisor_id] || params[:id]), current_user.id, config
       supervisor_run.save
       Rails.logger.debug supervisor_run
       response = {status: 'ok', pid: pid, supervisor_run_id: supervisor_run.id.to_s}
@@ -127,35 +131,38 @@ class SupervisorRunsController < ApplicationController
   end
 
   def show
-    # security: show only if object with experiment_id user has permission to view ->
-    # security: get all experiment ids that user has permission to view, then
-    # security: check if chosen supervisor_run objects with matching experiment_id
     render json: @supervisor_run.state
   end
 
   def stop
-    # TODO: security: only creator of supervisor_run can stop it
-    # TODO: supervisor_run.user_id must be created
     @supervisor_run.stop
     @supervisor_run.save
     render json: {status: 'ok'}
   end
 
   def destroy
-    # TODO: security: only creator of supervisor_run can stop it
-    # TODO: supervisor_run.user_id must be created
     @supervisor_run.destroy
     render json: {status: 'ok'}
   end
 
-  private
   def load_supervisor_run
     @supervisor_run = SupervisorRun.find_by_id(params[:id]) || resource_not_found
+
+    experiment = Scalarm::Database::Model::Experiment.where(
+        {'_id' => @supervisor_run.experiment_id},
+        fields: %w(user_id shared_with)).first
+    resource_forbidden unless (experiment.shared_with + [experiment.user_id]).include? current_user.id
   end
 
-  private
-  def load_supervisor_run
-    @supervisor_run = SupervisorRun.find_by_id(params[:id]) || resource_not_found
+  def check_supervisor_owners
+    supervisor_owners = [@supervisor_run.user_id]
+    supervisor_owners << Scalarm::Database::Model::Experiment.where(
+        {'_id' => @supervisor_run.experiment_id},
+        fields: 'user_id').first.user_id
+    supervisor_owners.uniq!
+    resource_forbidden unless supervisor_owners.include? current_user.id
   end
+
+  private :load_supervisor_run, :check_supervisor_owners
 
 end

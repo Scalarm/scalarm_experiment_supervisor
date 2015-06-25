@@ -7,6 +7,12 @@ class SimulatedAnnealingStartingTest < ActionDispatch::IntegrationTest
   def setup
     super
     stub_authentication
+    @user_id = @user.id
+    experiment = mock do
+      stubs(:user_id).returns(@user_id)
+      stubs(:shared_with).returns([])
+    end
+    Scalarm::Database::Model::Experiment.stubs(:where).returns([experiment])
   end
 
   test "successful start of simulated annealing supervisor script" do
