@@ -25,13 +25,4 @@ class ActiveSupport::TestCase
   def remove_directory_if_exists(dir)
     Dir.rmdir dir if Dir.exist? dir
   end
-
-  ##
-  # A @user variable will contain session's ScalarmUser
-  def stub_authentication
-    # bypass authentication
-    ApplicationController.any_instance.stubs(:authenticate)
-    @user = Scalarm::ServiceCore::ScalarmUser.new(login: 'login')
-    ApplicationController.stubs(:instance_variable_get).with(:@current_user).returns(@user)
-  end
 end
