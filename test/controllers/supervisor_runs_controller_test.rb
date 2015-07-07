@@ -17,7 +17,7 @@ class SupervisorRunsControllerTest < ActionController::TestCase
     SupervisorRun.stubs(:find_by_id).with(SUPERVISOR_ID).returns(@supervisor_run)
 
     @experiment = Scalarm::Database::Model::Experiment.new({})
-    @experiment.stubs(:shared_with).returns([])
+    @experiment.stubs(:shared_with).returns(nil)
     @experiment.stubs(:user_id).returns(@user.id)
     Scalarm::Database::Model::Experiment.stubs(:where).returns([@experiment])
   end

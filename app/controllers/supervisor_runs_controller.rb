@@ -106,10 +106,12 @@ class SupervisorRunsController < ApplicationController
     # config.user -> maybe we should check if SimulationManagerTempPassword (or user) belongs to @current_user
     #  because no one could invoke supervisor on behalf of other user
     config = JSON.parse(params[:config])
+    experiment_id = config['experiment_id']
+    Rails.logger.debug "Will create supervisor run for experiment: #{experiment_id}"
     experiment = Scalarm::Database::Model::Experiment.where(
-        {'_id' => config['experiment_id']},
+        {'_id' => experiment_id},
         fields: %w(user_id shared_with)).first
-    resource_forbidden unless (experiment.shared_with + [experiment.user_id]).include? current_user.id
+    resource_forbidden unless ((experiment.shared_with || []) + [experiment.user_id]).include? current_user.id
 
     #TODO validate and check errors
     response = {}
@@ -151,7 +153,7 @@ class SupervisorRunsController < ApplicationController
     experiment = Scalarm::Database::Model::Experiment.where(
         {'_id' => @supervisor_run.experiment_id},
         fields: %w(user_id shared_with)).first
-    resource_forbidden unless (experiment.shared_with + [experiment.user_id]).include? current_user.id
+    resource_forbidden unless ((experiment.shared_with || []) + [experiment.user_id]).include? current_user.id
   end
 
   def check_supervisor_owners
