@@ -24,7 +24,7 @@ class MorrisExecutor < AbstractSupervisorExecutor
     File.open(script_config, 'w+') { |file| file.write(config.to_json) }
     script_log = self.log_path(config['experiment_id']).to_s
     Dir.chdir(BIN_DIR) do
-      pid = Process.spawn("mono #{BIN_NAME} #{script_config}", out: script_log, err: script_log)
+      pid = Process.spawn("mono #{BIN_NAME} -config #{script_config}", out: script_log, err: script_log)
       Process.detach(pid)
       pid
     end

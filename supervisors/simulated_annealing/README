@@ -1,0 +1,7 @@
+Dependencies:
+- python2
+- python libraries: numpy, scipy, requests
+  - can be installed with:
+    - easy_install numpy
+    - easy_install scipy
+    - easy_install requests
