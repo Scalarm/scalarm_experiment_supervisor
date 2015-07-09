@@ -1,0 +1,19 @@
+%section.panel.radius
+  %h3.subheader= 'Sensitivity analysis with morris design'
+  = hidden_field_tag 'supervisor_script_id', 'morris'
+  = hidden_field_tag 'type', 'supervised'
+  = hidden_field_tag 'supervisor_script_params'
+
+  = form_tag '', id: 'supervisor_params' do
+    .content
+      .row
+        .small-5.columns
+          = label_tag :morris_samples_count, 'Morris samples count:', class: 'right inline'
+        .small-4.columns.end
+          = number_field_tag :morris_samples_count, 1, min: 1, required: true, class: 'text-right'
+
+      .row
+        .small-5.columns
+          = label_tag :morris_levels_count, 'Morris levels count:', class: 'right inline'
+        .small-4.columns.end
+          = number_field_tag :morris_levels_count, 1, min: 1, required: true, class: 'text-right'
