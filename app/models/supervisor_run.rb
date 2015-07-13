@@ -78,6 +78,7 @@ class SupervisorRun < Scalarm::Database::MongoActiveRecord
   # This method notifies error with supervisor script to experiment manager.
   # Execution of this action will put experiment to error state
   def notify_error(reason)
+    Rails.logger.info("Will notify error to ExperimentManager: #{reason}")
     begin
       information_service = InformationService.instance
       address = information_service.sample_public_url('experiment_managers')
@@ -116,10 +117,15 @@ class SupervisorRun < Scalarm::Database::MongoActiveRecord
   ##
   # Single monitoring loop
   def monitoring_loop
-    raise 'Supervisor script is not running' unless self.is_running
+    raise 'Tried to check supervisor script executior state, but it is not running' unless self.is_running
     unless check
       self.is_running = false
-      notify_error("Supervisor script is not running\nLast 100 lines of supervisor output:\n#{read_log}")
+      if experiment.completed
+        Rails.logger.info('Supervisor is terminated and experiment is completed')
+      else
+        Rails.logger.info('Supervisor is terminated, but experiment is not completed - reporting error')
+        notify_error("Supervisor script is not running\nLast 100 lines of supervisor output:\n#{read_log}")
+      end
     end
   end
 

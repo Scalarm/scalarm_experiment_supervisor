@@ -16,6 +16,7 @@ class SupervisorRunTest < ActiveSupport::TestCase
   def setup
     super
     @supervisor_script = SupervisorRun.new({})
+    @experiment = stub_everything 'experiment'
   end
 
   test "check methods return true when script is running" do
@@ -51,12 +52,27 @@ class SupervisorRunTest < ActiveSupport::TestCase
     assert @supervisor_script.is_running, 'is_running flag should be true'
   end
 
-  test "monitoring loop proper behavior when script is not running" do
+  test "monitoring loop proper behavior when script is not running and experiment is completed" do
     @supervisor_script.is_running = true
     # mock
     @supervisor_script.expects(:check).returns(false)
     @supervisor_script.expects(:notify_error).with(MESSAGE)
     @supervisor_script.expects(:read_log).returns('')
+    @supervisor_script.stubs(:experiment).returns(@experiment)
+    @experiment.stubs(:completed).returns(false)
+
+    # test
+    @supervisor_script.monitoring_loop
+    assert_not @supervisor_script.is_running, 'is_running flag should be false'
+  end
+
+  test 'do not notify error when script is not running and experiment is completed' do
+    @supervisor_script.is_running = true
+    # mock
+    @supervisor_script.expects(:check).returns(false)
+    @supervisor_script.expects(:notify_error).never
+    @supervisor_script.stubs(:experiment).returns(@experiment)
+    @experiment.stubs(:completed).returns(true)
 
     # test
     @supervisor_script.monitoring_loop
@@ -67,7 +83,7 @@ class SupervisorRunTest < ActiveSupport::TestCase
     e = assert_raises RuntimeError do
       @supervisor_script.monitoring_loop
     end
-    assert_equal e.to_s, 'Supervisor script is not running'
+    assert_equal e.to_s, 'Tried to check supervisor script executior state, but it is not running'
   end
 
   test "proper behavior of notify error" do
