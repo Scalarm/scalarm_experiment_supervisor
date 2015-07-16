@@ -28,7 +28,7 @@ class StatusController < ApplicationController
 
       unless failed_tests.empty?
         status = 'failed'
-        message = "Failed tests: #{failed_tests.join(', ')}"
+        message = "Failed tests: #{failed_tests.map {|tn| ERB::Util.h(tn)}.join(', ')}"
       end
     end
 
@@ -36,7 +36,7 @@ class StatusController < ApplicationController
 
     respond_to do |format|
       format.html do
-        render text: message, status: http_status
+        render plain: message, status: http_status
       end
       format.json do
         render json: {status: status, message: message}, status: http_status

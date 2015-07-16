@@ -4,8 +4,11 @@ require 'scalarm/service_core/cors_support'
 require 'exceptions/resource_not_found'
 require 'exceptions/resource_forbidden'
 
+require 'erb'
+
 class ApplicationController < ActionController::Base
   include Scalarm::ServiceCore::ScalarmAuthentication
+  include ERB::Util
 
   # Prevent CSRF attacks by raising an exception.
   # For APIs, you may want to use :null_session instead.
