@@ -8,6 +8,7 @@ require 'erb'
 
 class ApplicationController < ActionController::Base
   include Scalarm::ServiceCore::ScalarmAuthentication
+  include Scalarm::ServiceCore::ParameterValidation
   include ERB::Util
 
   # Prevent CSRF attacks by raising an exception.
