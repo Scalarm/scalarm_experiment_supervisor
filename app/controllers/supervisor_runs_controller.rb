@@ -7,10 +7,19 @@ class SupervisorRunsController < ApplicationController
 
   def index
     user_experiments_ids = Scalarm::Database::Model::Experiment.where(
-        {'$or' => ['user_id' => current_user.id, 'shared_with' => current_user.id]},
+        {'$or' => [{'user_id' => current_user.id}, {'shared_with' => current_user.id}]},
         fields: ['_id']).map { |e| e.id}
+    or_query = []
+    user_experiments_ids.each do |eid|
+      or_query << {'experiment_id' => eid}
+    end
+    result = if or_query.blank?
+               []
+             else
+               SupervisorRun.where('$or' => or_query).map { |sr| sr.state}
+             end
 
-    render json: SupervisorRun.where('experiment_id' => {'$in' => user_experiments_ids}).map { |sr| sr.state}
+    render json: result
   end
 
 =begin
@@ -106,7 +115,7 @@ class SupervisorRunsController < ApplicationController
     # config.user -> maybe we should check if SimulationManagerTempPassword (or user) belongs to @current_user
     #  because no one could invoke supervisor on behalf of other user
     config = JSON.parse(params[:config])
-    experiment_id = config['experiment_id']
+    experiment_id = BSON::ObjectId(config['experiment_id'])
     Rails.logger.debug "Will create supervisor run for experiment: #{experiment_id}"
     experiment = Scalarm::Database::Model::Experiment.where(
         {'_id' => experiment_id},
@@ -118,7 +127,7 @@ class SupervisorRunsController < ApplicationController
     begin
       supervisor_run = SupervisorRun.new({})
       # TODO: params[:config] can be not only JSON but also Hash (parsed by Rails)
-      pid = supervisor_run.start (params[:supervisor_id] || params[:id]), current_user.id, config
+      pid = supervisor_run.start (params[:supervisor_id] || params[:id]), experiment_id, current_user.id, config
       supervisor_run.save
       Rails.logger.debug supervisor_run
       response = {status: 'ok', pid: pid, supervisor_run_id: supervisor_run.id.to_s}

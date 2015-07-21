@@ -39,11 +39,11 @@ class SupervisorRun < Scalarm::Database::MongoActiveRecord
   # * pid of started script
   # Raises
   # * Various StandardError exceptions caused by creating file or starting process.
-  def start(id, user_id, config)
+  def start(id, experiment_id, user_id, config)
     raise 'There is no supervisor script with given id' unless PROVIDER.has_key? id
     self.supervisor_id = id
     self.user_id = user_id
-    self.experiment_id = config['experiment_id']
+    self.experiment_id = experiment_id
     self.experiment_manager_credentials = {user: config['user'], password: config['password']}
     # TODO validate config
     information_service = InformationService.instance
@@ -59,7 +59,7 @@ class SupervisorRun < Scalarm::Database::MongoActiveRecord
   ##
   # Returns log_path for given supervisor script
   def log_path
-    PROVIDER.get(self.supervisor_id).log_path(self.experiment_id)
+    PROVIDER.get(self.supervisor_id).log_path(self.experiment_id.to_s)
   end
 
   ##
@@ -88,7 +88,7 @@ class SupervisorRun < Scalarm::Database::MongoActiveRecord
       Rails.logger.debug "Connecting to experiment manager on #{address}"
       res = RestClient::Request.execute(
           method: :post,
-          url: "#{schema}://#{address}/experiments/#{self.experiment_id}/mark_as_complete.json",
+          url: "#{schema}://#{address}/experiments/#{self.experiment_id.to_s}/mark_as_complete.json",
           payload: {status: 'error', reason: reason},
           user: self.experiment_manager_credentials['user'],
           password: self.experiment_manager_credentials['password'],
@@ -151,7 +151,7 @@ class SupervisorRun < Scalarm::Database::MongoActiveRecord
   # Overrides default destroy to make sure proper cleanup is run before destroying object.
   def destroy
     stop if check
-    PROVIDER.get(self.supervisor_id).cleanup(self.experiment_id) unless self.supervisor_id.nil?
+    PROVIDER.get(self.supervisor_id).cleanup(self.experiment_id.to_s) unless self.supervisor_id.nil?
     super
   end
 end
