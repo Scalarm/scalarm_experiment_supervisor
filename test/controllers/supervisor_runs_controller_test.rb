@@ -3,7 +3,7 @@ require 'test_helper'
 class SupervisorRunsControllerTest < ActionController::TestCase
 
   SUPERVISOR_ID = 'supervisor_id'
-  EXPERIMENT_ID = 'experiment_id'
+  EXPERIMENT_ID = '55ae2c19cca7031dfe089158'
   STATE = {'state' => 'state'}
 
   def setup
@@ -77,6 +77,11 @@ class SupervisorRunsControllerTest < ActionController::TestCase
 
     delete :destroy, id: SUPERVISOR_ID
     assert_equal 'ok', JSON.parse(response.body)['status']
+  end
+
+  test 'create should return 412 on invalid experiment id (json)' do
+    post :create, format: :json, id: SUPERVISOR_ID, config: {experiment_id: 'bad_id'}.to_json
+    assert_response :precondition_failed
   end
 
 end

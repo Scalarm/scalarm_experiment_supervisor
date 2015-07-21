@@ -3,6 +3,7 @@ require 'scalarm/service_core/cors_support'
 
 require 'exceptions/resource_not_found'
 require 'exceptions/resource_forbidden'
+require 'exceptions/precondition_failed'
 
 class ApplicationController < ActionController::Base
   include Scalarm::ServiceCore::ScalarmAuthentication
@@ -13,7 +14,7 @@ class ApplicationController < ActionController::Base
 
   before_filter :authenticate, :except => [:status]
 
-  rescue_from ResourceNotFound, ResourceForbidden, with: :generic_exception_handler
+  rescue_from ResourceNotFound, ResourceForbidden, PreconditionFailed, with: :generic_exception_handler
 
   ##
   # Render trivial json if Accept: application/json specified,
@@ -32,6 +33,10 @@ class ApplicationController < ActionController::Base
 
   def resource_forbidden
     raise ResourceForbidden.new('Resource with given id is unavailable for current user')
+  end
+
+  def precondition_failed
+    raise PreconditionFailed.new('Invalid parameter specified')
   end
 
   def authentication_failed

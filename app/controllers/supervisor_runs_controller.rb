@@ -107,6 +107,13 @@ class SupervisorRunsController < ApplicationController
     #  because no one could invoke supervisor on behalf of other user
     config = JSON.parse(params[:config])
     experiment_id = config['experiment_id']
+
+    begin
+      BSON::ObjectId(experiment_id)
+    rescue BSON::InvalidObjectId
+      precondition_failed
+    end
+
     Rails.logger.debug "Will create supervisor run for experiment: #{experiment_id}"
     experiment = Scalarm::Database::Model::Experiment.where(
         {'_id' => experiment_id},
