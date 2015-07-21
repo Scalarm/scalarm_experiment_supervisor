@@ -8,9 +8,11 @@ module SupervisorRunTestsHelper
 
   EXPERIMENT_ID = 'some_id'
   CONFIG_FROM_EM_SIMULATED_ANNEALING = {
-      maxiter: 1,
-      dwell: 1,
-      schedule: 'boltzmann',
+      initial_temperature: 1000,
+      cooling_rate: 0.001,
+      points_limit: 0,
+      dwell: 10,
+      spread: 10,
       experiment_id: EXPERIMENT_ID,
       user: 'user',
       password: 'password',
@@ -21,9 +23,11 @@ module SupervisorRunTestsHelper
   }
   EM_ADDRESS = 'none'
   FULL_CONFIG_SIMULATED_ANNEALING = {
-      'maxiter' => 1,
-      'dwell' => 1,
-      'schedule' => 'boltzmann',
+      'initial_temperature' => 1000,
+      'cooling_rate' => 0.001,
+      'points_limit' => 0,
+      'dwell' => 10,
+      'spread' => 10,
       'experiment_id' => EXPERIMENT_ID,
       'user' => 'user',
       'password' => 'password',
