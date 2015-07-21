@@ -58,17 +58,12 @@ def anneal(initial_temperature,
                     scalarm.schedule_point(neighbour)
                     neighbourhood.append(neighbour)
 
-            current_best_point = []
-            current_best_value = float('inf')
             for j in xrange(0, len(neighbourhood)):
                 current_point = neighbourhood[j]
                 current_value = float(scalarm.get_result(current_point))
-                if (current_value < current_best_value):
-                    current_best_point, current_best_value = current_point, current_value
+                if (acceptance_probability(best_value, current_value, temperature) > random.random()):
+                  best_point, best_value = current_point, current_value
 
-            if (acceptance_probability(best_value, current_best_value, temperature) > random.random()):
-                best_point, best_value = current_best_point, current_best_value
-        
         temperature *= 1 - cooling_rate
     
     return best_point, best_value
