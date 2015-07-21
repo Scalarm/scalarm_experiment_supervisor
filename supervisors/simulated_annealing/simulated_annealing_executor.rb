@@ -36,7 +36,7 @@ class SimulatedAnnealingExecutor < AbstractSupervisorExecutor
     script_config = "#{CONFIG_FILE_PREFIX}#{config['experiment_id']}"
     File.open(script_config, 'w+') { |file| file.write(config.to_json) }
     script_log = self.log_path(config['experiment_id']).to_s
-    pid = Process.spawn("python2 #{SCRIPT_PATH} #{script_config}", out: script_log, err: script_log)
+    pid = Process.spawn('python2', SCRIPT_PATH, script_config, out: script_log, err: script_log)
     Process.detach(pid)
     pid
   end
