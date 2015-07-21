@@ -21,6 +21,7 @@ class Scalarm:
         self.verify = verify
 
     def schedule_point(self, params):
+        print 'Scheduling: ', params
         params_dict = {}
         for id, param in zip(self.parameters_ids, params):
             params_dict[id] = param
@@ -32,6 +33,7 @@ class Scalarm:
         print r.text
 
     def get_result(self, params):
+        print 'Getting result: ', params
         params_dict = {}
         for id, param in zip(self.parameters_ids, params):
             params_dict[id] = param
@@ -47,9 +49,12 @@ class Scalarm:
                 time.sleep(1)
                 continue
             elif decoded_result["status"] == "ok":
-                return decoded_result["result"]["product"]
+                if "moe" not in decoded_result["result"]:
+                    raise KeyError("Field 'result' must contain key named 'moe' with numeric value")
+                return decoded_result["result"]["moe"]
 
     def mark_as_complete(self, result):
+        print 'Uploading result: ', result
         r = requests.post("%s://%s/experiments/%s/mark_as_complete.json" % (self.schema, self.address, self.experiment_id),
                           auth=HTTPBasicAuth(self.user, self.password),
                           params={'results': json.dumps(result)},

@@ -34,6 +34,7 @@ class SupervisorRun < Scalarm::Database::MongoActiveRecord
   #
   # Required params
   # * id - id of supervisor script
+  # * user_id - id of owner of this supervisor run
   # * config - json with config for supervisor script (config is not validated)
   # Returns
   # * pid of started script
