@@ -8,20 +8,33 @@
     .content
       .row
         .small-5.columns
-          = label_tag :maxiter, 'Maximum number of iterations:', class: 'right inline'
+          = label_tag :initial_temperature, 'Initial temperature:', class: 'right inline'
         .small-4.columns.end
-          = number_field_tag :maxiter, 1, min: 1, required: true, class: 'text-right'
+          = number_field_tag :initial_temperature, 1000, min: 1, required: true, class: 'text-right'
 
       .row
         .small-5.columns
-          = label_tag :dwell, 'dwell:', class: 'right inline'
+          = label_tag :cooling_rate, 'Cooling rate [0-1]:', class: 'right inline'
         .small-4.columns.end
-          = number_field_tag :dwell, 1, min: 1, required: true, class: 'text-right'
+          = number_field_tag :cooling_rate, 0.001, min: 0, required: true, class: 'text-right'
 
       .row
         .small-5.columns
-          = label_tag :schedule, 'Scheduling method:', class: 'right inline'
+          = label_tag :points_limit, 'Maximum number of points evaluated (0 is infinite):', class: 'right inline'
         .small-4.columns.end
-          = text_field_tag :schedule, 'boltzmann', min: 1, required: true, class: 'text-right'
+          = number_field_tag :points_limit, 0, min: 0, required: true, class: 'text-right'
 
+      .row
+        .small-5.columns
+          = label_tag :dwell, 'Number of inner iterations for each temperature value:', class: 'right inline'
+        .small-4.columns.end
+          = number_field_tag :dwell, 10, min: 1, required: true, class: 'text-right'
 
+      .row
+        .small-5.columns
+          = label_tag :spread, 'Number of points generated for each inner iteration:', class: 'right inline'
+        .small-4.columns.end
+          = number_field_tag :spread, 10, min: 1, required: true, class: 'text-right'
+
+      .row
+        = 'Simulation result must contain key named \'moe\' with numeric value'
