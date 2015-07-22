@@ -5,7 +5,7 @@ require 'supervisor_run_tests_helper'
 class GenericSupervisorRunStartingTest < ActionDispatch::IntegrationTest
   include SupervisorRunTestsHelper
   ID = 'id'
-  CONFIG = {'experiment_id' => '55ae2c19cca7031dfe089158'}
+  CONFIG = {'experiment_id' => EXPERIMENT_ID}
 
   def setup
     super

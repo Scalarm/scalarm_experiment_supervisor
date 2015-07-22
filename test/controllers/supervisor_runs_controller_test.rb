@@ -3,7 +3,7 @@ require 'test_helper'
 class SupervisorRunsControllerTest < ActionController::TestCase
 
   SUPERVISOR_ID = 'supervisor_id'
-  EXPERIMENT_ID = '55ae2c19cca7031dfe089158'
+  EXPERIMENT_ID = BSON::ObjectId.new.to_s
   STATE = {'state' => 'state'}
 
   def setup
