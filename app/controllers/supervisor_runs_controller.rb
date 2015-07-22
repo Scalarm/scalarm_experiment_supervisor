@@ -115,7 +115,13 @@ class SupervisorRunsController < ApplicationController
     # config.user -> maybe we should check if SimulationManagerTempPassword (or user) belongs to @current_user
     #  because no one could invoke supervisor on behalf of other user
     config = JSON.parse(params[:config])
-    experiment_id = BSON::ObjectId(config['experiment_id'].to_s)
+    experiment_id = config['experiment_id']
+
+    begin
+      experiment_id = BSON::ObjectId(experiment_id)
+    rescue BSON::InvalidObjectId
+      precondition_failed
+    end
 
     Rails.logger.debug "Will create supervisor run for experiment: #{experiment_id}"
 

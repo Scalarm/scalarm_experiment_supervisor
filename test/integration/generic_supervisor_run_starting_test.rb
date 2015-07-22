@@ -5,6 +5,7 @@ require 'supervisor_run_tests_helper'
 class GenericSupervisorRunStartingTest < ActionDispatch::IntegrationTest
   include SupervisorRunTestsHelper
   ID = 'id'
+  CONFIG = {'experiment_id' => EXPERIMENT_ID}
 
   def setup
     super
@@ -34,15 +35,14 @@ class GenericSupervisorRunStartingTest < ActionDispatch::IntegrationTest
   end
 
   test "id should be recognized as supervisor_id" do
-    config = {'experiment_id' => EXPERIMENT_ID}
     supervisor_run = mock do
-      expects(:start).with(ID, BSON::ObjectId(EXPERIMENT_ID), @user_id, config).returns(1)
+      expects(:start).with(ID, BSON::ObjectId(EXPERIMENT_ID), @user_id, CONFIG).returns(1)
       expects(:save)
       expects(:id).returns(ID)
     end
     SupervisorRun.expects(:new).with({}).returns(supervisor_run)
 
-    post create_run_supervisor_path(ID), config: config.to_json
+    post create_run_supervisor_path(ID), config: CONFIG.to_json
 
   end
 

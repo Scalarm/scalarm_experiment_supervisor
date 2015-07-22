@@ -2,7 +2,7 @@ source 'https://rubygems.org'
 
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
-gem 'rails', '4.1.1'
+gem 'rails', '~> 4.1.12'
 # Use SCSS for stylesheets
 # gem 'sass-rails', '~> 4.0.3'
 # Use Uglifier as compressor for JavaScript assets
@@ -51,10 +51,10 @@ gem 'puma'
 
 # for local development - set path to scalarm-database
 #gem 'scalarm-database', path: '/home/jliput/Scalarm/scalarm-database'
-gem 'scalarm-database', '>= 0.2', git: 'git://github.com/Scalarm/scalarm-database.git'
+gem 'scalarm-database', '>= 0.3.2', git: 'git://github.com/Scalarm/scalarm-database.git'
 
 # for local development - set path to scalarm-core
-#gem 'scalarm-service_core', path: '/home/jliput/Scalarm/scalarm-service_core'
-gem 'scalarm-service_core', '~> 0.4.1', git: 'git://github.com/Scalarm/scalarm-service_core.git'
+#gem 'scalarm-service_core', path: '/Users/jliput/Scalarm/scalarm-service_core'
+gem 'scalarm-service_core', '~> 0.5', git: 'git://github.com/Scalarm/scalarm-service_core.git'
 
 
