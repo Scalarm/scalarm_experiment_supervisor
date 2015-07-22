@@ -143,7 +143,7 @@ class SupervisorRun < Scalarm::Database::MongoActiveRecord
   # Returns hash with supervisor_run_id and STATE_ALLOWED_KEYS
   def state
     res = {supervisor_run_id: self.id.to_s}
-    res.merge! self.attributes.select {|x| STATE_ALLOWED_KEYS.include? x}
+    res.merge! self.to_h.select {|x| STATE_ALLOWED_KEYS.include? x}
     res.symbolize_keys
   end
 

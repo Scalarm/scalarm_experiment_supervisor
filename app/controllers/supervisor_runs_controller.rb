@@ -115,8 +115,11 @@ class SupervisorRunsController < ApplicationController
     # config.user -> maybe we should check if SimulationManagerTempPassword (or user) belongs to @current_user
     #  because no one could invoke supervisor on behalf of other user
     config = JSON.parse(params[:config])
-    experiment_id = BSON::ObjectId(config['experiment_id'])
+    experiment_id = BSON::ObjectId(config['experiment_id'].to_s)
+
     Rails.logger.debug "Will create supervisor run for experiment: #{experiment_id}"
+
+    # check if experiment is visible to current user
     experiment = Scalarm::Database::Model::Experiment.where(
         {'_id' => experiment_id},
         fields: %w(user_id shared_with)).first
