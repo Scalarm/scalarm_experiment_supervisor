@@ -6,7 +6,7 @@ require 'mocha/mock'
 module SupervisorRunTestsHelper
   include Scalarm::ServiceCore::TestUtils::DbHelper
 
-  EXPERIMENT_ID = 'some_id'
+  EXPERIMENT_ID = BSON::ObjectId.new.to_s
   CONFIG_FROM_EM_SIMULATED_ANNEALING = {
       initial_temperature: 1000,
       cooling_rate: 0.001,
