@@ -1,5 +1,6 @@
 class SupervisorsController < ApplicationController
   include Scalarm::ServiceCore::CorsSupport
+  include Scalarm::ServiceCore::ParameterValidation
 
   before_filter :check_request_origin, only: [:start_panel]
   before_filter :cors_preflight_check, only: [:start_panel]
@@ -72,6 +73,9 @@ class SupervisorsController < ApplicationController
   end
 
   def load_manifest
+    validate(
+        id: :security_default
+    )
     @manifest = Supervisor.get_manifest(params[:id])
     supervisor_allowed = (@allowed_supervisors.include? params[:id])
     unless @manifest.blank?
