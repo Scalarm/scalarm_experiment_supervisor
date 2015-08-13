@@ -11,9 +11,9 @@ GIT
 
 GIT
   remote: git://github.com/Scalarm/scalarm-service_core.git
-  revision: ca303c244e691c14efc85ddd4ba16f2a53236d9c
+  revision: 58eefb4e1daa6f16950aa2bec8fa725d08b00ccd
   specs:
-    scalarm-service_core (0.5)
+    scalarm-service_core (0.5.2)
       actionpack (~> 4.1)
       activesupport (~> 4.1)
       rest-client (~> 1.8)
@@ -156,7 +156,7 @@ DEPENDENCIES
   rdoc (~> 4.2.0)
   rest-client (~> 1.8)
   scalarm-database (>= 0.3.2)!
-  scalarm-service_core (~> 0.5)!
+  scalarm-service_core (~> 0.5.2)!
   sdoc (~> 0.4.0)
   spring
   therubyracer

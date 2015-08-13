@@ -18,7 +18,10 @@ class ApplicationController < ActionController::Base
 
   before_filter :authenticate, :except => [:status]
 
-  rescue_from ResourceNotFound, ResourceForbidden, PreconditionFailed, with: :generic_exception_handler
+
+  rescue_from SecurityError, with: :handle_security_error
+  rescue_from ResourceNotFound, ResourceForbidden,
+              PreconditionFailed, with: :generic_exception_handler
 
   ##
   # Render trivial json if Accept: application/json specified,
@@ -59,7 +62,16 @@ class ApplicationController < ActionController::Base
     end
   end
 
+  ##
+  # Use generic exception handler to handle
+  # PreconditionFailed based on security error with proper message
+  def handle_security_error(exception)
+    Rails.logger.warn("Security exception caught: #{exception.to_s}")
+    generic_exception_handler(PreconditionFailed.new(exception.to_s))
+  end
+
   def generic_exception_handler(exception)
+    Rails.logger.warn("Controller exception caught: #{exception.to_s}")
     respond_to do |format|
       format.json do
         render json: {status: 'error', reason: exception.to_s}, status: exception.status
@@ -72,6 +84,6 @@ class ApplicationController < ActionController::Base
   end
 
   protected :authentication_failed
-  private :generic_exception_handler
+  private :handle_security_error, :generic_exception_handler
 
 end

@@ -72,6 +72,10 @@ class SupervisorsController < ApplicationController
   end
 
   def load_manifest
+    validate(
+        id: :security_default
+    )
+
     @manifest = Supervisor.get_manifest(params[:id])
     supervisor_allowed = (@allowed_supervisors.include? params[:id])
     unless @manifest.blank?
