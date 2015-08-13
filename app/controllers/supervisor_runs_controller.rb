@@ -2,7 +2,6 @@ require 'json'
 require 'scalarm/service_core/utils'
 
 class SupervisorRunsController < ApplicationController
-  skip_before_action :verify_authenticity_token
   before_filter :load_supervisor_run, only: [:show, :stop, :destroy]
   before_filter :check_supervisor_owners, only: [:stop, :destroy]
 
