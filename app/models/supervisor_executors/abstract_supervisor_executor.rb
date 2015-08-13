@@ -1,3 +1,5 @@
+require 'scalarm/service_core/utils'
+
 ##
 # This class defines interface of supervisor script execution.
 # Child classes must be declared in supervisors/<supervisor_name> directory
@@ -6,6 +8,34 @@
 # Executor will be accessible under <script_id> id by SupervisorScriptExecutorsProvider.get method.
 class AbstractSupervisorExecutor
   NOT_IMPLEMENTED = 'This is an abstract method, which must be implemented by all subclasses'
+
+  ##
+  # Raise error if experiment_id is not safe
+  def self.validate_experiment_id!(experiment_id)
+    unless experiment_id =~ Scalarm::ServiceCore::Utils::get_validation_regexp(:default)
+      raise SecurityError.new('Insecure experiment id in supervisor configuration')
+    end
+  end
+
+  ##
+  # Raise error if configuration is not safe
+  def self.validate_config_security!(config)
+    validate_experiment_id!(config['experiment_id'])
+  end
+
+  ##
+  # Template for invoking start method.
+  def self._start(config)
+    validate_config_security!(config)
+    start(config)
+  end
+
+  ##
+  # Template for invoking cleanup method
+  def self._cleanup(experiment_id)
+    validate_experiment_id!(experiment_id)
+    cleanup(experiment_id)
+  end
 
   ##
   # Method to start supervisor script with given config. Must be implemented in child classes.
@@ -17,7 +47,7 @@ class AbstractSupervisorExecutor
 
   ##
   # Method to clean all created files after supervisor script execution. Must be implemented in child classes.
-  def self.cleanup(exeperiment_id)
+  def self.cleanup(experiment_id)
     raise NOT_IMPLEMENTED
   end
 

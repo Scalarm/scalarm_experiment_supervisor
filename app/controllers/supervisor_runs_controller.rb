@@ -120,7 +120,7 @@ class SupervisorRunsController < ApplicationController
     begin
       BSON::ObjectId(experiment_id)
     rescue BSON::InvalidObjectId
-      precondition_failed
+      raise PreconditionFailed.new('Invalid experiment_id')
     end
 
     Rails.logger.debug "Will create supervisor run for experiment: #{experiment_id}"
