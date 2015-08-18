@@ -26,7 +26,10 @@ gem 'spring',        group: :development
 
 gem 'bson'
 gem 'bson_ext'
-gem 'mongo'
+gem 'mongo', '~> 1.12'
+# mongo session store 5.1 supports mongo 1.12
+# it can be changed to 6.0 if mongo will be upgraded to 2.x
+gem 'mongo_session_store-rails4', '~> 5.1'
 
 gem 'mocha', '~> 1.1.0'
 gem 'rdoc', '~> 4.2.0'
@@ -51,10 +54,10 @@ gem 'puma'
 
 # for local development - set path to scalarm-database
 #gem 'scalarm-database', path: '/home/jliput/Scalarm/scalarm-database'
-gem 'scalarm-database', '>= 0.3.2', git: 'git://github.com/Scalarm/scalarm-database.git'
+gem 'scalarm-database', '>= 0.3.1', git: 'git://github.com/Scalarm/scalarm-database.git'
 
 # for local development - set path to scalarm-core
 #gem 'scalarm-service_core', path: '/Users/jliput/Scalarm/scalarm-service_core'
-gem 'scalarm-service_core', '~> 0.5.2', git: 'git://github.com/Scalarm/scalarm-service_core.git'
+gem 'scalarm-service_core', '~> 0.6.1', git: 'git://github.com/Scalarm/scalarm-service_core.git'
 
 

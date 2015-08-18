@@ -11,9 +11,9 @@ GIT
 
 GIT
   remote: git://github.com/Scalarm/scalarm-service_core.git
-  revision: 58eefb4e1daa6f16950aa2bec8fa725d08b00ccd
+  revision: ff30916e355282e9776757cd2d1f1d42190ca604
   specs:
-    scalarm-service_core (0.5.2)
+    scalarm-service_core (0.6.1)
       actionpack (~> 4.1)
       activesupport (~> 4.1)
       rest-client (~> 1.8)
@@ -48,9 +48,9 @@ GEM
       thread_safe (~> 0.1)
       tzinfo (~> 1.1)
     arel (5.0.1.20140414130214)
-    bson (1.11.1)
-    bson_ext (1.11.1)
-      bson (~> 1.11.1)
+    bson (1.12.3)
+    bson_ext (1.12.3)
+      bson (~> 1.12.3)
     builder (3.2.2)
     coffee-rails (4.0.1)
       coffee-script (>= 2.2.0)
@@ -84,8 +84,10 @@ GEM
     minitest (5.7.0)
     mocha (1.1.0)
       metaclass (~> 0.0.1)
-    mongo (1.11.1)
-      bson (= 1.11.1)
+    mongo (1.12.3)
+      bson (= 1.12.3)
+    mongo_session_store-rails4 (5.1.0)
+      actionpack (>= 3.1)
     multi_json (1.11.2)
     netrc (0.10.3)
     puma (2.9.2)
@@ -150,13 +152,14 @@ DEPENDENCIES
   jbuilder (~> 2.0)
   jquery-rails
   mocha (~> 1.1.0)
-  mongo
+  mongo (~> 1.12)
+  mongo_session_store-rails4 (~> 5.1)
   puma
   rails (~> 4.1.12)
   rdoc (~> 4.2.0)
   rest-client (~> 1.8)
-  scalarm-database (>= 0.3.2)!
-  scalarm-service_core (~> 0.5.2)!
+  scalarm-database (>= 0.3.1)!
+  scalarm-service_core (~> 0.6.1)!
   sdoc (~> 0.4.0)
   spring
   therubyracer
