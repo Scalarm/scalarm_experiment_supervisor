@@ -11,12 +11,20 @@ GIT
 
 GIT
   remote: git://github.com/Scalarm/scalarm-service_core.git
-  revision: ff30916e355282e9776757cd2d1f1d42190ca604
+  revision: 5ea9c70d8acab8073562b12101e46142ebb7dc23
   specs:
-    scalarm-service_core (0.6.1)
+    scalarm-service_core (0.7)
       actionpack (~> 4.1)
       activesupport (~> 4.1)
       rest-client (~> 1.8)
+
+GIT
+  remote: git://github.com/kliput/mongo_session_store.git
+  revision: 5416ecf60275909dda0bfb99b77bc7504ee1fc1b
+  branch: issue-31-mongo_store-deserialization
+  specs:
+    mongo_session_store-rails4 (5.1.0)
+      actionpack (>= 3.1)
 
 GEM
   remote: https://rubygems.org/
@@ -86,8 +94,6 @@ GEM
       metaclass (~> 0.0.1)
     mongo (1.12.3)
       bson (= 1.12.3)
-    mongo_session_store-rails4 (5.1.0)
-      actionpack (>= 3.1)
     multi_json (1.11.2)
     netrc (0.10.3)
     puma (2.9.2)
@@ -153,13 +159,13 @@ DEPENDENCIES
   jquery-rails
   mocha (~> 1.1.0)
   mongo (~> 1.12)
-  mongo_session_store-rails4 (~> 5.1)
+  mongo_session_store-rails4!
   puma
   rails (~> 4.1.12)
   rdoc (~> 4.2.0)
   rest-client (~> 1.8)
   scalarm-database (>= 0.3.1)!
-  scalarm-service_core (~> 0.6.1)!
+  scalarm-service_core (~> 0.7)!
   sdoc (~> 0.4.0)
   spring
   therubyracer
