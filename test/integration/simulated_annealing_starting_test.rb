@@ -18,6 +18,9 @@ class SimulatedAnnealingStartingTest < ActionDispatch::IntegrationTest
   test "successful start of simulated annealing supervisor script" do
     # mocks
     self.class.mock_information_service
+    SimulatedAnnealingExecutor.stubs(:config_file_path).with(EXPERIMENT_ID)
+        .returns(SIMULATED_ANNEALING_CONFIG_FILE_PATH)
+
     # mock script starting with tests of proper calls
     Process.expects(:spawn).with('python2', SIMULATED_ANNEALING_MAIN_FILE, SIMULATED_ANNEALING_CONFIG_FILE_PATH,
                                  out: SIMULATED_ANNEALING_LOG_FILE_PATH, err: SIMULATED_ANNEALING_LOG_FILE_PATH).returns(PID)
@@ -47,6 +50,7 @@ class SimulatedAnnealingStartingTest < ActionDispatch::IntegrationTest
   test "proper response on error while starting simulated annealing script with cleanup" do
     # mocks
     self.class.mock_information_service
+
     # create file to test proper deletion on error
     File.open(SIMULATED_ANNEALING_LOG_FILE_PATH, 'w+')
     # raise exception on staring supervisor script

@@ -29,13 +29,13 @@ require 'supervisor_executors/abstract_supervisor_executor'
 class SimulatedAnnealingExecutor < AbstractSupervisorExecutor
 
   SCRIPT_PATH = 'supervisors/simulated_annealing/anneal.py'
-  CONFIG_FILE_PREFIX = '/tmp/supervisor_script_config_'
 
   # overrides parent method
   def self.start(config)
-    script_config = "#{CONFIG_FILE_PREFIX}#{config['experiment_id']}"
+    experiment_id = config['experiment_id']
+    script_config = config_file_path(experiment_id)
     File.open(script_config, 'w+') { |file| file.write(config.to_json) }
-    script_log = self.log_path(config['experiment_id']).to_s
+    script_log = self.log_path(experiment_id).to_s
     pid = Process.spawn('python2', SCRIPT_PATH, script_config, out: script_log, err: script_log)
     Process.detach(pid)
     pid
@@ -43,7 +43,11 @@ class SimulatedAnnealingExecutor < AbstractSupervisorExecutor
 
   # overrides parent method
   def self.cleanup(experiment_id)
-    File.delete self.log_path(experiment_id) if File.exists? self.log_path(experiment_id)
-    File.delete "#{CONFIG_FILE_PREFIX}#{experiment_id}" if File.exists? "#{CONFIG_FILE_PREFIX}#{experiment_id}"
+    files_to_delete = [self.log_path(experiment_id), self.config_file_path(experiment_id)]
+    files_to_delete.each do |path|
+      File.delete(path) if File.exists?(path)
+    end
   end
+
+
 end

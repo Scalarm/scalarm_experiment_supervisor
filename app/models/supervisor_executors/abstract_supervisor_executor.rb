@@ -8,6 +8,7 @@ require 'scalarm/service_core/utils'
 # Executor will be accessible under <script_id> id by SupervisorScriptExecutorsProvider.get method.
 class AbstractSupervisorExecutor
   NOT_IMPLEMENTED = 'This is an abstract method, which must be implemented by all subclasses'
+  CONFIG_FILE_PREFIX = '/tmp/supervisor_script_config'
 
   ##
   # Raise error if experiment_id is not safe
@@ -55,5 +56,14 @@ class AbstractSupervisorExecutor
   # Default log path. Override if needed.
   def self.log_path(experiment_id)
     Rails.root.join('log', "supervisor_script_#{experiment_id}.log")
+  end
+
+  ##
+  # Default path for config file.
+  # Usage of config files are not mandatory - use for convenience.
+  # This file will be removed on supervisor cleanup.
+  def self.config_file_path(experiment_id)
+    config_suffix = SecureRandom.hex(8)
+    [CONFIG_FILE_PREFIX, experiment_id, config_suffix].join('_')
   end
 end
