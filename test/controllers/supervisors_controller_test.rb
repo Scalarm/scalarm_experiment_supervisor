@@ -4,6 +4,7 @@ require 'json'
 class SupervisorsControllerTest < ActionController::TestCase
 
   ID = 'test'
+  UNSAFE_ID = '<script>alert(1)</script>'
   BAD_ID = 'bad_id'
   PUBLIC_MANIFEST = {'id' => ID, 'test' => 'test', 'test2' => ['foo', 'bar', 42], 'public' => true}
   EXPL_NON_PUBLIC_MANIFEST = {'id' => 'expl_non_public', 'a' => 'a', 'bc3' => ['b', 'c', 3], 'public' => false}
@@ -35,6 +36,12 @@ class SupervisorsControllerTest < ActionController::TestCase
     assert_equal PUBLIC_MANIFEST, manifest
   end
 
+  test 'show should not allow to use unsafe supervisor id' do
+    Supervisor.stubs(:get_manifest).with(UNSAFE_ID).returns(PUBLIC_MANIFEST.symbolize_keys)
+    get :show, id: UNSAFE_ID, format: :json
+    assert_response :precondition_failed
+  end
+
   test 'show should redirect to index on not existing id (html)' do
     @user.allowed_supervisors = [BAD_ID]
     Supervisor.expects(:get_manifest).with(BAD_ID).returns(nil)
@@ -56,6 +63,15 @@ class SupervisorsControllerTest < ActionController::TestCase
     File.open(VIEW_TEST_FILE, 'w+') {|file| file.write ID}
     get :start_panel, id: ID
     assert_equal ID, response.body
+  end
+
+  test 'start_panel should not allow to use unsafe supervisor id' do
+    Supervisor.stubs(:get_manifest).with(UNSAFE_ID).returns(PUBLIC_MANIFEST.symbolize_keys)
+
+    get :show, id: UNSAFE_ID
+
+    assert_redirected_to action: :index
+    assert_not_empty flash[:error]
   end
 
   test 'start_panel should redirect to index on not existing id (html)' do

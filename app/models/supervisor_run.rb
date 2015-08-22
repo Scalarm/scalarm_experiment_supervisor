@@ -50,7 +50,7 @@ class SupervisorRun < Scalarm::Database::MongoActiveRecord
     information_service = InformationService.instance
     config['address'] = information_service.get_list_of('experiment_managers').sample
     config['http_schema'] = 'https' # TODO - temporary, change to config entry
-    self.pid = PROVIDER.get(id).start config
+    self.pid = PROVIDER.get(id)._start config
     Rails.logger.info "New supervisor run for #{id}, pid: #{self.pid}"
     self.is_running = true
     SupervisorRunWatcher.start_watching
@@ -152,7 +152,7 @@ class SupervisorRun < Scalarm::Database::MongoActiveRecord
   # Overrides default destroy to make sure proper cleanup is run before destroying object.
   def destroy
     stop if check
-    PROVIDER.get(self.supervisor_id).cleanup(self.experiment_id.to_s) unless self.supervisor_id.nil?
+    PROVIDER.get(self.supervisor_id)._cleanup(self.experiment_id.to_s) unless self.supervisor_id.nil?
     super
   end
 end

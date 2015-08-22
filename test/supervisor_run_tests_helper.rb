@@ -40,7 +40,7 @@ module SupervisorRunTestsHelper
   }
   SIMULATED_ANNEALING_ID = 'simulated_annealing'
   SIMULATED_ANNEALING_LOG_FILE_PATH = Rails.root.join('log', "supervisor_script_#{EXPERIMENT_ID}.log").to_s
-  SIMULATED_ANNEALING_CONFIG_FILE_PATH = "/tmp/supervisor_script_config_#{EXPERIMENT_ID}"
+  SIMULATED_ANNEALING_CONFIG_FILE_PATH = "/tmp/supervisor_script_config_#{EXPERIMENT_ID}_random"
   SIMULATED_ANNEALING_MAIN_FILE = 'supervisors/simulated_annealing/anneal.py'
   SIMULATED_ANNEALING_LIBRARY_FILE = 'supervisors/simulated_annealing/scalarmapi.py'
   REASON_PREFIX = '[Experiment Supervisor]'

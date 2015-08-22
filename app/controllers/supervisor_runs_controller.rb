@@ -1,7 +1,7 @@
 require 'json'
+require 'scalarm/service_core/utils'
 
 class SupervisorRunsController < ApplicationController
-  skip_before_action :verify_authenticity_token
   before_filter :load_supervisor_run, only: [:show, :stop, :destroy]
   before_filter :check_supervisor_owners, only: [:stop, :destroy]
 
@@ -114,13 +114,13 @@ class SupervisorRunsController < ApplicationController
     # TODO: security
     # config.user -> maybe we should check if SimulationManagerTempPassword (or user) belongs to @current_user
     #  because no one could invoke supervisor on behalf of other user
-    config = JSON.parse(params[:config])
-    experiment_id = config['experiment_id']
+    config = Scalarm::ServiceCore::Utils::parse_json_if_string(params[:config])
+    experiment_id = config['experiment_id'].to_s
 
     begin
       experiment_id = BSON::ObjectId(experiment_id)
     rescue BSON::InvalidObjectId
-      precondition_failed
+      raise PreconditionFailed.new('Invalid experiment_id')
     end
 
     Rails.logger.debug "Will create supervisor run for experiment: #{experiment_id}"
@@ -129,6 +129,9 @@ class SupervisorRunsController < ApplicationController
     experiment = Scalarm::Database::Model::Experiment.where(
         {'_id' => experiment_id},
         fields: %w(user_id shared_with)).first
+
+    resource_not_found unless experiment
+
     resource_forbidden unless ((experiment.shared_with || []) + [experiment.user_id]).include? current_user.id
 
     #TODO validate and check errors

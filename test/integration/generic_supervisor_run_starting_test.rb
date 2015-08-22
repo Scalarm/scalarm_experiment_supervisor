@@ -36,7 +36,7 @@ class GenericSupervisorRunStartingTest < ActionDispatch::IntegrationTest
 
   test "id should be recognized as supervisor_id" do
     supervisor_run = mock do
-      expects(:start).with(ID, BSON::ObjectId(EXPERIMENT_ID), @user_id, CONFIG).returns(1)
+      expects(:start).with(ID, CONFIG['experiment_id'], @user_id, CONFIG).returns(1)
       expects(:save)
       expects(:id).returns(ID)
     end
