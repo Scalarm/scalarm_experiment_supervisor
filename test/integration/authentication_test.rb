@@ -2,6 +2,8 @@ require 'csv'
 require 'minitest/autorun'
 require 'mocha/test_unit'
 
+require 'active_support'
+
 require 'scalarm/service_core'
 require 'scalarm/service_core/logger'
 require 'scalarm/service_core/test_utils/authentication_test_cases'
@@ -24,6 +26,12 @@ class AuthenticationTest < ActionDispatch::IntegrationTest
 
   def teardown
     super
+  end
+
+  test 'authentication failed should return HTTP 401 without WWW-Authenticate header' do
+    get '/'
+    assert_response :unauthorized
+    assert_nil headers['WWW-Authenticate'], headers
   end
 
   Scalarm::ServiceCore::TestUtils::AuthenticationTestCases.define_all_tests

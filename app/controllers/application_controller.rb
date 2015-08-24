@@ -49,7 +49,9 @@ class ApplicationController < ActionController::Base
   def authentication_failed
     Rails.logger.debug('[authentication] failed -> 401')
     @user_session.destroy unless @user_session.nil?
-    headers['WWW-Authenticate'] = %(Basic realm="Scalarm")
+
+    ## Disabled due to SCAL-774
+    # headers['WWW-Authenticate'] = %(Basic realm="Scalarm")
 
     respond_to do |format|
       format.html do
