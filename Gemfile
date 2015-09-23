@@ -60,6 +60,4 @@ gem 'scalarm-database', '>= 0.3.1', git: 'git://github.com/Scalarm/scalarm-datab
 
 # for local development - set path to scalarm-core
 # gem 'scalarm-service_core', path: '/Users/jliput/Scalarm/scalarm-service_core'
-gem 'scalarm-service_core', '~> 0.7', git: 'git://github.com/Scalarm/scalarm-service_core.git'
-
-
+gem 'scalarm-service_core', '~> 1.0', git: 'git://github.com/Scalarm/scalarm-service_core.git'
