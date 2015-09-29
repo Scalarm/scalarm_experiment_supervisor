@@ -3,3 +3,50 @@
   = hidden_field_tag 'supervisor_script_id', 'sensitivity_analysis_morris'
   = hidden_field_tag 'type', 'supervised'
   = hidden_field_tag 'supervisor_script_params'
+  = form_tag '', id: 'supervisor_params' do
+    .content
+      .row
+        .small-5.columns
+          = label_tag :design_type, 'design', class: 'right inline'
+        .small-4.columns.end
+          = select_tag :design_type,  options_for_select([["OAT", 'oat'], ["Simplex", 'simplex']], 'oat'), id: "design_type"
+      .row
+        .small-5.columns
+          = label_tag :size, 'size:', class: 'right inline'
+        .small-4.columns.end
+          = number_field_tag :size, 1000, min: 1, required: true, class: 'text-right'
+      .item{:id =>"opt-oat"}
+        .row
+          .small-5.columns
+            = label_tag :gridjump, 'grid.jump', class: 'right inline'
+          .small-4.columns.end
+            = number_field_tag :gridjump, 1000, min: 1, required: true, class: 'text-right'
+        .row
+          .small-5.columns
+            = label_tag :levels, 'levels', class: 'right inline'
+          .small-4.columns.end
+            = number_field_tag :levels, 1000, min: 1, required: true, class: 'text-right'
+      .item.hidden{:id =>"opt-simplex"}
+        .row
+          .small-5.columns
+            = label_tag :factor, 'scale.factor', class: 'right inline'
+          .small-4.columns.end
+            = number_field_tag :factor, 1000, min: 1, required: true, class: 'text-right'
+      //TODO calculate experiment size
+
+
+      :javascript
+        $("#design_type").on('change',function(){
+          design_type = $("#design_type option:selected").text()
+          if(design_type=="OAT"){
+            $("#opt-oat").show()
+            $("#opt-simplex").hide()
+          }
+          else if(design_type=="Simplex"){
+              $("#opt-oat").hide()
+              $("#opt-simplex").show()
+           }
+          else{
+            toastr.error("Icorrectly selected values")
+          }
+        })

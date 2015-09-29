@@ -1,98 +1,17 @@
 require(methods)
-library("rjson", lib.loc="~/R/x86_64-pc-linux-gnu-library/3.1")
-library("sensitivity", lib.loc="~/R/x86_64-pc-linux-gnu-library/3.1")
-library("hash", lib.loc="~/R/x86_64-pc-linux-gnu-library/3.1")
-library("httr", lib.loc="~/R/x86_64-pc-linux-gnu-library/3.1")
+library("rjson")
+library("sensitivity")
+library("hash")
+library("httr")
 
 # TODO how to install packages
-setGeneric("sensitivity_analysis_function", function(.Object, parameters, r) {
+source("supervisors/sensitivity_analysis_morris/scalarmapi.R")
+
+setGeneric("sensitivity_analysis_function", function(.Object, parameters, options) {
   .Object
 })
 
-setGeneric("schedule_point", function(.Object, params) {
-  .Object
-})
-setGeneric("get_result", function(.Object, params) {
-  .Object
-})
-setGeneric("mark_as_complete", function(.Object, result) {
-  .Object
-})
-Scalarm = setClass("Scalarm", # TODO parameters_ids changes
-                   slots=list(
-                     user="character",
-                     password="character",
-                     experiment_id ="character",
-                     address="character",
-                     parameters_ids="vector",
-                     http_schema ="character",
-                     verify ="logical"
-                   ))
-
-setMethod("initialize", "Scalarm", function(.Object, user, password,experiment_id,address,parameters_ids,http_schema,verify) {
-  .Object@user = user
-  .Object@password = password
-  .Object@experiment_id = experiment_id
-  .Object@address = address
-  .Object@parameters_ids =parameters_ids
-  .Object@http_schema =http_schema
-  .Object@verify =verify
-  .Object
-})
-
-
-setMethod("schedule_point", "Scalarm", function(.Object, params) { #TODO better URL handling
-  point=structure(list(params),.Names="point")
-  url <- paste(.Object@http_schema,"://", .Object@address,"/experiments/",.Object@experiment_id,"/schedule_point.json",sep="")
-  encoded_url <- URLencode(toJSON(params))
-  modified_url<- paste(url,"?point=",encoded_url, sep="")
-  library(RCurl) #
-  r=POST(modified_url,authenticate(.Object@user, .Object@password, type = "basic"), config( ssl_verifyhost=0,ssl_verifypeer=0) )
-  print("Scheduling point")
-  print(toJSON(r$params))
-  r
-})
-
-
-
-setMethod("get_result", "Scalarm", function(.Object, params){
-  while(1){
-    url <- paste(.Object@http_schema,"://", .Object@address,"/experiments/",.Object@experiment_id,"/get_result.json",sep="")
-    encoded_url <- URLencode(toJSON(params))
-    modified_url<- paste(url,"?point=",encoded_url, sep="")
-    library(RCurl)
-    r = GET(modified_url,authenticate(.Object@user, .Object@password, type = "basic"), config( ssl_verifyhost=0,ssl_verifypeer=0) ) # how to check verification of SSl
-      content = rawToChar(r$content)
-      results = fromJSON(content)
-    if (results$status=="error") {
-      print("Status: error; Waiting for results")
-      Sys.sleep(1)
-    }
-    else{
-      print("Point returned")
-      print(toJSON(results$result))
-      return(results$result)
-    }
-  }
-})
-
-
-setMethod("mark_as_complete", "Scalarm", function(.Object, result) {
-  url <- paste(.Object@http_schema,"://", .Object@address,"/experiments/",.Object@experiment_id,"/mark_as_complete.json",sep="")
-  encoded_url <- URLencode(result)
-  modified_url<- paste(url,"?point=",encoded_url, sep="")
-  library(RCurl) #
-  r=POST(modified_url,authenticate(.Object@user, .Object@password, type = "basic"), config( ssl_verifyhost=0,ssl_verifypeer=0) )
-  print( "Marked as complete and sent")
-  print(result)
-  r
-})
-
-
-
-
-
-setMethod("sensitivity_analysis_function", "Scalarm", function(.Object, parameters, r) { # wielkosc i reszta params na razie typ tylko oat
+setMethod("sensitivity_analysis_function", "Scalarm", function(.Object, parameters, options) {
   binf<- c()
   bsup<- c()
   factors <- c()
@@ -104,9 +23,14 @@ setMethod("sensitivity_analysis_function", "Scalarm", function(.Object, paramete
     bsup[parameter_number]<-parameters[[parameter_number]]$max
     factors[parameter_number]<-parameters[[parameter_number]]$id
   }
-  Uncomplete_object<-morris(model = NULL, factors =factors,
-                            binf , bsup ,r = r,
-                            design = list(type = "oat", levels = 5, grid.jump = 3)) #check for NA o overflow
+  if(options$design=="oat")
+    Uncomplete_object<-morris(model = NULL, factors =factors,
+                            binf , bsup ,r = options$size,
+                            design = list(type = "oat", levels = options$levels, grid.jump = options$gridjump))
+  else
+    Uncomplete_object<-morris(model = NULL, factors =factors,
+                            binf , bsup ,r = options$size,
+                            design = list(type = "simplex", scale.factors = options$factor))
   starting_points<- Uncomplete_object["X"]
   experiment_size<-nrow(starting_points$X) 
   
@@ -135,7 +59,7 @@ setMethod("sensitivity_analysis_function", "Scalarm", function(.Object, paramete
     moe_result= structure(list())
     
     for(counted_values in 1:length(factors)){
-      parameter_results= list("mu"=mu[[counted_values]], "mu.star"=mu.star[[counted_values]],"sigma"=sigma[[counted_values]])
+      parameter_results= list("mu"=mu[[counted_values]], "mustar"=mu.star[[counted_values]],"sigma"=sigma[[counted_values]])
       moe_result= append(moe_result, structure(list(parameter_results), .Names=factors[[counted_values]]))
     }
     output_result= append(output_result, structure(list(moe_result), .Names=output_to_json[output_number]))
@@ -145,6 +69,7 @@ setMethod("sensitivity_analysis_function", "Scalarm", function(.Object, paramete
   results=structure(list(append(method,results_moes)),.Names="result")
   results=append(results,list("error"="null"))
   JSON_to_send=toJSON(results)
+  print(JSON_to_send)
   mark_as_complete(.Object,JSON_to_send)
   
 })
@@ -157,9 +82,14 @@ if(!interactive()){
     config_file = fromJSON(file = commandArgs(TRUE)[1])
   }
   verify=FALSE
+  design = config_file$design_type
+  if(design=="oat")
+    options = list("design"=design, "size"=config_file$size, "gridjump"=config_file$gridjump, "levels"=config_file$levels)
+  else
+    options = list("design"=design, "size"=config_file$size, "factor"=config_file$factor)
   parameters_ids=lapply(config_file$parameters, "[[", "id")
   if(!is.null(config_file$verifySSL))
-    verify= config_file$verifySLL
+    verify= config_file$verifySSL
   scalarm = Scalarm(config_file$user,
                     config_file$password,
                     config_file$experiment_id,
@@ -167,6 +97,7 @@ if(!interactive()){
                     parameters_ids,
                     config_file$http_schema,
                     verify)
-  sensitivity_analysis_function(scalarm, config_file$parameters, 6) # size change
+  print(options)
+  sensitivity_analysis_function(scalarm, config_file$parameters, options) # size change
 }
 
