@@ -61,10 +61,11 @@ setMethod("sensitivity_analysis_function", "Scalarm", function(.Object, paramete
     mu <- apply(Complete_object$ee, 2, mean)
     mu.star <- apply(Complete_object$ee, 2, function(Complete_object) mean(abs(Complete_object)))
     sigma <- apply(Complete_object$ee, 2, sd)
+    sigma.star <- apply(Complete_object$ee, 2, function(Complete_object) sd(abs(Complete_object)))
     moe_result= structure(list())
 
     for(counted_values in 1:length(factors)){
-      parameter_results= list("mu"=mu[[counted_values]], "mustar"=mu.star[[counted_values]],"sigma"=sigma[[counted_values]])
+      parameter_results= list("mean"=mu[[counted_values]], "absolute_mean"=mu.star[[counted_values]],"standard_deviation"=sigma[[counted_values]], "absolute_standard_deviation"=sigma.star[[counted_values]])
       moe_result= append(moe_result, structure(list(parameter_results), .Names=factors[[counted_values]]))
     }
     output_result= append(output_result, structure(list(moe_result), .Names=output_to_json[output_number]))
