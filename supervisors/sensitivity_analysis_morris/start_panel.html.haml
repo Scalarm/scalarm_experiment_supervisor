@@ -8,34 +8,38 @@
       .row
         .small-5.columns
           = label_tag :design_type, 'design', class: 'right inline'
-        .small-4.columns.end
+        .small-3.columns.end
           = select_tag :design_type,  options_for_select([["OAT", 'oat'], ["Simplex", 'simplex']], 'oat'), id: "design_type"
       .row
         .small-5.columns
           = label_tag :size, 'size:', class: 'right inline'
-        .small-4.columns.end
-          = number_field_tag :size, 1000, min: 1, required: true, class: 'text-right'
+        .small-3.columns.end
+          = number_field_tag :size, 1, min: 1, required: true, class: 'text-left'
       .item{:id =>"opt-oat"}
         .row
           .small-5.columns
-            = label_tag :gridjump, 'grid.jump', class: 'right inline'
-          .small-4.columns.end
-            = number_field_tag :gridjump, 1000, min: 1, required: true, class: 'text-right'
+            = label_tag :levels, 'levels', class: 'right inline'
+          .small-3.columns.end
+            = number_field_tag :levels, 1, min: 1, required: true, class: 'text-left'
         .row
           .small-5.columns
-            = label_tag :levels, 'levels', class: 'right inline'
-          .small-4.columns.end
-            = number_field_tag :levels, 1000, min: 1, required: true, class: 'text-right'
+            = label_tag :gridjump, 'grid.jump', class: 'right inline'
+          .small-3.columns.end
+            = number_field_tag :gridjump, 1, min: 1, required: true, class: 'text-left'
       .item.hidden{:id =>"opt-simplex"}
         .row
           .small-5.columns
             = label_tag :factor, 'scale.factor', class: 'right inline'
-          .small-4.columns.end
-            = number_field_tag :factor, 1000, min: 1, required: true, class: 'text-right'
-      //TODO calculate experiment size
-
-
+          .small-3.columns.end
+            = number_field_tag :factor, 1, min: 1, required: true, class: 'text-left'
+      .row
+        .small-8.comluns
+          %button{:type => "button", :id=>"check-experiment-size", :name=>'experiment_size', :class=>'right inline' } Calculate experiment
       :javascript
+        $("#check-experiment-size").on("click", function() {
+         alert($("#supervised_experiment_submit_form #experiment_name").val($("#experiment_submit_form #experiment_name").val()))
+        })
+
         $("#design_type").on('change',function(){
           design_type = $("#design_type option:selected").text()
           if(design_type=="OAT"){
@@ -47,6 +51,6 @@
               $("#opt-simplex").show()
            }
           else{
-            toastr.error("Icorrectly selected values")
+            toastr.error("Incorrectly selected values")
           }
         })

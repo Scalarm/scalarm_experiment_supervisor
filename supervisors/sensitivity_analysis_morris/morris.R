@@ -12,11 +12,12 @@ setGeneric("sensitivity_analysis_function", function(.Object, parameters, option
 })
 
 setMethod("sensitivity_analysis_function", "Scalarm", function(.Object, parameters, options) {
+  error = "NULL"
+  method=list("sensitivity_analysis_method"="morris")
+  results_moes=list()
   binf<- c()
   bsup<- c()
   factors <- c()
-  
-  
   input_amount<- length(parameters)
   for(parameter_number in 1:input_amount){
     binf[parameter_number]<-parameters[[parameter_number]]$min
@@ -32,8 +33,12 @@ setMethod("sensitivity_analysis_function", "Scalarm", function(.Object, paramete
                             binf , bsup ,r = options$size,
                             design = list(type = "simplex", scale.factors = options$factor))
   starting_points<- Uncomplete_object["X"]
-  experiment_size<-nrow(starting_points$X) 
-  
+  if (any(is.na(Uncomplete_object$X))==TRUE){
+    print("NaN appear in starting_points array")
+    error="Cannot compute values - NaN in samples"
+  }
+  else{
+  experiment_size<-nrow(starting_points$X)
   for(row_number in 1:experiment_size ){
     new_point<-c()
     params <- c(starting_points$X[row_number,])
@@ -57,17 +62,20 @@ setMethod("sensitivity_analysis_function", "Scalarm", function(.Object, paramete
     mu.star <- apply(Complete_object$ee, 2, function(Complete_object) mean(abs(Complete_object)))
     sigma <- apply(Complete_object$ee, 2, sd)
     moe_result= structure(list())
-    
+
     for(counted_values in 1:length(factors)){
       parameter_results= list("mu"=mu[[counted_values]], "mustar"=mu.star[[counted_values]],"sigma"=sigma[[counted_values]])
       moe_result= append(moe_result, structure(list(parameter_results), .Names=factors[[counted_values]]))
     }
     output_result= append(output_result, structure(list(moe_result), .Names=output_to_json[output_number]))
   }
+  print(output_result)
   results_moes=structure(list(output_result),.Names=c("moes"))
-  method=list("sensitivity_analysis_method"="morris")
-  results=structure(list(append(method,results_moes)),.Names="result")
-  results=append(results,list("error"="null"))
+  }
+  results=append(method,results_moes)
+  results=append(results, list("error"=error))
+  print(results)
+  print(error)
   JSON_to_send=toJSON(results)
   print(JSON_to_send)
   mark_as_complete(.Object,JSON_to_send)
@@ -97,7 +105,6 @@ if(!interactive()){
                     parameters_ids,
                     config_file$http_schema,
                     verify)
-  print(options)
-  sensitivity_analysis_function(scalarm, config_file$parameters, options) # size change
+  sensitivity_analysis_function(scalarm, config_file$parameters, options)
 }
 
