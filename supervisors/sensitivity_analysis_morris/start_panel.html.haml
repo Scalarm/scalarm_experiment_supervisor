@@ -14,18 +14,18 @@
         .small-5.columns
           = label_tag :size, 'size:', class: 'right inline'
         .small-3.columns.end
-          = number_field_tag :size, 1, min: 1, required: true, class: 'text-left'
+          = number_field_tag :size, 10, min: 1, required: true, class: 'text-left'
       .item{:id =>"opt-oat"}
         .row
           .small-5.columns
             = label_tag :levels, 'levels', class: 'right inline'
           .small-3.columns.end
-            = number_field_tag :levels, 1, min: 1, required: true, class: 'text-left'
+            = number_field_tag :levels, 3, min: 1, required: true, class: 'text-left'
         .row
           .small-5.columns
             = label_tag :gridjump, 'grid.jump', class: 'right inline'
           .small-3.columns.end
-            = number_field_tag :gridjump, 1, min: 1, required: true, class: 'text-left'
+            = number_field_tag :gridjump, 3, min: 1, required: true, class: 'text-left'
       .item.hidden{:id =>"opt-simplex"}
         .row
           .small-5.columns

@@ -24,14 +24,16 @@ setMethod("sensitivity_analysis_function", "Scalarm", function(.Object, paramete
     bsup[parameter_number]<-parameters[[parameter_number]]$max
     factors[parameter_number]<-parameters[[parameter_number]]$id
   }
-  if(options$design=="oat")
+  if(options$design=="oat"){
     Uncomplete_object<-morris(model = NULL, factors =factors,
                             binf , bsup ,r = options$size,
                             design = list(type = "oat", levels = options$levels, grid.jump = options$gridjump))
-  else
+                            }
+  else{
     Uncomplete_object<-morris(model = NULL, factors =factors,
                             binf , bsup ,r = options$size,
                             design = list(type = "simplex", scale.factors = options$factor))
+                            }
   starting_points<- Uncomplete_object["X"]
   if (any(is.na(Uncomplete_object$X))==TRUE){
     print("NaN appear in starting_points array")
@@ -42,8 +44,9 @@ setMethod("sensitivity_analysis_function", "Scalarm", function(.Object, paramete
   for(row_number in 1:experiment_size ){
     new_point<-c()
     params <- c(starting_points$X[row_number,])
-    schedule_point(.Object, params)
-    result =get_result(.Object, params)
+    if(is.null(check_repetitions(.Object,params)))
+      schedule_point(.Object, params)
+    result=get_result(.Object, params)
     point_result<-result
     if(row_number==1){ #error point
       output_amount=length(point_result)
@@ -61,11 +64,10 @@ setMethod("sensitivity_analysis_function", "Scalarm", function(.Object, paramete
     mu <- apply(Complete_object$ee, 2, mean)
     mu.star <- apply(Complete_object$ee, 2, function(Complete_object) mean(abs(Complete_object)))
     sigma <- apply(Complete_object$ee, 2, sd)
-    sigma.star <- apply(Complete_object$ee, 2, function(Complete_object) sd(abs(Complete_object)))
     moe_result= structure(list())
 
     for(counted_values in 1:length(factors)){
-      parameter_results= list("mean"=mu[[counted_values]], "absolute_mean"=mu.star[[counted_values]],"standard_deviation"=sigma[[counted_values]], "absolute_standard_deviation"=sigma.star[[counted_values]])
+      parameter_results= list("mean"=mu[[counted_values]], "absolute_mean"=mu.star[[counted_values]],"standard_deviation"=sigma[[counted_values]])
       moe_result= append(moe_result, structure(list(parameter_results), .Names=factors[[counted_values]]))
     }
     output_result= append(output_result, structure(list(moe_result), .Names=output_to_json[output_number]))

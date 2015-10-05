@@ -1,3 +1,6 @@
+setGeneric("check_repetitions", function(.Object, params) {
+  .Object
+})
 setGeneric("schedule_point", function(.Object, params) {
   .Object
 })
@@ -29,6 +32,25 @@ setMethod("initialize", "Scalarm", function(.Object, user, password,experiment_i
   .Object
 })
 
+
+setMethod ("check_repetitions", "Scalarm",function(.Object, params){
+    url <- paste(.Object@http_schema,"://", .Object@address,"/experiments/",.Object@experiment_id,"/get_result.json",sep="")
+    encoded_url <- URLencode(toJSON(params))
+    modified_url<- paste(url,"?point=",encoded_url, sep="")
+    library(RCurl)
+    r = GET(modified_url,authenticate(.Object@user, .Object@password, type = "basic"), config( ssl_verifyhost=0,ssl_verifypeer=0) ) # how to check verification of SSl
+      content = rawToChar(r$content)
+      results = fromJSON(content)
+    if (results$status=="error") {
+      print("Point had not been scheduled yet")
+      return(NULL)
+    }
+    else{
+      print("Point had been scheduled already")
+      print(toJSON(results$result))
+      return(results$result)
+    }
+  })
 
 setMethod("schedule_point", "Scalarm", function(.Object, params) { #TODO better URL handling
   point=structure(list(params),.Names="point")

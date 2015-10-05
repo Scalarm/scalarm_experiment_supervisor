@@ -11,7 +11,10 @@ class SensitivityAnalysisMorrisExecutor < AbstractSupervisorExecutor
     script_config = config_file_path(experiment_id)
     File.open(script_config, 'w+') { |file| file.write(config.to_json) }
     script_log = self.log_path(experiment_id).to_s
-    pid = Process.spawn("Rscript",SCRIPT_PATH, script_config, out: script_log, err: script_log)
+
+
+
+    pid = Process.spawn("Rscript", SCRIPT_PATH, script_config, out: script_log, err: script_log)
 
 
     # does not find a path to file
