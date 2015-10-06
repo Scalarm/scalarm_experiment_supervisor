@@ -29,6 +29,13 @@ namespace :service do
     copy_example_config_if_not_exists('config/secrets.yml')
     copy_example_config_if_not_exists('config/puma.rb')
   end
+
+  desc 'Downloading and installing dependencies'
+  task :setup, [:debug] => [:environment] do
+    puts 'Setup started'
+    install_r_libraries
+    puts 'Setup finished'
+  end
 end
 
 namespace :db_router do
@@ -163,6 +170,11 @@ def install_r_libraries
   puts 'Checking R libraries...'
   Rails.configuration.r_interpreter.eval(
       ".libPaths(c(\"#{Dir.pwd}/r_libs\", .libPaths()))
+    if(!require(httr, quietly=TRUE)){
+      install.packages(\"httr\", repos=\"http://cran.rstudio.com/\")
+    }")
+  Rails.configuration.r_interpreter.eval(
+      ".libPaths(c(\"#{Dir.pwd}/r_libs\", .libPaths()))
     if(!require(rjson, quietly=TRUE)){
       install.packages(\"rjson\", repos=\"http://cran.rstudio.com/\")
     }")
@@ -170,11 +182,6 @@ def install_r_libraries
       ".libPaths(c(\"#{Dir.pwd}/r_libs\", .libPaths()))
     if(!require(sensitivity, quietly=TRUE)){
       install.packages(\"sensitivity\", repos=\"http://cran.rstudio.com/\")
-    }")
-  Rails.configuration.r_interpreter.eval(
-      ".libPaths(c(\"#{Dir.pwd}/r_libs\", .libPaths()))
-    if(!require(httr, quietly=TRUE)){
-      install.packages(\"httr\", repos=\"http://cran.rstudio.com/\")
     }")
 end
 

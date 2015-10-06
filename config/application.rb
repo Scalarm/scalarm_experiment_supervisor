@@ -13,6 +13,9 @@ Bundler.require(*Rails.groups)
 
 module ScalarmExperimentSupervisor
   class Application < Rails::Application
+
+    config.r_interpreter = RinRuby.new(false)
+
     # max session time in seconds - currently it is 30 minutes
     config.session_threshold = 30*60
 
