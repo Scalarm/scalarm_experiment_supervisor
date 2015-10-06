@@ -43,7 +43,8 @@ def anneal(initial_temperature,
            spread):
     if points_limit == 0:
         points_limit = float('inf')
-    temperature = float(initial_temperature)
+    initial_temperature = float(initial_temperature)
+    temperature = initial_temperature
     cooling_rate = float(cooling_rate)
 
     best_point = start_point
