@@ -1,10 +1,8 @@
 require(methods)
 library("rjson")
 library("sensitivity")
-library("hash")
 library("httr")
 
-# TODO how to install packages
 source("supervisors/sensitivity_analysis_morris/scalarmapi.R")
 
 setGeneric("sensitivity_analysis_function", function(.Object, parameters, options) {
@@ -12,7 +10,6 @@ setGeneric("sensitivity_analysis_function", function(.Object, parameters, option
 })
 
 setMethod("sensitivity_analysis_function", "Scalarm", function(.Object, parameters, options) {
-  error = "NULL"
   method=list("sensitivity_analysis_method"="morris")
   results_moes=list()
   binf<- c()
@@ -36,8 +33,7 @@ setMethod("sensitivity_analysis_function", "Scalarm", function(.Object, paramete
                             }
   starting_points<- Uncomplete_object["X"]
   if (any(is.na(Uncomplete_object$X))==TRUE){
-    print("NaN appear in starting_points array")
-    error="Cannot compute values - NaN in samples"
+    stop("Cannot compute values - NaN in samples")
   }
   else{
   experiment_size<-nrow(starting_points$X)
@@ -47,8 +43,10 @@ setMethod("sensitivity_analysis_function", "Scalarm", function(.Object, paramete
     if(is.null(check_repetitions(.Object,params)))
       schedule_point(.Object, params)
     result=get_result(.Object, params)
+    if(result=="error")
+      stop("Error in receiving results from simulation")
     point_result<-result
-    if(row_number==1){ #error point
+    if(row_number==1){ # we assume that simulation was completed propely
       output_amount=length(point_result)
       results_array<-data.frame(matrix(NA, ncol =output_amount, nrow =experiment_size ))
       output_to_json<-names(point_result)
@@ -72,13 +70,9 @@ setMethod("sensitivity_analysis_function", "Scalarm", function(.Object, paramete
     }
     output_result= append(output_result, structure(list(moe_result), .Names=output_to_json[output_number]))
   }
-  print(output_result)
   results_moes=structure(list(output_result),.Names=c("moes"))
   }
   results=append(method,results_moes)
-  results=append(results, list("error"=error))
-  print(results)
-  print(error)
   JSON_to_send=toJSON(results)
   print(JSON_to_send)
   mark_as_complete(.Object,JSON_to_send)

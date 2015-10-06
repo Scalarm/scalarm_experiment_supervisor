@@ -10,7 +10,7 @@ setGeneric("get_result", function(.Object, params) {
 setGeneric("mark_as_complete", function(.Object, result) {
   .Object
 })
-Scalarm = setClass("Scalarm", # TODO parameters_ids changes
+Scalarm = setClass("Scalarm",
                    slots=list(
                      user="character",
                      password="character",
@@ -37,12 +37,10 @@ setMethod ("check_repetitions", "Scalarm",function(.Object, params){
     url <- paste(.Object@http_schema,"://", .Object@address,"/experiments/",.Object@experiment_id,"/get_result.json",sep="")
     encoded_url <- URLencode(toJSON(params))
     modified_url<- paste(url,"?point=",encoded_url, sep="")
-    library(RCurl)
     r = GET(modified_url,authenticate(.Object@user, .Object@password, type = "basic"), config( ssl_verifyhost=0,ssl_verifypeer=0) ) # how to check verification of SSl
       content = rawToChar(r$content)
       results = fromJSON(content)
     if (results$status=="error") {
-      print("Point had not been scheduled yet")
       return(NULL)
     }
     else{
@@ -52,32 +50,40 @@ setMethod ("check_repetitions", "Scalarm",function(.Object, params){
     }
   })
 
-setMethod("schedule_point", "Scalarm", function(.Object, params) { #TODO better URL handling
+setMethod("schedule_point", "Scalarm", function(.Object, params) {
   point=structure(list(params),.Names="point")
   url <- paste(.Object@http_schema,"://", .Object@address,"/experiments/",.Object@experiment_id,"/schedule_point.json",sep="")
   encoded_url <- URLencode(toJSON(params))
   modified_url<- paste(url,"?point=",encoded_url, sep="")
-  library(RCurl) #
   r=POST(modified_url,authenticate(.Object@user, .Object@password, type = "basic"), config( ssl_verifyhost=0,ssl_verifypeer=0) )
   print("Scheduling point")
-  print(toJSON(r$params))
+  print(toJSON(params))
   r
 })
 
 
 
 setMethod("get_result", "Scalarm", function(.Object, params){
+  writing_counter =0
   while(1){
+    if(writing_counter==20)
+      writing_counter=9
+    else
+      writing_counter=writing_counter+1
     url <- paste(.Object@http_schema,"://", .Object@address,"/experiments/",.Object@experiment_id,"/get_result.json",sep="")
     encoded_url <- URLencode(toJSON(params))
     modified_url<- paste(url,"?point=",encoded_url, sep="")
-    library(RCurl)
     r = GET(modified_url,authenticate(.Object@user, .Object@password, type = "basic"), config( ssl_verifyhost=0,ssl_verifypeer=0) ) # how to check verification of SSl
       content = rawToChar(r$content)
       results = fromJSON(content)
+    if(r$status==500){
+      print("Error in receiving results from simulation")
+      return("error")
+    }
     if (results$status=="error") {
-      print("Status: error; Waiting for results")
-      Sys.sleep(1)
+      if(writing_counter<10)
+        print("Status: error; Waiting for results")
+      Sys.sleep(10)
     }
     else{
       print("Point returned")
@@ -92,8 +98,6 @@ setMethod("mark_as_complete", "Scalarm", function(.Object, result) {
   url <- paste(.Object@http_schema,"://", .Object@address,"/experiments/",.Object@experiment_id,"/mark_as_complete.json",sep="")
   encoded_url <- URLencode(result)
   modified_url<- paste(url,"?results=",encoded_url, sep="")
-  print(modified_url)
-  library(RCurl) #
   r=POST(modified_url,authenticate(.Object@user, .Object@password, type = "basic"), config( ssl_verifyhost=0,ssl_verifypeer=0) )
   print( "Marked as complete and sent")
   print(result)

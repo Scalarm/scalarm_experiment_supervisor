@@ -159,6 +159,24 @@ def os_version
   [os, arch]
 end
 
+def install_r_libraries
+  puts 'Checking R libraries...'
+  Rails.configuration.r_interpreter.eval(
+      ".libPaths(c(\"#{Dir.pwd}/r_libs\", .libPaths()))
+    if(!require(rjson, quietly=TRUE)){
+      install.packages(\"rjson\", repos=\"http://cran.rstudio.com/\")
+    }")
+  Rails.configuration.r_interpreter.eval(
+      ".libPaths(c(\"#{Dir.pwd}/r_libs\", .libPaths()))
+    if(!require(sensitivity, quietly=TRUE)){
+      install.packages(\"sensitivity\", repos=\"http://cran.rstudio.com/\")
+    }")
+  Rails.configuration.r_interpreter.eval(
+      ".libPaths(c(\"#{Dir.pwd}/r_libs\", .libPaths()))
+    if(!require(httr, quietly=TRUE)){
+      install.packages(\"httr\", repos=\"http://cran.rstudio.com/\")
+    }")
+end
 
 def copy_example_config_if_not_exists(base_name, prefix='example')
   config = base_name
