@@ -49,8 +49,77 @@ module SupervisorRunTestsHelper
   INCORRECT_ID = 'incorrect id'
   INCORRECT_ID_MESSAGE = 'There is no supervisor script with given id'
 
+  CONFIG_FROM_EM_SENSITIVITY_ANALAYSIS_MORRIS =
+      {
+          supervisor_script_id: "sensitivity_analysis_morris",
+          type:"supervised",
+          supervisor_script_params:"",
+          design_type:"oat",
+          size:1,
+          gridjump:1,
+          levels:1,
+          factor:1,
+          experiment_id: EXPERIMENT_ID,
+          user: "user",
+          password:"password",
+          parameters:[
+              {
+                  id:"parameter1",
+                  type:"integer",
+                  min:0,
+                  max:1000,
+                  start_value:500
+              },
+              {
+                  id:"parameter2",
+                  type:"integer",
+                  min:-100,
+                  max:100,
+                  start_value:0
+              }
+          ],
+          address:"localhost:3001",
+          http_schema:"https"
+      }
 
-  def teardown
+  FULL_CONFIG_SENSITIVITY_ANALAYSIS_MORRIS ={
+          "supervisor_script_id"=>"sensitivity_analysis_morris",
+          "type"=>"supervised",
+          "supervisor_script_params"=>"",
+          "design_type"=>"oat",
+          "size"=>1,
+          "gridjump"=>1,
+          "levels"=>1,
+          "factor"=>1,
+          "experiment_id"=>EXPERIMENT_ID,
+          "user" =>"user",
+          "password"=>"password",
+          "parameters"=>[
+              {
+                  "id"=>"parameter1",
+                  "type"=>"integer",
+                  "min"=>0,
+                  "max"=>1000,
+                  "start_value"=>500
+              },
+              {
+                  "id"=>"parameter2",
+                  "type"=>"integer",
+                  "min"=>-100,
+                  "max"=>100,
+                  "start_value"=>0
+              }
+          ],
+          "address"=>EM_ADDRESS,
+          "http_schema"=>"https"
+  }
+
+  SENSITIVITY_ANALYSIS_ID = 'sensitivity_analysis_morris'
+  SENSITIVITY_ANALYSIS_LOG_FILE_PATH = Rails.root.join('log', "supervisor_script_#{EXPERIMENT_ID}.log").to_s
+  SENSITIVITY_ANALYSIS_CONFIG_FILE_PATH = "/tmp/supervisor_script_config_#{EXPERIMENT_ID}_random"
+  SENSITIVITY_ANALYSIS_MAIN_FILE = 'supervisors/sensitivity_analysis_morris/morris.R'
+  SENSITIVITY_ANALYSIS_LIBRARY_FILE = 'supervisors/sensitivity_analysis_morris/scalarmapi.R'
+      def teardown
     # cleanup if needed
     remove_file_if_exists SIMULATED_ANNEALING_CONFIG_FILE_PATH
     remove_file_if_exists SIMULATED_ANNEALING_LOG_FILE_PATH
