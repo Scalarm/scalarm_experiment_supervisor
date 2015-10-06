@@ -2,6 +2,15 @@ import json
 import requests
 from requests.auth import HTTPBasicAuth
 import time
+import logging
+INFO_WITHOUT_WARNINGS = 35
+logging.captureWarnings(True)
+logging.basicConfig(level=INFO_WITHOUT_WARNINGS, format='%(asctime)-15s %(message)s')
+
+
+def log(msg):
+    logging.log(INFO_WITHOUT_WARNINGS, msg)
+
 
 SLEEP_DURATION_BETWEEN_QUERIES = 5  # seconds
 ERROR_OCCURRENCES_BETWEEN_WARNING = 10
@@ -18,19 +27,19 @@ class Scalarm:
         self.verify = verify
 
     def schedule_point(self, params):
-        print 'Scheduling: ', params
+        log('Scheduling: %s' % str(params))
         params_dict = {}
         for id, param in zip(self.parameters_ids, params):
             params_dict[id] = param
-        print json.dumps(params_dict)
+        log(json.dumps(params_dict))
         r = requests.post("%s://%s/experiments/%s/schedule_point.json" % (self.schema, self.address, self.experiment_id),
                           auth=HTTPBasicAuth(self.user, self.password),
                           params={'point': json.dumps(params_dict)},
                           verify=self.verify)
-        print r.text
+        log(r.text)
 
     def get_result(self, params):
-        print 'Getting result: ', params
+        log('Getting result: %s' % str(params))
         params_dict = {}
         for id, param in zip(self.parameters_ids, params):
             params_dict[id] = param
@@ -45,10 +54,10 @@ class Scalarm:
                 if decoded_result["message"] == "Point not found":
                     points_not_found_counter += 1
                 else:
-                    print r.text
+                    log(r.text)
                 if points_not_found_counter == ERROR_OCCURRENCES_BETWEEN_WARNING:
                     points_not_found_counter = 0
-                    print "Point not available after 10 attempts"
+                    log("Point not available after 10 attempts")
                 time.sleep(SLEEP_DURATION_BETWEEN_QUERIES)
                 continue
             elif decoded_result["status"] == "ok":
@@ -57,10 +66,10 @@ class Scalarm:
                 return decoded_result["result"]["moe"]
 
     def mark_as_complete(self, result):
-        print 'Uploading result: ', result
+        log('Uploading result: %s' % str(result))
         r = requests.post("%s://%s/experiments/%s/mark_as_complete.json" % (self.schema, self.address, self.experiment_id),
                           auth=HTTPBasicAuth(self.user, self.password),
                           params={'results': json.dumps(result)},
                           verify=self.verify)
-        print r.text
+        log(r.text)
 
