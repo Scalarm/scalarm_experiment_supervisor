@@ -35,6 +35,7 @@ class AbstractSupervisorExecutor
   # Template for invoking cleanup method
   def self._cleanup(experiment_id)
     validate_experiment_id!(experiment_id)
+    self.delete_logs(experiment_id)
     cleanup(experiment_id)
   end
 
@@ -55,7 +56,13 @@ class AbstractSupervisorExecutor
   ##
   # Default log path. Override if needed.
   def self.log_path(experiment_id)
-    Rails.root.join('log', "supervisor_script_#{experiment_id}.log")
+    Rails.root.join('log', log_file_name(experiment_id))
+  end
+
+  ##
+  # Returns log file default name
+  def self.log_file_name(experiment_id)
+    "supervisor_script_#{experiment_id}.log"
   end
 
   ##
@@ -65,5 +72,14 @@ class AbstractSupervisorExecutor
   def self.config_file_path(experiment_id)
     config_suffix = SecureRandom.hex(8)
     [CONFIG_FILE_PREFIX, experiment_id, config_suffix].join('_')
+  end
+
+  private
+
+  ##
+  # Removes supervisor_run logs
+  def self.delete_logs(experiment_id)
+    log_path = self.log_path experiment_id
+    File.delete(log_path) if File.exists?(log_path)
   end
 end

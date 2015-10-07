@@ -1,8 +1,11 @@
 require 'test_helper'
+require 'fileutils'
 
 class AbstractSupervisorExecutorTest < ActiveSupport::TestCase
   class SomeExecutor < AbstractSupervisorExecutor
   end
+
+  EXPERIMENT_ID = 'Some id'
 
   test '_start should invoke start on successful validation' do
     config = mock 'config'
@@ -63,6 +66,26 @@ class AbstractSupervisorExecutorTest < ActiveSupport::TestCase
     config_path1 = SomeExecutor.config_file_path(experiment_id)
     config_path2 = SomeExecutor.config_file_path(experiment_id)
     refute_equal config_path1, config_path2
+  end
+
+  test '_cleanup should invoke validate_experiment_id! and delete_logs before real cleanup' do
+    # given
+    SomeExecutor.expects(:validate_experiment_id!).with EXPERIMENT_ID
+    SomeExecutor.expects(:delete_logs).with EXPERIMENT_ID
+    SomeExecutor.expects(:cleanup).with EXPERIMENT_ID
+    # when
+    SomeExecutor._cleanup EXPERIMENT_ID
+    # then
+  end
+
+  test 'delete_logs should delete log file' do
+    # given
+    log_path = SomeExecutor.log_path EXPERIMENT_ID
+    FileUtils.touch(log_path)
+    # when
+    SomeExecutor.send(:delete_logs, EXPERIMENT_ID) # hack to call private method
+    # then
+    assert_not File.exists?(log_path), 'Log file should be deleted'
   end
 
 end
