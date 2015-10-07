@@ -16,6 +16,8 @@ default: &DEFAULT
   db_secret_key: "QjqjFK}7|Xw8DDMUP-O$yp"
   supervisor_script_watcher:
     sleep_duration_in_seconds: 60
+  # Path where logs are moved after supervisor run execution finish.
+  # log_archive_path: /some/path
 
 development:
   <<: *DEFAULT
