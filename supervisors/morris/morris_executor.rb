@@ -32,7 +32,7 @@ class MorrisExecutor < AbstractSupervisorExecutor
 
   # overrides parent method
   def self.cleanup(experiment_id)
-    files_to_delete = [self.log_path(experiment_id), self.config_file_path(experiment_id)]
+    files_to_delete = [self.config_file_path(experiment_id)]
     files_to_delete.each do |path|
       File.delete(path) if File.exists?(path)
     end
