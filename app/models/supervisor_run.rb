@@ -1,5 +1,5 @@
+require 'fileutils'
 require 'supervisor_executors/supervisor_executors_provider'
-
 require 'scalarm/database/core/mongo_active_record'
 require 'scalarm/database/model/experiment'
 
@@ -127,6 +127,7 @@ class SupervisorRun < Scalarm::Database::MongoActiveRecord
         Rails.logger.info('Supervisor is terminated, but experiment is not completed - reporting error')
         notify_error("Supervisor script is not running\nLast 100 lines of supervisor output:\n#{read_log}")
       end
+      move_log
     end
   end
 
@@ -154,5 +155,17 @@ class SupervisorRun < Scalarm::Database::MongoActiveRecord
     stop if check
     PROVIDER.get(self.supervisor_id)._cleanup(self.experiment_id.to_s) unless self.supervisor_id.nil?
     super
+  end
+
+  private
+
+  ##
+  # Moves supervisor_run logs to log_archive_path if specified in config.
+  def move_log
+    log_path = AbstractSupervisorExecutor.log_path self.experiment_id
+    if Rails.application.secrets.include? :log_archive_path and File.exists? log_path
+      Rails.logger.info "Log file #{log_path} moved to #{Rails.application.secrets.log_archive_path}"
+      FileUtils.mv(log_path, Rails.application.secrets.log_archive_path)
+    end
   end
 end

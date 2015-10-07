@@ -1,5 +1,6 @@
 require 'test_helper'
 require 'mocha/test_unit'
+require 'fileutils'
 require 'scalarm/service_core/test_utils/db_helper'
 
 class SupervisorRunTest < ActiveSupport::TestCase
@@ -60,6 +61,7 @@ class SupervisorRunTest < ActiveSupport::TestCase
     @supervisor_script.expects(:read_log).returns('')
     @supervisor_script.stubs(:experiment).returns(@experiment)
     @experiment.stubs(:completed).returns(false)
+    @supervisor_script.expects(:move_log)
 
     # test
     @supervisor_script.monitoring_loop
@@ -73,6 +75,7 @@ class SupervisorRunTest < ActiveSupport::TestCase
     @supervisor_script.expects(:notify_error).never
     @supervisor_script.stubs(:experiment).returns(@experiment)
     @experiment.stubs(:completed).returns(true)
+    @supervisor_script.expects(:move_log)
 
     # test
     @supervisor_script.monitoring_loop
@@ -215,6 +218,67 @@ class SupervisorRunTest < ActiveSupport::TestCase
       state.assert_valid_keys(STATE_ALLOWED_KEYS)
     end
     STATE_ALLOWED_KEYS.each {|key| assert state.has_key?(key), "State should contains key #{key}"}
+  end
+
+  ARCHIVE_LOG_PATH='/tmp/'
+
+  test 'move_log should move log when log file exists and config entry is present' do
+    # given
+    original_log_file_path = AbstractSupervisorExecutor.log_path EXPERIMENT_ID
+    new_log_file_path = ARCHIVE_LOG_PATH + AbstractSupervisorExecutor.log_file_name(EXPERIMENT_ID)
+    FileUtils.touch(original_log_file_path)
+    @supervisor_script.expects(:experiment_id).returns(EXPERIMENT_ID)
+    secrets = mock do
+      expects(:include?).with(:log_archive_path).returns(true)
+      expects(:log_archive_path).returns(ARCHIVE_LOG_PATH).twice
+    end
+    Rails.application.expects(:secrets).returns(secrets).times(3)
+    # when
+    @supervisor_script.send(:move_log) # hack to call private method
+    # then
+    assert_not File.exists?(original_log_file_path), 'File should be moved to proper location'
+    assert File.exists?(new_log_file_path), 'File should be moved to proper location'
+    # cleanup
+    remove_file_if_exists original_log_file_path
+    remove_file_if_exists new_log_file_path
+  end
+
+  test 'move_log should not move log when log file not exists' do
+    # given
+    original_log_file_path = AbstractSupervisorExecutor.log_path EXPERIMENT_ID
+    remove_file_if_exists original_log_file_path
+    new_log_file_path = ARCHIVE_LOG_PATH + AbstractSupervisorExecutor.log_file_name(EXPERIMENT_ID)
+    @supervisor_script.expects(:experiment_id).returns(EXPERIMENT_ID)
+    secrets = mock do
+      expects(:include?).with(:log_archive_path).returns(true)
+    end
+    Rails.application.expects(:secrets).returns(secrets)
+    # when
+    @supervisor_script.send(:move_log) # hack to call private method
+    # then
+    assert_not File.exists?(new_log_file_path), 'Log file should not exist'
+    # cleanup
+    remove_file_if_exists new_log_file_path
+  end
+
+  test 'move_log should not move log when config entry is not present' do
+    # given
+    original_log_file_path = AbstractSupervisorExecutor.log_path EXPERIMENT_ID
+    new_log_file_path = ARCHIVE_LOG_PATH + AbstractSupervisorExecutor.log_file_name(EXPERIMENT_ID)
+    FileUtils.touch(original_log_file_path)
+    @supervisor_script.expects(:experiment_id).returns(EXPERIMENT_ID)
+    secrets = mock do
+      expects(:include?).with(:log_archive_path).returns(false)
+    end
+    Rails.application.expects(:secrets).returns(secrets)
+    # when
+    @supervisor_script.send(:move_log) # hack to call private method
+    # then
+    assert File.exists?(original_log_file_path), 'File should not be moved'
+    assert_not File.exists?(new_log_file_path), 'File should not be moved'
+    # cleanup
+    remove_file_if_exists original_log_file_path
+    remove_file_if_exists new_log_file_path
   end
 
 end
