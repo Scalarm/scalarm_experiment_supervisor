@@ -32,6 +32,8 @@
             = label_tag :factor, 'Homothety factor', class: 'right inline'
           .small-3.columns.end
             = number_field_tag :factor, 1, min: 1, required: true, class: 'text-left'
+      .row
+        = 'WARNING! Analysis on small parameter space and with few levels might contain incorrect results.'
       :javascript
         $("#design_type").on('change',function(){
           design_type = $("#design_type option:selected").text()
