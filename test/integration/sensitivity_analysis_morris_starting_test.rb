@@ -21,15 +21,15 @@ class SensitivityAnalysisMorrisStartingTest < ActionDispatch::IntegrationTest
      # mocks
      self.class.mock_information_service
      SensitivityAnalysisMorrisExecutor.stubs(:config_file_path).with(EXPERIMENT_ID).returns(SENSITIVITY_ANALYSIS_CONFIG_FILE_PATH)
-
      # mock script starting with tests of proper calls
-     Process.expects(:spawn).with('Rscript', SENSITIVITY_ANALYSIS_MAIN_FILE, SENSITIVITY_ANALYSIS_CONFIG_FILE_PATH,
+     bin_name = "#{DIR}/#{SENSITIVITY_ANALYSIS_MORRIS_MAIN_FILE}"
+     Process.expects(:spawn).with('Rscript', bin_name, SENSITIVITY_ANALYSIS_CONFIG_FILE_PATH,
                                   out: SENSITIVITY_ANALYSIS_LOG_FILE_PATH, err: SENSITIVITY_ANALYSIS_LOG_FILE_PATH).returns(PID)
      Process.expects(:detach).with(PID)
       SupervisorRunWatcher.expects(:start_watching)
      # test
      # check existence of sm script files
-     assert File.exists? SENSITIVITY_ANALYSIS_MAIN_FILE
+     assert File.exists? SENSITIVITY_ANALYSIS_MORRIS_MAIN_FILE
      assert File.exists? SENSITIVITY_ANALYSIS_LIBRARY_FILE
 
      assert_difference 'SupervisorRun.count', 1 do

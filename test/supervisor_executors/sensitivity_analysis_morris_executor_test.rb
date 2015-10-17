@@ -2,7 +2,7 @@ require 'test_helper'
 require 'mocha/test_unit'
 
 class SensitivityAnalysisMorrisExecutorTest < ActiveSupport::TestCase
-
+  include SupervisorRunTestsHelper
   # also tests if out and err streams are set to log file
   test 'SA morris executor start should launch mono application with config file' do
 
@@ -22,7 +22,7 @@ class SensitivityAnalysisMorrisExecutorTest < ActiveSupport::TestCase
     sa_morris_executor.stubs(:log_path).returns(log_path)
 
     # if fails, check if bin name has not been changed
-    bin_name = 'supervisors/sensitivity_analysis_morris/morris.R'
+    bin_name = "#{DIR}/#{SENSITIVITY_ANALYSIS_MORRIS_MAIN_FILE}"
     streams = {out: log_path, err: log_path}
     Process.expects(:spawn).with('Rscript', bin_name, config_path, streams).returns(pid)
     Process.expects(:detach).with(pid)
