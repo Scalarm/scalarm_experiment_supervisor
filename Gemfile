@@ -63,4 +63,3 @@ gem 'scalarm-database', '>= 0.3.1', git: 'git://github.com/Scalarm/scalarm-datab
 gem 'scalarm-service_core', '~> 0.9.1', git: 'git://github.com/Scalarm/scalarm-service_core.git'
 
 
-gem 'rinruby'

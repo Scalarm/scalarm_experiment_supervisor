@@ -119,7 +119,8 @@ module SupervisorRunTestsHelper
   SENSITIVITY_ANALYSIS_CONFIG_FILE_PATH = "/tmp/supervisor_script_config_#{EXPERIMENT_ID}_random"
   SENSITIVITY_ANALYSIS_MAIN_FILE = 'supervisors/sensitivity_analysis_morris/morris.R'
   SENSITIVITY_ANALYSIS_LIBRARY_FILE = 'supervisors/sensitivity_analysis_morris/scalarmapi.R'
-      def teardown
+
+  def teardown
     # cleanup if needed
     remove_file_if_exists SIMULATED_ANNEALING_CONFIG_FILE_PATH
     remove_file_if_exists SIMULATED_ANNEALING_LOG_FILE_PATH

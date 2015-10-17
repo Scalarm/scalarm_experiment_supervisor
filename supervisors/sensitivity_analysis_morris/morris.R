@@ -1,4 +1,9 @@
 require(methods)
+
+r= "http://cran.uk.r-project.org"
+list.of.packages <- c("rjson", "sensitivity","httr")
+new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
+if(length(new.packages)>0) {install.packages(new.packages,repos = r, quiet = TRUE)}
 library("rjson")
 library("sensitivity")
 library("httr")
@@ -80,7 +85,7 @@ setMethod("sensitivity_analysis_function", "Scalarm", function(.Object, paramete
 })
 
 if(!interactive()){
-  if ( length(commandArgs(TRUE)) < 1 ){ # check if it is working
+  if ( length(commandArgs(TRUE)) < 1 ){
     config_file =  fromJSON(file="config.json")
   }
   else {
