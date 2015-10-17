@@ -26,7 +26,7 @@ class SensitivityAnalysisMorrisStartingTest < ActionDispatch::IntegrationTest
      Process.expects(:spawn).with('Rscript', bin_name, SENSITIVITY_ANALYSIS_CONFIG_FILE_PATH,
                                   out: SENSITIVITY_ANALYSIS_LOG_FILE_PATH, err: SENSITIVITY_ANALYSIS_LOG_FILE_PATH).returns(PID)
      Process.expects(:detach).with(PID)
-      SupervisorRunWatcher.expects(:start_watching)
+     SupervisorRunWatcher.expects(:start_watching)
      # test
      # check existence of sm script files
      assert File.exists? SENSITIVITY_ANALYSIS_MORRIS_MAIN_FILE
@@ -37,9 +37,11 @@ class SensitivityAnalysisMorrisStartingTest < ActionDispatch::IntegrationTest
      end
      # check if only valid response params are present with proper value
      response_hash = JSON.parse(response.body)
+
      assert_nothing_raised do
        response_hash.assert_valid_keys('status', 'pid', 'supervisor_run_id')
      end
+
      assert_equal response_hash['status'], 'ok'
      assert_equal response_hash['pid'], PID
      assert_equal response_hash['supervisor_run_id'], SupervisorRun.first.id.to_s
@@ -61,11 +63,13 @@ class SensitivityAnalysisMorrisStartingTest < ActionDispatch::IntegrationTest
     assert_no_difference 'SupervisorRun.count' do
       post supervisor_runs_path supervisor_id: SENSITIVITY_ANALYSIS_ID, config: CONFIG_FROM_EM_SENSITIVITY_ANALAYSIS_MORRIS.to_json
     end
+
     # check if only valid response params are present with proper value
      response_hash = JSON.parse(response.body)
      assert_nothing_raised do
        response_hash.assert_valid_keys('status', 'reason')
      end
+
      assert_equal response_hash['status'], 'error'
      assert_equal response_hash['reason'], "#{REASON_PREFIX} #{REASON}"
      # check proper cleanup of redundant files

@@ -1,5 +1,5 @@
 %section.panel.radius
-  %h3.subheader= 'Sensitivity Analysis'
+  %h3.subheader = 'Sensitivity Analysis'
   = hidden_field_tag 'supervisor_script_id', 'sensitivity_analysis_morris'
   = hidden_field_tag 'type', 'supervised'
   = hidden_field_tag 'supervisor_script_params'
@@ -37,15 +37,13 @@
       :javascript
         $("#design_type").on('change',function(){
           design_type = $("#design_type option:selected").text()
-          if(design_type=="OAT"){
+          if(design_type == "OAT"){
             $("#opt-oat").show()
             $("#opt-simplex").hide()
-          }
-          else if(design_type=="Simplex"){
+          } else if(design_type == "Simplex"){
               $("#opt-oat").hide()
               $("#opt-simplex").show()
-           }
-          else{
+           } else{
             toastr.error("Incorrectly selected values")
           }
         })
