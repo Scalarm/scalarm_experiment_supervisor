@@ -1,5 +1,5 @@
 %section.panel.radius
-  %h3.subheader = 'Sensitivity Analysis'
+  %h3.subheader= 'Sensitivity Analysis'
   = hidden_field_tag 'supervisor_script_id', 'sensitivity_analysis_morris'
   = hidden_field_tag 'type', 'supervised'
   = hidden_field_tag 'supervisor_script_params'
@@ -33,7 +33,7 @@
           .small-3.columns.end
             = number_field_tag :factor, 1, min: 1, required: true, class: 'text-left'
       .row
-        = 'WARNING! Analysis on small parameter space and with few levels might contain incorrect results.'
+        = 'WARNING! Analysis on small number of parameters and with few levels might contain incorrect results.'
       :javascript
         $("#design_type").on('change',function(){
           design_type = $("#design_type option:selected").text()
