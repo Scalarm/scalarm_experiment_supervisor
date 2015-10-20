@@ -3,13 +3,13 @@ import requests
 from requests.auth import HTTPBasicAuth
 import time
 import logging
-INFO_WITHOUT_WARNINGS = 35
+LOGGING_LEVEL = logging.INFO
 logging.captureWarnings(True)
-logging.basicConfig(level=INFO_WITHOUT_WARNINGS, format='%(asctime)-15s %(message)s')
+logging.basicConfig(level=LOGGING_LEVEL, format='%(asctime)-15s %(message)s')
 
 
 def log(msg):
-    logging.log(INFO_WITHOUT_WARNINGS, msg)
+    logging.log(LOGGING_LEVEL, msg)
 
 
 SLEEP_DURATION_BETWEEN_QUERIES = 5  # seconds
