@@ -178,6 +178,6 @@ end
 def validate_secrets
   archive_log_path = Rails.application.secrets.log_archive_path
   unless Dir.exist? archive_log_path
-    puts "[config/secrets.yml] Invalid path in log_archive_path: #{archive_log_path}"
+    raise "ERROR: Invalid path in config file (config/secrets.yml) entry log_archive_path: #{archive_log_path}"
   end
 end
