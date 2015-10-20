@@ -227,12 +227,12 @@ class SupervisorRunTest < ActiveSupport::TestCase
     original_log_file_path = AbstractSupervisorExecutor.log_path EXPERIMENT_ID
     new_log_file_path = ARCHIVE_LOG_PATH + AbstractSupervisorExecutor.log_file_name(EXPERIMENT_ID)
     FileUtils.touch(original_log_file_path)
-    @supervisor_script.expects(:experiment_id).returns(EXPERIMENT_ID)
+    @supervisor_script.stubs(:experiment_id).returns(EXPERIMENT_ID)
     secrets = mock do
-      expects(:include?).with(:log_archive_path).returns(true)
-      expects(:log_archive_path).returns(ARCHIVE_LOG_PATH).twice
+      stubs(:include?).with(:log_archive_path).returns(true)
+      stubs(:log_archive_path).returns(ARCHIVE_LOG_PATH)
     end
-    Rails.application.expects(:secrets).returns(secrets).times(3)
+    Rails.application.stubs(:secrets).returns(secrets)
     # when
     @supervisor_script.send(:move_log) # hack to call private method
     # then
@@ -248,11 +248,11 @@ class SupervisorRunTest < ActiveSupport::TestCase
     original_log_file_path = AbstractSupervisorExecutor.log_path EXPERIMENT_ID
     remove_file_if_exists original_log_file_path
     new_log_file_path = ARCHIVE_LOG_PATH + AbstractSupervisorExecutor.log_file_name(EXPERIMENT_ID)
-    @supervisor_script.expects(:experiment_id).returns(EXPERIMENT_ID)
+    @supervisor_script.stubs(:experiment_id).returns(EXPERIMENT_ID)
     secrets = mock do
-      expects(:include?).with(:log_archive_path).returns(true)
+      stubs(:include?).with(:log_archive_path).returns(true)
     end
-    Rails.application.expects(:secrets).returns(secrets)
+    Rails.application.stubs(:secrets).returns(secrets)
     # when
     @supervisor_script.send(:move_log) # hack to call private method
     # then
@@ -266,11 +266,11 @@ class SupervisorRunTest < ActiveSupport::TestCase
     original_log_file_path = AbstractSupervisorExecutor.log_path EXPERIMENT_ID
     new_log_file_path = ARCHIVE_LOG_PATH + AbstractSupervisorExecutor.log_file_name(EXPERIMENT_ID)
     FileUtils.touch(original_log_file_path)
-    @supervisor_script.expects(:experiment_id).returns(EXPERIMENT_ID)
+    @supervisor_script.stubs(:experiment_id).returns(EXPERIMENT_ID)
     secrets = mock do
-      expects(:include?).with(:log_archive_path).returns(false)
+      stubs(:include?).with(:log_archive_path).returns(false)
     end
-    Rails.application.expects(:secrets).returns(secrets)
+    Rails.application.stubs(:secrets).returns(secrets)
     # when
     @supervisor_script.send(:move_log) # hack to call private method
     # then
@@ -279,6 +279,31 @@ class SupervisorRunTest < ActiveSupport::TestCase
     # cleanup
     remove_file_if_exists original_log_file_path
     remove_file_if_exists new_log_file_path
+  end
+
+  NOT_EXISTING_DIRECTORY = '/foo/bar/baz/'
+
+  test 'move_log should not fail when archive file path not exist' do
+    # given
+    original_log_file_path = AbstractSupervisorExecutor.log_path EXPERIMENT_ID
+    new_log_file_path = NOT_EXISTING_DIRECTORY + AbstractSupervisorExecutor.log_file_name(EXPERIMENT_ID)
+    FileUtils.touch(original_log_file_path)
+    @supervisor_script.stubs(:experiment_id).returns(EXPERIMENT_ID)
+    secrets = mock do
+      stubs(:include?).with(:log_archive_path).returns(true)
+      stubs(:log_archive_path).returns(NOT_EXISTING_DIRECTORY)
+    end
+    Rails.application.stubs(:secrets).returns(secrets)
+    # when
+    @supervisor_script.send(:move_log) # hack to call private method
+    # then
+    assert File.exists?(original_log_file_path), 'File should not be moved'
+    assert_not File.exists?(new_log_file_path), 'File should not be moved'
+    # cleanup
+    remove_file_if_exists original_log_file_path
+    remove_file_if_exists new_log_file_path
+
+
   end
 
 end
