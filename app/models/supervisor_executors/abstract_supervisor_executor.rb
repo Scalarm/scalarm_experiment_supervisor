@@ -56,7 +56,7 @@ class AbstractSupervisorExecutor
   ##
   # Default log path. Override if needed.
   def self.log_path(experiment_id)
-    Rails.root.join('log', log_file_name(experiment_id))
+    Rails.root.join('log', 'supervisors', log_file_name(experiment_id))
   end
 
   ##
