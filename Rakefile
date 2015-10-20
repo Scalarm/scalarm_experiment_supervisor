@@ -9,7 +9,7 @@ LOCAL_MONGOS_PATH = 'bin/mongos'
 
 namespace :service do
   desc 'Start the service'
-  task :start => [:ensure_config, :environment] do
+  task :start => [:ensure_config, :validate_config, :environment] do
     puts 'puma -C config/puma.rb'
     %x[puma -C config/puma.rb]
   end
@@ -28,6 +28,11 @@ namespace :service do
   task :ensure_config do
     copy_example_config_if_not_exists('config/secrets.yml')
     copy_example_config_if_not_exists('config/puma.rb')
+  end
+
+  desc 'Validate config files entries'
+  task :validate_config do
+    validate_secrets
   end
 end
 
@@ -167,5 +172,12 @@ def copy_example_config_if_not_exists(base_name, prefix='example')
   unless File.exists?(config)
     puts "Copying #{example_config} to #{config}"
     FileUtils.cp(example_config, config)
+  end
+end
+
+def validate_secrets
+  archive_log_path = Rails.application.secrets.log_archive_path
+  unless Dir.exist? archive_log_path
+    raise "ERROR: Invalid path in config file (config/secrets.yml) entry log_archive_path: #{archive_log_path}"
   end
 end
