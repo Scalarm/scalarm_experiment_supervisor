@@ -164,8 +164,13 @@ class SupervisorRun < Scalarm::Database::MongoActiveRecord
   def move_log
     log_path = AbstractSupervisorExecutor.log_path self.experiment_id
     if Rails.application.secrets.include? :log_archive_path and File.exists? log_path
-      Rails.logger.info "Log file #{log_path} moved to #{Rails.application.secrets.log_archive_path}"
-      FileUtils.mv(log_path, Rails.application.secrets.log_archive_path)
+      archive_log_path = Rails.application.secrets.log_archive_path
+      unless Dir.exist? archive_log_path
+        Rails.logger.warn "Archive log file path not exist: #{archive_log_path}"
+        return
+      end
+      Rails.logger.info "Log file #{log_path} moved to #{archive_log_path}"
+      FileUtils.mv(log_path, archive_log_path)
     end
   end
 end
