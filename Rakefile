@@ -176,8 +176,10 @@ def copy_example_config_if_not_exists(base_name, prefix='example')
 end
 
 def validate_secrets
-  archive_log_path = Rails.application.secrets.log_archive_path
-  unless Dir.exist? archive_log_path
-    raise "ERROR: Invalid path in config file (config/secrets.yml) entry log_archive_path: #{archive_log_path}"
+  if Rails.application.secrets.include? :log_archive_path
+    archive_log_path = Rails.application.secrets.log_archive_path
+    unless Dir.exist? archive_log_path
+      raise "ERROR: Invalid path in config file (config/secrets.yml) entry log_archive_path: #{archive_log_path}"
+    end
   end
 end
