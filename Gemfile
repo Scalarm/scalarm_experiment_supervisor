@@ -29,9 +29,10 @@ gem 'bson_ext'
 gem 'mongo', '~> 1.12'
 # mongo session store 5.1 supports mongo 1.12
 # it can be changed to 6.0 if mongo will be upgraded to 2.x
-gem 'mongo_session_store-rails4',
-    git: 'git://github.com/kliput/mongo_session_store.git',
-    branch: 'issue-31-mongo_store-deserialization'
+# Disabling due to bugs
+#gem 'mongo_session_store-rails4',
+#    git: 'git://github.com/kliput/mongo_session_store.git',
+#    branch: 'issue-31-mongo_store-deserialization'
 
 gem 'mocha', '~> 1.1.0'
 gem 'rdoc', '~> 4.2.0'
@@ -60,6 +61,4 @@ gem 'scalarm-database', '>= 0.3.1', git: 'git://github.com/Scalarm/scalarm-datab
 
 # for local development - set path to scalarm-core
 # gem 'scalarm-service_core', path: '/Users/jliput/Scalarm/scalarm-service_core'
-gem 'scalarm-service_core', '~> 0.9.1', git: 'git://github.com/Scalarm/scalarm-service_core.git'
-
-
+gem 'scalarm-service_core', '~> 1.0', git: 'git://github.com/Scalarm/scalarm-service_core.git'

@@ -48,8 +48,13 @@ class SupervisorRunWatcher
             return
           end
           running_scripts.each do |s|
-            s.monitoring_loop
-            s.save
+            begin
+              s.monitoring_loop
+              s.save
+            rescue => s_error
+              Rails.logger.error "A fatal error occured for supervisor #{s.supervisor_id}: #{s_error.to_s}\n#{s_error.backtrace.join("\n")}"
+              s.destroy
+            end
           end
         rescue => e
            Rails.logger.info "Error while execution script monitoring loop #{e.to_s}"
