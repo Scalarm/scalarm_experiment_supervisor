@@ -45,7 +45,8 @@ class Scalarm:
             elif decoded_result["status"] == "ok":
                 if "moe" not in decoded_result["result"]:
                     raise KeyError("Field 'result' must contain key named 'moe' with numeric value")
-                return decoded_result["result"]["moe"]
+                return -1*(3*(params[0]-5)*(params[0]-5)+2*(params[1]-5)*(params[1]-5))+10
+                #return decoded_result["result"]["moe"]
 
     def mark_as_complete(self, result):
         print 'Uploading result: ', result

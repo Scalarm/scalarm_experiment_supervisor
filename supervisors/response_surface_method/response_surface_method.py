@@ -1,54 +1,125 @@
-from decimal import Decimal
+
 import json
 from pyDOE import *
 import numpy as np
 import pandas as pd
 from statsmodels.formula.api import ols
-from scalarmapi import Scalarm
 import sys
+import random
+from scalarmapi import Scalarm
 
-init_search_space_min =  [50, -20, 20]
-init_search_space_max =  [150, 20, 70]
-number_of_center_points = 4
-results_mock = np.array([[50.0, -20.0, 20.0, 50], [150.0, -20.0, 20.0, 20], [50.0, 20.0, 20.0, 11], [150.0, 20.0, 20.0, 13], [50.0, -20.0, 70.0, 24], [150.0, -20.0, 70.0, 22], [50.0, 20.0, 70.0, 52], [150.0, 20.0, 70.0, 67], [100.0, 0.0, 45.0, 23], [100.0, 0.0, 45.0, 14], [100.0, 0.0, 45.0, 13], [100.0, 0.0, 45.0, 22]])
+NO_INFLUENCE = 0.2
+init_search_space_min =  [0, -90]
+init_search_space_max =  [60, -70]
+NUMBER_OF_CENTER_POINTS = 4
 N = 12
 
 
 
 
-def RSM(parameters, search_space_min,search_space_max, number_of_center_points):
-    # check if search space is in iniital space
-    points = generate_RSM_design(parameters, number_of_center_points)
-    points_to_sim = unnormalize(points,search_space_min,search_space_max)
-    for point in points_to_sim:
-        scalarm.schedule_point(point)
-        if point == points_to_sim[0]:
-            results = scalarm.get_result(point);
-        results = np.vstack([results,scalarm.get_result(point)])
-    print(results)
-    if(check_cross(results, parameters)):
-       return
+def RSM(parameters, search_space, limit):
+
+    points = generate_RSM_design(parameters)
+    points_to_sim = unnormalize(points,search_space[0],search_space[1])
+    results = send(points_to_sim)
     #Intercept == constans?
     res = regression_analysis(results, parameters, "+")
     regression = res.params
+    if(check(results , parameters, regression)==True):
+        scalarm.mark_as_complete({'min': list(search_space[0]), 'max': list(search_space[1])})
+        return
+    for param in regression:
+        param = float('{0:.10f}'.format(param))
 
-    stepping = []
+    stepping = np.zeros(len(regression)-1)
     for step in range(0,N):
-        stepping.append([step,step/regression["parameter1"]*regression["parameter2"]])
-    experiment = unnormalize(stepping, search_space_min, search_space_max)
-    print(experiment)
-    for point in experiment:
-        scalarm.schedule_point(point)
-        if point == experiment[0]:
-            experiment_results = scalarm.get_result(point);
-        experiment_results = np.vstack([results,scalarm.get_result(point)])
-    #next interations
-    scalarm.mark_as_complete({'result': {experiment_result}, 'values': "no_error"})
+    ####        param1 = float('{0:.10f}'.format(regression[0]))
+    ####        param2 = float('{0:.10f}'.format(regression[1]))
+    ##        
+        stepp = [step]
+        for idx in range(2,len(regression)):
+            stepp = np.append(stepp, step/regression[1]*regression[idx])
+        stepping = np.vstack([stepping, stepp])
+    stepping = np.delete(stepping, (0), axis=0)
+    print "stepping"
+    print stepping
+    experiment = unnormalize(stepping, search_space[0], search_space[1])
+##    index = deleting(experiment, limit)
+##    if index > -1:
+##       for i in range(index, len(experiment)):
+##           del experiment[index]
+##    print experiment
+    results = send(experiment)
+    #how to display
+    # stopping points
+    new_space = new_search_space(results)
+    print "search space"
+    print search_space
+    print "new_space"
+    print new_space
+    for test, lim in zip( new_space[1], limit[1]):
+        if abs(test) > abs(lim):
+            print "Extended space"
+            new_space = np.array(new_space, dtype = int)
+            print new_space 
+            scalarm.mark_as_complete({'min': list(new_space[0]), 'max': list(new_space[1])})
+            return
+    print new_space
+    RSM(parameters, new_space, limit)
 
-def generate_RSM_design(parameters, number_of_center_points):
+def deleting(experiment, limit):
+    for idx, param in enumerate(experiment):
+        for number, m in zip(param, limit[1]):
+            print number, m, idx
+            if number > m:
+                index = idx
+                return idx
+            
+def send(points_to_sim):
+    for point in points_to_sim:
+        scalarm.schedule_point(point)
+        res = np.append(point,scalarm.get_result(point));
+        if point == points_to_sim[0]:
+            results = res
+        else :
+            results = np.vstack([results,res])
+    return results
+
+def new_search_space(results):
+    print "results"
+    print results
+
+
+
+
+
+
+    maximum = max(results[:,-1])
+    mini = []
+    maxi = []
+    print "Maximum"
+    print maximum
+    for idx , row in enumerate(results):
+        if maximum == row[-1]:
+            if idx > 0 and idx < len(results)-1:
+                mini = results[idx-1]
+                maxi = results[idx+1]
+            elif idx == 0:
+                mini = results[idx]
+                maxi = results[idx+1]
+            elif idx == len(results)-1:
+                mini = results[idx-1]
+                maxi = results[idx]
+    mini = np.delete(mini, -1)
+    maxi = np.delete(maxi, -1)
+    print "Przedzial"
+    print [mini, maxi]
+    return [mini, maxi]
+
+def generate_RSM_design(parameters):
     points = ff2n(len(parameters))
     center_points = [0 for x in range(len(parameters))]
-    for number in range(0,number_of_center_points):
+    for number in range(0,NUMBER_OF_CENTER_POINTS):
         points = np.vstack([points,center_points])
     return points
 
@@ -57,7 +128,7 @@ def normalize(points, lower_limit, upper_limit):
     for point in points:
         to_sim = []
         for param, min, max in zip(point,lower_limit,upper_limit):
-            x= Decimal((param-min)/(max-min)*2-1)
+            x= (param-min)/(max-min)*2-1
             to_sim.append(x)
         normalized = np.vstack([normalized,to_sim])
     return normalized
@@ -73,10 +144,7 @@ def unnormalize(points, lower_limit, upper_limit):
     return unnormalized
 
 def create_data(results,parameters):
-    print(results)
     experiment = {}
-    print("bbbbbbbbbbbbbb")
-
     for x in range(0,len(parameters)):
         experiment[parameters[x]] = pd.Series(results[:,x])
     experiment['output'] = pd.Series(results[:,len(parameters)])
@@ -95,9 +163,18 @@ def regression_analysis(results, parameters, sign):
     res = mod.fit()
     return res
 
-def check_cross(results, parameters):
-    regression_analysis(results, parameters, "*")
-    return 0
+def check(results , parameters, regression):
+    print "Params influecne"
+    print regression
+##    for param in range(1,len(regression)):
+##        if abs(regression[param]) < NO_INFLUENCE:
+##            return True
+##    res = regression_analysis(results, parameters, "*")
+##    print "Paramentry"
+##    print res.params
+##    if abs(res.params[-1]) > NO_INFLUENCE:
+##        return True
+    return False
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
@@ -120,11 +197,11 @@ for param in parameters:
     upper_limit.append(param["max"])
 
 scalarm = Scalarm(config['user'],
-                  config['password'],
-                  config['experiment_id'],
-                  config['http_schema'],
-                  config['address'],
-                  parameters_ids,
-                  config['verifySSL'] if 'verifySSL' in config else False)
+	config['password'],
+	config['experiment_id'],
+        config['http_schema'],
+        config['address'],
+        parameters_ids,
+        config['verifySSL'] if 'verifySSL' in config else False)
 
-RSM(parameters_ids, init_search_space_min, init_search_space_max, number_of_center_points)
+RSM(parameters_ids, [init_search_space_min, init_search_space_max], [lower_limit, upper_limit])
