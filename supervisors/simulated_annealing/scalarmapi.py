@@ -65,6 +65,7 @@ class Scalarm:
                 if "moe" not in decoded_result["result"]:
                     raise KeyError("Field 'result' must contain key named 'moe' with numeric value")
                 return decoded_result["result"]["moe"]
+            raise RuntimeError('Incorrect response format: %s' % r.text)
 
     def mark_as_complete(self, result):
         log('Uploading result: %s' % str(result))
