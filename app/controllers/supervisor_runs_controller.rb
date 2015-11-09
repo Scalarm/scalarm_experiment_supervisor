@@ -139,8 +139,7 @@ class SupervisorRunsController < ApplicationController
     begin
       supervisor_run = SupervisorRun.new
       # TODO: params[:config] can be not only JSON but also Hash (parsed by Rails)
-      pid = supervisor_run.start (params[:supervisor_id] || params[:id]), experiment_id.to_s, current_user.id, config
-      supervisor_run.save
+      pid = supervisor_run.start!((params[:supervisor_id] || params[:id]), experiment_id.to_s, current_user.id, config)
       Rails.logger.debug supervisor_run
       response = {status: 'ok', pid: pid, supervisor_run_id: supervisor_run.id.to_s}
 
@@ -158,8 +157,7 @@ class SupervisorRunsController < ApplicationController
   end
 
   def stop
-    @supervisor_run.stop
-    @supervisor_run.save
+    @supervisor_run.stop!
     render json: {status: 'ok'}
   end
 

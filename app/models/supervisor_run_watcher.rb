@@ -55,8 +55,7 @@ class SupervisorRunWatcher
           runs.each do |run|
             id = run.id.to_sym
             begin
-              run.monitoring_loop
-              run.save
+              run.monitoring_loop!
               errors_count[id] = 0
             rescue => e
               errors_count[id] = 0 unless errors_count.has_key? id
@@ -67,8 +66,7 @@ class SupervisorRunWatcher
               else
                 Rails.logger.error "Fatal error occurred during supervisor run monitoring execution [#{run.id}], "\
                                     "execution stopped : #{e.to_s}\n#{e.backtrace.join("\n")}"
-                run.set_error(e.to_s)
-                run.save
+                run.set_error!(e.to_s)
               end
             end
           end

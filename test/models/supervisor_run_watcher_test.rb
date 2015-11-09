@@ -63,8 +63,7 @@ class SupervisorRunWatcherTest < ActiveSupport::TestCase
     SupervisorRunWatcher.sleep_duration_in_seconds = 0
     SupervisorRunWatcher.is_running = true
     supervisor_script = mock do
-      expects(:monitoring_loop)
-      expects(:save)
+      expects(:monitoring_loop!)
       stubs(:id).returns('id')
     end
     SupervisorRun.expects(:find_all_by_query)
@@ -84,9 +83,8 @@ class SupervisorRunWatcherTest < ActiveSupport::TestCase
     supervisor_script = mock do
       stubs(:id).returns('id')
       stubs(:supervisor_id).returns('id')
-      stubs(:monitoring_loop).raises(StandardError)
-      expects(:set_error).then(is_error.is('true'))
-      expects(:save)
+      stubs(:monitoring_loop!).raises(StandardError)
+      expects(:set_error!).then(is_error.is('true'))
     end
     SupervisorRun.stubs(:find_all_by_query).returns([supervisor_script]).when(is_error.is('false'))
     SupervisorRun.stubs(:find_all_by_query).returns([]).when(is_error.is('true'))

@@ -175,6 +175,20 @@ class SupervisorRun < Scalarm::Database::MongoActiveRecord
     super
   end
 
+  ##
+  # Creates persistent method version with exclamation mark
+  def self.declare_persistent_method(name)
+    define_method("#{name}!".to_sym) do |*args|
+      result = send(name, *args)
+      save
+      result
+    end
+  end
+  declare_persistent_method :start
+  declare_persistent_method :monitoring_loop
+  declare_persistent_method :set_error
+  declare_persistent_method :stop
+
   private
 
   ##
