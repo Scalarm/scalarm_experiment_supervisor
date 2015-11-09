@@ -40,7 +40,7 @@ class GenericSupervisorRunStartingTest < ActionDispatch::IntegrationTest
       expects(:save)
       expects(:id).returns(ID)
     end
-    SupervisorRun.expects(:new).with({}).returns(supervisor_run)
+    SupervisorRun.expects(:new).returns(supervisor_run)
 
     post create_run_supervisor_path(ID), config: CONFIG.to_json
 

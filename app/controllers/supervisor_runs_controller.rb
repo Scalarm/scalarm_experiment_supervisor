@@ -137,7 +137,7 @@ class SupervisorRunsController < ApplicationController
     #TODO validate and check errors
     response = {}
     begin
-      supervisor_run = SupervisorRun.new({})
+      supervisor_run = SupervisorRun.new
       # TODO: params[:config] can be not only JSON but also Hash (parsed by Rails)
       pid = supervisor_run.start (params[:supervisor_id] || params[:id]), experiment_id.to_s, current_user.id, config
       supervisor_run.save

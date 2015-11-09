@@ -25,9 +25,11 @@ default: &DEFAULT
     ## NOTICE: this key should be set ONLY ONCE BEFORE first run - if you change or lost it, you will be UNABLE to read encrypted data!
     db_secret_key: "QjqjFK}7|Xw8DDMUP-O$yp"
 
-  ## Set an interval of script watching (checking if scripts are alive)
   supervisor_script_watcher:
+    ## Set an interval of script watching (checking if scripts are alive)
     sleep_duration_in_seconds: 60
+    ## Set retrying limit of monitoring loop after error
+    errors_limit = 3
     
   ## Path where logs are moved after supervisor run execution finish.
   # log_archive_path: /some/path
