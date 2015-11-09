@@ -55,6 +55,7 @@ class Scalarm:
                     points_not_found_counter += 1
                 else:
                     log(r.text)
+                    raise RuntimeError(decoded_result["message"])
                 if points_not_found_counter == ERROR_OCCURRENCES_BETWEEN_WARNING:
                     points_not_found_counter = 0
                     log("Point not available after 10 attempts")
