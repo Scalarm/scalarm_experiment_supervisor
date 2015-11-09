@@ -16,10 +16,14 @@ Dir[Rails.root.join('supervisors', '*', '*_executor.rb').to_s].each {|file| requ
 # * supervisor_id - id of supervisor, specify which script is used for supervising (set by #start
 #   method)
 # * pid - pid of supervisor script process (set by #start method)
-# * is_running - true when supervisor script is running, false otherwise (set by #start, modified by #monitoring_loop, #stop)
+# * is_running - true when supervisor script is running, false otherwise (set by #start, modified by
+#                #monitoring_loop, #stop)
 # * experiment_manager_credentials - hash with credentials to experiment manager (set by #start):
 #   * user
 #   * password
+# * is_error - set to true when error occurred during supervisor execution (set by #start, modified by #set_error)
+# * error_reason - reason of error (set by #set_error)
+# Be careful, variables and its usages list may be incomplete.
 # TODO: I think we should add simulation_manager_temp_password_id to avoid redundancy
 class SupervisorRun < Scalarm::Database::MongoActiveRecord
   use_collection 'supervisor_runs'
@@ -27,13 +31,18 @@ class SupervisorRun < Scalarm::Database::MongoActiveRecord
   attr_join :experiment, Scalarm::Database::Model::Experiment
 
   PROVIDER = SupervisorExecutorsProvider
-  STATE_ALLOWED_KEYS = %w(supervisor_id user_id experiment_id pid is_running)
+  STATE_ALLOWED_KEYS = %w(supervisor_id user_id experiment_id pid is_running is_error reason)
+
+  def initialize(attributes={})
+    super(attributes)
+  end
 
   ##
   # Starts new supervised script by using proper executor
   #
   # Required params
   # * id - id of supervisor script
+  # * experiment_id - id of experiment associated with run
   # * user_id - id of owner of this supervisor run
   # * config - json with config for supervisor script (config is not validated)
   # Returns
@@ -46,6 +55,7 @@ class SupervisorRun < Scalarm::Database::MongoActiveRecord
     self.user_id = user_id
     self.experiment_id = experiment_id
     self.experiment_manager_credentials = {user: config['user'], password: config['password']}
+    self.is_error = false
     # TODO validate config
     information_service = InformationService.instance
     config['address'] = information_service.get_list_of('experiment_managers').sample
@@ -69,7 +79,6 @@ class SupervisorRun < Scalarm::Database::MongoActiveRecord
     return false unless self.pid
     `ps #{self.pid}`
     unless $?.success?
-      Rails.logger.info "Supervisor script is not running anymore: #{self.id}"
       return false
     end
     true
@@ -118,7 +127,7 @@ class SupervisorRun < Scalarm::Database::MongoActiveRecord
   ##
   # Single monitoring loop
   def monitoring_loop
-    raise 'Tried to check supervisor script executior state, but it is not running' unless self.is_running
+    raise 'Tried to check supervisor script executor state, but it is not running' unless self.is_running
     unless check
       self.is_running = false
       if experiment.completed
@@ -129,6 +138,15 @@ class SupervisorRun < Scalarm::Database::MongoActiveRecord
       end
       move_log
     end
+  end
+
+  ##
+  # Sets supervisor run to error state, stops its execution and notifies experiment manager
+  def set_error(reason)
+    stop if check
+    self.is_error = true
+    self.reason = reason
+    notify_error("Supervisor script is not running: #{reason}\nLast 100 lines of supervisor output:\n#{read_log}")
   end
 
   ##

@@ -16,11 +16,11 @@ class SupervisorRunTest < ActiveSupport::TestCase
 
   def setup
     super
-    @supervisor_script = SupervisorRun.new({})
+    @supervisor_script = SupervisorRun.new
     @experiment = stub_everything 'experiment'
   end
 
-  test "check methods return true when script is running" do
+  test 'check methods return true when script is running' do
     @supervisor_script.pid = PID
     @supervisor_script.is_running = true
 
@@ -31,7 +31,7 @@ class SupervisorRunTest < ActiveSupport::TestCase
     assert @supervisor_script.is_running, 'is_running flag should not be modified'
   end
 
-  test "check methods return false when script is not running and set is_running to false" do
+  test 'check methods return false when script is not running and set is_running to false' do
     @supervisor_script.pid = PID
     @supervisor_script.is_running = true
 
@@ -42,7 +42,7 @@ class SupervisorRunTest < ActiveSupport::TestCase
     assert @supervisor_script.is_running, 'is_running flag should not be modified'
   end
 
-  test "monitoring loop proper behavior when script is running" do
+  test 'monitoring loop proper behavior when script is running' do
     @supervisor_script.is_running = true
     # mock
     @supervisor_script.expects(:check).returns(true)
@@ -53,7 +53,7 @@ class SupervisorRunTest < ActiveSupport::TestCase
     assert @supervisor_script.is_running, 'is_running flag should be true'
   end
 
-  test "monitoring loop proper behavior when script is not running and experiment is completed" do
+  test 'monitoring loop proper behavior when script is not running and experiment is completed' do
     @supervisor_script.is_running = true
     # mock
     @supervisor_script.expects(:check).returns(false)
@@ -82,14 +82,14 @@ class SupervisorRunTest < ActiveSupport::TestCase
     assert_not @supervisor_script.is_running, 'is_running flag should be false'
   end
 
-  test "monitoring loop should raise exception when script is not running" do
+  test 'monitoring loop should raise exception when script is not running' do
     e = assert_raises RuntimeError do
       @supervisor_script.monitoring_loop
     end
-    assert_equal e.to_s, 'Tried to check supervisor script executior state, but it is not running'
+    assert_equal e.to_s, 'Tried to check supervisor script executor state, but it is not running'
   end
 
-  test "proper behavior of notify error" do
+  test 'proper behavior of notify error' do
     @supervisor_script.experiment_id = EXPERIMENT_ID
     @supervisor_script.experiment_manager_credentials = {'user' => USER, 'password' => PASSWORD}
     # mocks
@@ -110,7 +110,7 @@ class SupervisorRunTest < ActiveSupport::TestCase
     @supervisor_script.notify_error REASON
   end
 
-  test "proper behavior of notify error when there is no available experiment manager" do
+  test 'proper behavior of notify error when there is no available experiment manager' do
     @supervisor_script.experiment_id = EXPERIMENT_ID
     @supervisor_script.experiment_manager_credentials = {'user' => USER, 'password' => PASSWORD}
     # mocks
@@ -126,7 +126,7 @@ class SupervisorRunTest < ActiveSupport::TestCase
 
   FILE_PATH = '/tmp/test.txt'
 
-  test "proper behavior od read_log method when lines number is greater than 100" do
+  test 'proper behavior od read_log method when lines number is greater than 100' do
     @supervisor_script.expects(:log_path).returns(FILE_PATH)
 
     File.open(FILE_PATH, 'w+') do |file|
@@ -136,7 +136,7 @@ class SupervisorRunTest < ActiveSupport::TestCase
     File.delete(FILE_PATH)
   end
 
-  test "proper behavior od read_log method when lines number is lower than 100" do
+  test 'proper behavior od read_log method when lines number is lower than 100' do
     @supervisor_script.expects(:log_path).returns(FILE_PATH)
 
     File.open(FILE_PATH, 'w+') do |file|
@@ -146,7 +146,7 @@ class SupervisorRunTest < ActiveSupport::TestCase
     File.delete(FILE_PATH)
   end
 
-  test "proper behavior od read_log method when lines number is equal 100" do
+  test 'proper behavior od read_log method when lines number is equal 100' do
     @supervisor_script.expects(:log_path).returns(FILE_PATH)
 
     File.open(FILE_PATH, 'w+') do |file|
@@ -156,13 +156,13 @@ class SupervisorRunTest < ActiveSupport::TestCase
     File.delete(FILE_PATH)
   end
 
-  test "proper behavior od read_log method on file reading error" do
+  test 'proper behavior od read_log method on file reading error' do
     @supervisor_script.expects(:log_path).times(3).returns(FILE_PATH)
     IO.expects(:readlines).with(FILE_PATH).throws(StandardError)
     assert_equal @supervisor_script.read_log, "Unable to load log file: #{FILE_PATH}"
   end
 
-  test "proper behaviour of stop method with stubborn process" do
+  test 'proper behaviour of stop method with stubborn process' do
     @supervisor_script.pid = PID
     @supervisor_script.is_running = true
     @supervisor_script.expects(:check).returns(true).twice
@@ -174,7 +174,7 @@ class SupervisorRunTest < ActiveSupport::TestCase
     assert_equal false, @supervisor_script.is_running
   end
 
-  test "proper behaviour of stop method with cooperating process" do
+  test 'proper behaviour of stop method with cooperating process' do
     @supervisor_script.pid = PID
     @supervisor_script.is_running = true
     @supervisor_script.expects(:check).returns(true).then.returns(false).twice
@@ -186,7 +186,7 @@ class SupervisorRunTest < ActiveSupport::TestCase
   end
 
 
-  test "proper behaviour of destroy method when script is not running" do
+  test 'proper behaviour of destroy method when script is not running' do
     @supervisor_script.expects(:check).returns(false)
     @supervisor_script.save
 
@@ -195,7 +195,7 @@ class SupervisorRunTest < ActiveSupport::TestCase
     end
   end
 
-  test "proper behaviour of destroy method when script is running" do
+  test 'proper behaviour of destroy method when script is running' do
     @supervisor_script.expects(:check).returns(true)
     @supervisor_script.expects(:stop)
     @supervisor_script.save
@@ -205,13 +205,12 @@ class SupervisorRunTest < ActiveSupport::TestCase
     end
   end
 
-  STATE_ALLOWED_KEYS = [:experiment_id, :supervisor_id, :pid, :is_running, :supervisor_run_id]
+  STATE_ALLOWED_KEYS = [:experiment_id, :supervisor_id, :pid, :is_running, :supervisor_run_id, :user_id,
+                        :is_error, :reason]
 
-  test "state returns all and only allowed keys" do
-    @supervisor_script.experiment_id = 'val'
-    @supervisor_script.supervisor_id = 'val'
-    @supervisor_script.pid = 'val'
-    @supervisor_script.is_running = 'val'
+  test 'state returns all and only allowed keys' do
+    SupervisorRun::STATE_ALLOWED_KEYS.each {|key| @supervisor_script.send("#{key}=".to_sym, 'val')}
+    @supervisor_script.forbidden_key = 'val'
 
     state = @supervisor_script.state
     assert_nothing_raised do
@@ -302,8 +301,20 @@ class SupervisorRunTest < ActiveSupport::TestCase
     # cleanup
     remove_file_if_exists original_log_file_path
     remove_file_if_exists new_log_file_path
+  end
 
-
+  test 'set_error should put run in error state and stop execution' do
+    # given
+    @supervisor_script.is_error = false
+    @supervisor_script.stubs(:check).returns(true)
+    @supervisor_script.stubs(:read_log).returns('')
+    @supervisor_script.expects(:stop)
+    @supervisor_script.expects(:notify_error)
+    # when
+    @supervisor_script.set_error(REASON)
+    # then
+    assert_equal REASON, @supervisor_script.reason
+    assert_equal true, @supervisor_script.is_error
   end
 
 end
