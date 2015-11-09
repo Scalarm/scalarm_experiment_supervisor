@@ -111,8 +111,6 @@ class SupervisorRunWatcherTest < ActiveSupport::TestCase
   end
 
   def teardown
-    SupervisorRunWatcher.is_running = DEFAULT_VALUES[:is_running]
-    SupervisorRunWatcher.sleep_duration_in_seconds = DEFAULT_VALUES[:sleep_duration_in_seconds]
-    SupervisorRunWatcher.errors_limit = DEFAULT_VALUES[:errors_limit]
+    DEFAULT_VALUES.each {|key, value| SupervisorRunWatcher.send("#{key}=".to_sym, value)}
   end
 end

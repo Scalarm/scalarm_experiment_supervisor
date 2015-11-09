@@ -319,11 +319,13 @@ class SupervisorRunTest < ActiveSupport::TestCase
 
   test 'declare_persistent_method should create persistent method version' do
     # given
-    SupervisorRun.declare_persistent_method :test
-    @supervisor_run.expects(:test).with(:foo, :bar).returns(:bar)
-    @supervisor_run.expects(:save)
+    SupervisorRun.declare_persistent_method :method, :another_method
+    @supervisor_run.expects(:method).with(:foo, :bar).returns(:bar)
+    @supervisor_run.expects(:another_method)
+    @supervisor_run.expects(:save).twice
     # when, then
-    assert_equal :bar, @supervisor_run.test!(:foo, :bar)
+    assert_equal :bar, @supervisor_run.method!(:foo, :bar)
+    @supervisor_run.another_method!
   end
 
 end

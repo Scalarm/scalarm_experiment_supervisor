@@ -23,7 +23,7 @@ Dir[Rails.root.join('supervisors', '*', '*_executor.rb').to_s].each {|file| requ
 #   * password
 # * is_error - set to true when error occurred during supervisor execution (set by #start, modified by #set_error)
 # * error_reason - reason of error (set by #set_error)
-# Be careful, variables and its usages list may be incomplete.
+# Be careful, variables and their usages list may be incomplete.
 # TODO: I think we should add simulation_manager_temp_password_id to avoid redundancy
 class SupervisorRun < Scalarm::Database::MongoActiveRecord
   use_collection 'supervisor_runs'
@@ -177,17 +177,16 @@ class SupervisorRun < Scalarm::Database::MongoActiveRecord
 
   ##
   # Creates persistent method version with exclamation mark
-  def self.declare_persistent_method(name)
-    define_method("#{name}!".to_sym) do |*args|
-      result = send(name, *args)
-      save
-      result
+  def self.declare_persistent_method(*names)
+    names.each do |name|
+      define_method("#{name}!".to_sym) do |*args|
+        result = send(name, *args)
+        save
+        result
+      end
     end
   end
-  declare_persistent_method :start
-  declare_persistent_method :monitoring_loop
-  declare_persistent_method :set_error
-  declare_persistent_method :stop
+  declare_persistent_method :start, :monitoring_loop, :set_error, :stop
 
   private
 
