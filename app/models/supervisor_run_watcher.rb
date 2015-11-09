@@ -60,8 +60,7 @@ class SupervisorRunWatcher
             rescue => e
               errors_count[id] = 0 unless errors_count.has_key? id
               if errors_count[id] < @errors_limit
-                Rails.logger.error "Fatal error occurred during supervisor run monitoring execution [#{run.id}]:"\
-                                   "#{e.to_s}"
+                Rails.logger.warn "An error occurred during supervisor run monitoring execution [#{run.id}]:#{e.to_s}"
                 errors_count[id] += 1
               else
                 Rails.logger.error "Fatal error occurred during supervisor run monitoring execution [#{run.id}], "\
