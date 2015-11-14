@@ -12,9 +12,9 @@ class SupervisorRunWatcherTest < ActiveSupport::TestCase
     attr_accessor :sleep_duration_in_seconds, :is_running, :errors_limit
   end
 
-  def self.create_config_entry_test(name, default_vale, new_value)
+  def self.create_config_entry_test(entry_name, default_value, config_value)
     instance_eval do
-      test "proper init of #{name} when config supervisor_script_watcher entry is missing" do
+      test "field #{entry_name} should be set to default when config for supervisor_script_watcher is missing" do
         # given
         secrets = mock do
           stubs(:include?).with(:supervisor_script_watcher).returns(false)
@@ -23,10 +23,10 @@ class SupervisorRunWatcherTest < ActiveSupport::TestCase
         # when
         SupervisorRunWatcher.init
         # then
-        assert_equal default_vale, SupervisorRunWatcher.send(name)
+        assert_equal default_value, SupervisorRunWatcher.send(entry_name)
       end
 
-      test "proper init when config entry #{name} is missing" do
+      test "field #{entry_name} should be set to default when its config entry is missing" do
         # given
         secrets = mock do
           stubs(:include?).with(:supervisor_script_watcher).returns(true)
@@ -37,28 +37,28 @@ class SupervisorRunWatcherTest < ActiveSupport::TestCase
         # when
         SupervisorRunWatcher.init
         # then
-        assert_equal default_vale, SupervisorRunWatcher.send(name)
+        assert_equal default_value, SupervisorRunWatcher.send(entry_name)
       end
 
-      test "proper init with existing config entry #{name}" do
+      test "field #{entry_name} should be set to config value" do
         # given
+        entry = {entry_name.to_s => config_value}
         secrets = mock do
           stubs(:include?).with(:supervisor_script_watcher).returns(true)
+          stubs(:supervisor_script_watcher).returns(entry)
         end
-        entry = {name.to_s => new_value}
-        secrets.stubs(:supervisor_script_watcher).returns(entry)
         Rails.application.stubs(:secrets).returns(secrets)
         # when
         SupervisorRunWatcher.init
         # then
-        assert_equal new_value, SupervisorRunWatcher.send(name)
+        assert_equal config_value, SupervisorRunWatcher.send(entry_name)
       end
     end
   end
   create_config_entry_test :sleep_duration_in_seconds, DEFAULT_VALUES[:sleep_duration_in_seconds], 30
   create_config_entry_test :errors_limit, DEFAULT_VALUES[:errors_limit], 5
 
-  test 'proper execution of supervisor script watcher' do
+  test 'supervisor run watcher should execute monitoring loop of active supervisors runs' do
     # given
     SupervisorRunWatcher.sleep_duration_in_seconds = 0
     SupervisorRunWatcher.is_running = true

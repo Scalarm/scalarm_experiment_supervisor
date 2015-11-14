@@ -17,7 +17,7 @@ Dir[Rails.root.join('supervisors', '*', '*_executor.rb').to_s].each {|file| requ
 #   method)
 # * pid - pid of supervisor script process (set by #start method)
 # * is_running - true when supervisor script is running, false otherwise (set by #start, modified by
-#                #monitoring_loop, #stop)
+#   #monitoring_loop, #stop)
 # * experiment_manager_credentials - hash with credentials to experiment manager (set by #start):
 #   * user
 #   * password
@@ -41,7 +41,7 @@ class SupervisorRun < Scalarm::Database::MongoActiveRecord
   # Starts new supervised script by using proper executor
   #
   # Required params
-  # * id - id of supervisor script
+  # * supervisor_id - id of supervisor script
   # * experiment_id - id of experiment associated with run
   # * user_id - id of owner of this supervisor run
   # * config - json with config for supervisor script (config is not validated)
@@ -49,9 +49,9 @@ class SupervisorRun < Scalarm::Database::MongoActiveRecord
   # * pid of started script
   # Raises
   # * Various StandardError exceptions caused by creating file or starting process.
-  def start(id, experiment_id, user_id, config)
-    raise 'There is no supervisor script with given id' unless PROVIDER.has_key? id
-    self.supervisor_id = id
+  def start(supervisor_id, experiment_id, user_id, config)
+    raise 'There is no supervisor script with given id' unless PROVIDER.has_key? supervisor_id
+    self.supervisor_id = supervisor_id
     self.user_id = user_id
     self.experiment_id = experiment_id
     self.experiment_manager_credentials = {user: config['user'], password: config['password']}
@@ -60,8 +60,8 @@ class SupervisorRun < Scalarm::Database::MongoActiveRecord
     information_service = InformationService.instance
     config['address'] = information_service.get_list_of('experiment_managers').sample
     config['http_schema'] = 'https' # TODO - temporary, change to config entry
-    self.pid = PROVIDER.get(id)._start config
-    Rails.logger.info "New supervisor run for #{id}, pid: #{self.pid}"
+    self.pid = PROVIDER.get(supervisor_id)._start config
+    Rails.logger.info "New supervisor run for #{supervisor_id}, pid: #{self.pid}"
     self.is_running = true
     SupervisorRunWatcher.start_watching
     self.pid
@@ -176,7 +176,10 @@ class SupervisorRun < Scalarm::Database::MongoActiveRecord
   end
 
   ##
-  # Creates persistent method version with exclamation mark
+  # Creates persistent method version with exclamation mark.
+  # Persistent method calls original method, saves state to database
+  # and returns results from original method call.
+  # TODO: Move to MongoActiveRecord (with tests!)
   def self.declare_persistent_method(*names)
     names.each do |name|
       define_method("#{name}!".to_sym) do |*args|
