@@ -13,6 +13,19 @@ library("stringr")
 
 
 
+validate <- function(obj , type , pattern=NULL){
+  if (type != typeof(obj)){
+    print(typeof(obj))
+    stop("Variable has wrong type")
+  }
+  if (!is.null(pattern)){
+    if (grepl(pattern, obj) == FALSE){
+      stop("Variable doesn't match")
+    }
+  }
+  return
+}
+
 
 setGeneric("morris_f", function(options, factors,binf, bsup) {
   if (options$design == "oat") {
@@ -130,13 +143,19 @@ if (!interactive()) {
   }
   verify = FALSE
   design = config_file$design_type
-  if (design == "oat") {
-    options = list(design = design, size = config_file$size, gridjump = config_file$gridjump, 
-                   levels = config_file$levels)
-  }
-  else {
-    options = list(design = design, size = config_file$size, factor = config_file$factor)
-  }
+    validate(config_file$design, "character", "(oat|simplex)")
+    validate(config_file$size, "double")
+
+    if (design == "oat") {
+      validate(config_file$gridjump, "double") # typeof(number) in R returns double
+      validate(config_file$levels,  "double")
+      options = list(design = design, size = config_file$size, gridjump = config_file$gridjump,
+                     levels = config_file$levels)
+    }
+    else {
+      validate(config_file$factor,"double")
+      options = list(design = design, size = config_file$size, factor = config_file$factor)
+    }
   parameters_ids = lapply(config_file$parameters, "[[", "id")
   if (!is.null(config_file$verifySSL)){
     verify = config_file$verifySSL
