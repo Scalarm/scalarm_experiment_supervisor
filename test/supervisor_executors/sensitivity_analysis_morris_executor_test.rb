@@ -4,7 +4,7 @@ require 'mocha/test_unit'
 class SensitivityAnalysisMorrisExecutorTest < ActiveSupport::TestCase
   include SupervisorRunTestsHelper
   # also tests if out and err streams are set to log file
-  test 'SA morris executor start should launch mono application with config file' do
+  test 'SA morris executor start should launch application with config file' do
 
     experiment_id = 'some_experiment_id'
     pid = 'some_pid'

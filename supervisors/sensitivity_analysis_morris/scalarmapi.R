@@ -36,7 +36,7 @@ setMethod ("check_repetitions", "Scalarm",function(.Object, params){
     if (results$status == "error") {
       return(NULL)
     }
-    else{
+    else {
       print("Point had been scheduled already")
       print(toJSON(results$result))
       return(results$result)
@@ -59,10 +59,12 @@ setMethod("schedule_point", "Scalarm", function(.Object, params) {
 setMethod("get_result", "Scalarm", function(.Object, params){
   writing_counter = 0
   while(1){
-    if(writing_counter == 20) #After first 10 messages, their will appear in logs 10 times less frequent
+    if(writing_counter == 20){ #After first 10 messages, their will appear in logs 10 times less frequent
       writing_counter = 9
-    else
+      }
+    else{
       writing_counter = writing_counter+1
+      }
     url =  paste(.Object@http_schema,"://", .Object@address,"/experiments/",.Object@experiment_id,"/get_result.json",sep = "")
     encoded_url =  URLencode(toJSON(params))
     modified_url=  paste(url,"?point=",encoded_url, sep = "")
@@ -74,8 +76,9 @@ setMethod("get_result", "Scalarm", function(.Object, params){
       return("error")
     }
     if (results$status == "error") {
-      if(writing_counter<10)
+      if(writing_counter<10){
         print("Status: error; Waiting for results")
+        }
       Sys.sleep(10)
     }
     else{

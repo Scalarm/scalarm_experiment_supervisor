@@ -13,36 +13,40 @@ library("stringr")
 
 
 
-if (!interactive()) {
-    if (length(commandArgs(TRUE)) < 1) {
-        config_file = fromJSON(file = "config.json")
-    } else {
-        config_file = fromJSON(file = commandArgs(TRUE)[1])
+
+setGeneric("morris_f", function(options, factors,binf, bsup) {
+  if (options$design == "oat") {
+    Uncomplete_object <- morris(model = NULL, factors = factors, 
+                                binf, bsup, r = options$size,
+                                design = list(type = "oat", 
+                                levels = options$levels,
+                                grid.jump = options$gridjump))
+    return(Uncomplete_object)
     }
-    file_path = commandArgs(FALSE)[4]
-    directory = str_match(file_path, "--file=(/.*)/morris.R")
+  else {
+    Uncomplete_object <- morris(model = NULL, factors = factors, 
+                                binf, bsup, r = options$size,
+                                design = list(type = "simplex", 
+                                scale.factors = options$factor))
+    return(Uncomplete_object)
+    }
+
+})
+
+if (!interactive()) {
+  file_path = commandArgs(FALSE)[4]
+  directory = str_match(file_path, "--file=(/.*)/morris.R")
+  
+  if (is.na(directory[, 1]) == TRUE) {
+    stop("Error while reading file path")
+  }
+  scalarm_api = paste(directory[1 , 2] , "/scalarmapi.R", sep = "")
+  source(scalarm_api)
+}    
     
-    if (is.na(directory[, 1]) == TRUE) 
-        stop("Error while reading file path")
+    setGeneric("sensitivity_analysis_function" , function(.Object, parameters, options) {})
     
-    scalarm_api = paste(directory[1, 2], "/scalarmapi.R", sep = "")
-    source(scalarm_api)
-    
-    verify = FALSE
-    design = config_file$design_type
-    if (design == "oat") 
-        options = list(design = design, size = config_file$size, gridjump = config_file$gridjump, 
-            levels = config_file$levels) else options = list(design = design, size = config_file$size, factor = config_file$factor)
-    parameters_ids = lapply(config_file$parameters, "[[", "id")
-    if (!is.null(config_file$verifySSL)) 
-        verify = config_file$verifySSL
-    scalarm = Scalarm(config_file$user, config_file$password, config_file$experiment_id, 
-        config_file$address, parameters_ids, config_file$http_schema, verify)
-    
-    
-    setGeneric("sensitivity_analysis_function", function(.Object, parameters, options) {})
-    
-    setMethod("sensitivity_analysis_function", "Scalarm", function(.Object, 
+    setMethod("sensitivity_analysis_function" , "Scalarm" , function(.Object, 
         parameters, options) {
         method = list(sensitivity_analysis_method = "morris")
         results_moes = list()
@@ -57,15 +61,7 @@ if (!interactive()) {
             factors[parameter_number] <- parameters[[parameter_number]]$id
         }
 
-        if (options$design == "oat") {
-            Uncomplete_object <- morris(model = NULL, factors = factors, 
-                binf, bsup, r = options$size, design = list(type = "oat", 
-                  levels = options$levels, grid.jump = options$gridjump))
-        } else {
-            Uncomplete_object <- morris(model = NULL, factors = factors, 
-                binf, bsup, r = options$size, design = list(type = "simplex", 
-                  scale.factors = options$factor))
-        }
+        Uncomplete_object = morris_f(options, factors, binf, bsup)
         starting_points <- Uncomplete_object["X"]
 
         if (any(is.na(Uncomplete_object$X)) == TRUE) {
@@ -73,13 +69,18 @@ if (!interactive()) {
         } else {
             experiment_size <- nrow(starting_points$X)
             for (row_number in 1:experiment_size) {
+              params <- c(starting_points$X[row_number, ])
+              if (is.null(check_repetitions(.Object, params))) {
+                schedule_point(.Object, params)
+              }
+            }
+            for (row_number in 1:experiment_size) {
                 new_point <- c()
                 params <- c(starting_points$X[row_number, ])
-                if (is.null(check_repetitions(.Object, params))) 
-                  schedule_point(.Object, params)
                 result = get_result(.Object, params)
-                if (result == "error") 
+                if (result == "error"){
                   stop("Error in receiving results from simulation")
+                }
                 point_result <- result
                 if (row_number == 1) {
                   # we assume that simulation was completed propely
@@ -120,6 +121,27 @@ if (!interactive()) {
         mark_as_complete(.Object, JSON_to_send)
         
     })
-    
-    sensitivity_analysis_function(scalarm, config_file$parameters, options)
+
+if (!interactive()) {
+  if (length(commandArgs(TRUE)) < 1) {
+    config_file = fromJSON(file = "config.json")
+  } else {
+    config_file = fromJSON(file = commandArgs(TRUE)[1])
+  }
+  verify = FALSE
+  design = config_file$design_type
+  if (design == "oat") {
+    options = list(design = design, size = config_file$size, gridjump = config_file$gridjump, 
+                   levels = config_file$levels)
+  }
+  else {
+    options = list(design = design, size = config_file$size, factor = config_file$factor)
+  }
+  parameters_ids = lapply(config_file$parameters, "[[", "id")
+  if (!is.null(config_file$verifySSL)){
+    verify = config_file$verifySSL
+  }
+  scalarm = Scalarm(config_file$user, config_file$password, config_file$experiment_id, 
+                    config_file$address, parameters_ids, config_file$http_schema, verify)
+sensitivity_analysis_function(scalarm, config_file$parameters, options)
 }
