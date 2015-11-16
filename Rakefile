@@ -164,7 +164,6 @@ def os_version
   [os, arch]
 end
 
-
 def copy_example_config_if_not_exists(base_name, prefix='example')
   config = base_name
   example_config = "#{base_name}.example"
