@@ -3,6 +3,15 @@
   = hidden_field_tag 'supervisor_script_id', 'response_surface_method'
   = hidden_field_tag 'type', 'supervised'
   = hidden_field_tag 'supervisor_script_params'
-
   = form_tag '', id: 'supervisor_params' do
     .content
+      .row
+        .small-5.columns
+          = label_tag :max_iterations, 'Maximum number of iterations:', class: 'right inline'
+        .small-3.columns.end
+          = number_field_tag :max_iterations, 1, min: 1, required: true, class: 'text-left'
+      .row
+        .small-5.columns
+          = label_tag :step, 'Number of steps in each iteration:', class: 'right inline'
+        .small-3.columns.end
+          = number_field_tag :step, 1, min: 1, required: true, class: 'text-left'

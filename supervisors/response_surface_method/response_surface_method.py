@@ -8,10 +8,16 @@ import sys
 import math
 import random
 import scipy
-#from scalarmapi import Scalarm
+from scalarmapi import Scalarm
+
+def validate_int(param):
+    if type(param) is not int:
+        raise KeyError("Variable has innapropriate type")
+    return
 
 NO_INFLUENCE = 0.01
-
+max_iterations = 0
+step =0 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
         config_file = open('config.json')
@@ -20,9 +26,11 @@ if __name__ == "__main__":
     config = json.load(config_file)
     config_file.close()
 
-max_iterations = config['max_iterations']
-N = 40
-
+    print config
+    max_iterations = config["max_iterations"]
+    steps_number = config["step"]
+    validate_int(max_iterations)
+    validate_int(steps_number)
 
 def RSM(parameters, search_space, limit, iteration):
     if iteration>max_iterations:
@@ -41,7 +49,7 @@ def RSM(parameters, search_space, limit, iteration):
     if(check_linearity(simulations_results , parameters, model, search_space)==True):
         return
     experiment_points = np.zeros(len(model)-1)
-    for step in range(0,N):
+    for step in range(0,steps_number):
         steps = [step*model[1]/sum_of_squares]
         for idx in range(2,len(model)):
             steps = np.append(steps, step*model[idx]/sum_of_squares)
@@ -54,11 +62,10 @@ def RSM(parameters, search_space, limit, iteration):
         if abs(new_params) > abs(old_params):
             new_space = np.array(new_space, dtype = int)
             scalarm.mark_as_complete({'min': list(new_space[0]), 'max': list(new_space[1]), 'stop':'Maximal parameter space reached'})
-                return
+            return
     RSM(parameters, new_space, limit, iteration+1)
 
 
-            
 def perform_simulations(points_to_sim):
     for point in points_to_sim:
         scalarm.schedule_point(point)
