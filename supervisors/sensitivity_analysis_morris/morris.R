@@ -13,7 +13,7 @@ library("stringr")
 
 
 
-validate <- function(obj, type, pattern=NULL){
+validate <- function(obj , type , pattern=NULL){
   if (type != typeof(obj)){
     print(typeof(obj))
     stop("Variable has wrong type")
@@ -143,12 +143,12 @@ if (!interactive()) {
   }
   verify = FALSE
   design = config_file$design_type
-    validate(config_file$design,"character","(oat|simplex)")
-    validate(config_file$size,"double")
+    validate(config_file$design, "character", "(oat|simplex)")
+    validate(config_file$size, "double")
 
     if (design == "oat") {
-      validate(config_file$gridjump,"double") # typeof(number) in R returns double
-      validate(config_file$levels,"double")
+      validate(config_file$gridjump, "double") # typeof(number) in R returns double
+      validate(config_file$levels,  "double")
       options = list(design = design, size = config_file$size, gridjump = config_file$gridjump,
                      levels = config_file$levels)
     }
