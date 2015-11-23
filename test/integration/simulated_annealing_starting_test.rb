@@ -22,7 +22,7 @@ class SimulatedAnnealingStartingTest < ActionDispatch::IntegrationTest
         .returns(SIMULATED_ANNEALING_CONFIG_FILE_PATH)
 
     # mock script starting with tests of proper calls
-    Process.expects(:spawn).with('python2', SIMULATED_ANNEALING_MAIN_FILE, SIMULATED_ANNEALING_CONFIG_FILE_PATH,
+    Process.expects(:spawn).with({'PYTHONPATH'=>PYTHONPATH}, 'python2', SIMULATED_ANNEALING_MAIN_FILE, SIMULATED_ANNEALING_CONFIG_FILE_PATH,
                                  out: SIMULATED_ANNEALING_LOG_FILE_PATH, err: SIMULATED_ANNEALING_LOG_FILE_PATH).returns(PID)
     Process.expects(:detach).with(PID)
     SupervisorRunWatcher.expects(:start_watching)

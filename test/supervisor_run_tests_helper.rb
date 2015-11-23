@@ -6,6 +6,8 @@ require 'mocha/mock'
 module SupervisorRunTestsHelper
   include Scalarm::ServiceCore::TestUtils::DbHelper
 
+  PYTHONPATH = 'lib/api_clients/python2:.'
+
   EXPERIMENT_ID = BSON::ObjectId.new.to_s
   CONFIG_FROM_EM_SIMULATED_ANNEALING = {
       initial_temperature: 1000,
@@ -42,7 +44,7 @@ module SupervisorRunTestsHelper
   SIMULATED_ANNEALING_LOG_FILE_PATH = Rails.root.join('log', 'supervisors', "supervisor_script_#{EXPERIMENT_ID}.log").to_s
   SIMULATED_ANNEALING_CONFIG_FILE_PATH = "/tmp/supervisor_script_config_#{EXPERIMENT_ID}_random"
   SIMULATED_ANNEALING_MAIN_FILE = 'supervisors/simulated_annealing/anneal.py'
-  SIMULATED_ANNEALING_LIBRARY_FILE = 'supervisors/simulated_annealing/scalarmapi.py'
+  SIMULATED_ANNEALING_LIBRARY_FILE = 'lib/api_clients/python2/scalarmapi.py'
   REASON_PREFIX = '[Experiment Supervisor]'
   REASON = 'reason'
   PID = 1234
