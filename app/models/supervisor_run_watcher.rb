@@ -53,7 +53,7 @@ class SupervisorRunWatcher
             return
           end
           runs.each do |run|
-            id = run.id.to_sym
+            id = run.id.to_s
             begin
               run.monitoring_loop!
               errors_count[id] = 0
