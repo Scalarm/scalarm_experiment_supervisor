@@ -29,7 +29,7 @@ default: &DEFAULT
     ## Set an interval of script watching (checking if scripts are alive)
     sleep_duration_in_seconds: 60
     ## Set retrying limit of monitoring loop after error
-    errors_limit = 3
+    errors_limit: 3
     
   ## Path where logs are moved after supervisor run execution finish.
   # log_archive_path: /some/path
