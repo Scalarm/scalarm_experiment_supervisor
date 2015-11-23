@@ -34,7 +34,9 @@ gem 'mongo', '~> 1.12'
 #    git: 'git://github.com/kliput/mongo_session_store.git',
 #    branch: 'issue-31-mongo_store-deserialization'
 
-gem 'mocha', '~> 1.1.0'
+gem 'mocha', '~> 1.1.0', group: :test
+gem 'ci_reporter_minitest', group: :test
+
 gem 'rdoc', '~> 4.2.0'
 
 gem 'rest-client', '~> 1.8'
