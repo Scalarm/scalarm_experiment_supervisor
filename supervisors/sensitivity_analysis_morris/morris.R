@@ -160,7 +160,7 @@ if (!interactive()) {
   if (!is.null(config_file$verifySSL)){
     verify = config_file$verifySSL
   }
-  scalarm = Scalarm(config_file$user, config_file$password, config_file$experiment_id, 
+  scalarm = Scalarm(config_file$user, config_file$password, config_file$experiment_id,
                     config_file$address, parameters_ids, config_file$http_schema, verify)
 sensitivity_analysis_function(scalarm, config_file$parameters, options)
 }

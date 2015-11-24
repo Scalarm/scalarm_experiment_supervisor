@@ -7,34 +7,50 @@
     .content
       .row
         .small-5.columns
-          = label_tag :design_type, 'Design', class: 'right inline'
+          = label_tag :method_type, 'Method', class: 'right inline'
         .small-3.columns.end
-          = select_tag :design_type,  options_for_select([["OAT", 'oat'], ["Simplex", 'simplex']], 'oat'), id: "design_type"
-      .row
-        .small-5.columns
-          = label_tag :size, 'Number of repetitions:', class: 'right inline'
-        .small-3.columns.end
-          = number_field_tag :size, 1, min: 1, required: true, class: 'text-left'
-      .item{:id =>"opt-oat"}
+          = select_tag :method_type,  options_for_select([["Morris (EET)", 'morris']]), id: "method_type"
+      .item{:id =>"opt-morris"}
         .row
           .small-5.columns
-            = label_tag :levels, 'Number of levels', class: 'right inline'
+            = label_tag :design_type, 'Design', class: 'right inline'
           .small-3.columns.end
-            = number_field_tag :levels, 1, min: 1, required: true, class: 'text-left'
+            = select_tag :design_type,  options_for_select([["OAT", 'oat'], ["Simplex", 'simplex']], 'oat'), id: "design_type"
         .row
           .small-5.columns
-            = label_tag :gridjump, 'Number of levels that are increased/decreased', class: 'right inline'
+            = label_tag :size, 'Number of repetitions:', class: 'right inline'
           .small-3.columns.end
-            = number_field_tag :gridjump, 1, min: 1, required: true, class: 'text-left'
-      .item.hidden{:id =>"opt-simplex"}
+            = number_field_tag :size, 1, min: 1, required: true, class: 'text-left'
+        .item{:id =>"opt-oat"}
+          .row
+            .small-5.columns
+              = label_tag :levels, 'Number of levels', class: 'right inline'
+            .small-3.columns.end
+              = number_field_tag :levels, 1, min: 1, required: true, class: 'text-left'
+          .row
+            .small-5.columns
+              = label_tag :gridjump, 'Number of levels that are increased/decreased', class: 'right inline'
+            .small-3.columns.end
+              = number_field_tag :gridjump, 1, min: 1, required: true, class: 'text-left'
+        .item.hidden{:id =>"opt-simplex"}
+          .row
+            .small-5.columns
+              = label_tag :factor, 'Homothety factor', class: 'right inline'
+            .small-3.columns.end
+              = number_field_tag :factor, 1, min: 1, required: true, class: 'text-left'
         .row
-          .small-5.columns
-            = label_tag :factor, 'Homothety factor', class: 'right inline'
-          .small-3.columns.end
-            = number_field_tag :factor, 1, min: 1, required: true, class: 'text-left'
-      .row
-        = 'WARNING! Analysis on small number of parameters and with few levels might contain incorrect results.'
+          = 'WARNING! Analysis on small number of parameters and with few levels might contain incorrect results.'
       :javascript
+        $("#method_type").on('change',function(){
+          method_type = $("#method_type option:selected").text()
+          if (method_type == "Morris (EET)") {
+            $("#opt-morris").show()
+          } else {
+            $("#opt-morris").hide()
+            toastr.error("Incorrectly selected values")
+          }
+        })
+
         $("#design_type").on('change',function(){
           design_type = $("#design_type option:selected").text()
           if(design_type == "OAT"){
@@ -43,7 +59,7 @@
           } else if(design_type == "Simplex"){
               $("#opt-oat").hide()
               $("#opt-simplex").show()
-           } else{
+           } else {
             toastr.error("Incorrectly selected values")
           }
         })
