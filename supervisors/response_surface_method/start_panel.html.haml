@@ -15,3 +15,5 @@
           = label_tag :step, 'Number of steps in each iteration:', class: 'right inline'
         .small-3.columns.end
           = number_field_tag :step, 1, min: 1, required: true, class: 'text-left'
+      .row
+        = 'Simulation result must contain key named \'moe\' with numeric value'

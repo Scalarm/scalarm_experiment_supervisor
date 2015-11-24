@@ -115,7 +115,7 @@ module SupervisorRunTestsHelper
   }
 
   SENSITIVITY_ANALYSIS_ID = 'sensitivity_analysis_morris'
-  SENSITIVITY_ANALYSIS_LOG_FILE_PATH = Rails.root.join('log', "supervisor_script_#{EXPERIMENT_ID}.log").to_s
+  SENSITIVITY_ANALYSIS_LOG_FILE_PATH = Rails.root.join('log', 'supervisors', "supervisor_script_#{EXPERIMENT_ID}.log").to_s
   SENSITIVITY_ANALYSIS_CONFIG_FILE_PATH = "/tmp/supervisor_script_config_#{EXPERIMENT_ID}_random"
   SENSITIVITY_ANALYSIS_MORRIS_MAIN_FILE = 'supervisors/sensitivity_analysis_morris/morris.R'
   SENSITIVITY_ANALYSIS_LIBRARY_FILE = 'supervisors/sensitivity_analysis_morris/scalarmapi.R'
