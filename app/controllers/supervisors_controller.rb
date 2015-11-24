@@ -8,6 +8,7 @@ class SupervisorsController < ApplicationController
   after_filter :add_cors_header, only: [:start_panel]
 
 =begin
+apiDoc:
   @api {get} /supervisors Supervisors description
   @apiName supervisor#index
   @apiGroup Supervisors
@@ -34,6 +35,7 @@ class SupervisorsController < ApplicationController
   end
 
 =begin
+apiDoc:
   @api {get} /supervisors/:id Supervisor description
   @apiName supervisor#show
   @apiGroup Supervisors
@@ -55,6 +57,7 @@ class SupervisorsController < ApplicationController
   end
 
 =begin
+apiDoc:
   @api {get} /supervisors/:id/start_panel New SupervisorRun view
   @apiName supervisor#start_panel
   @apiGroup Supervisors

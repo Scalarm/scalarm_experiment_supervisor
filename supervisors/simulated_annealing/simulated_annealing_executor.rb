@@ -1,6 +1,7 @@
 require 'supervisor_executors/abstract_supervisor_executor'
 
 =begin
+apiDoc:
   @api {get} /supervisors New SupervisorRun view
   @apiName supervisor_runs#new
   @apiGroup SupervisorRuns

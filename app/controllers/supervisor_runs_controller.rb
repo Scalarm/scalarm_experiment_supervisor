@@ -23,6 +23,7 @@ class SupervisorRunsController < ApplicationController
   end
 
 =begin
+apiDoc:
   @api {get} /supervisor_runs New SupervisorRun view
   @apiName supervisor_runs#new
   @apiGroup SupervisorRuns
@@ -36,6 +37,7 @@ class SupervisorRunsController < ApplicationController
   end
 
 =begin
+apiDoc:
     @api {post} /supervisor_runs Start SupervisorRun
     @apiName supervisor_runs#create
     @apiGroup SupervisorRuns
