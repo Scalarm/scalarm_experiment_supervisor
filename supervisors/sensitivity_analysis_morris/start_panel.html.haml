@@ -7,13 +7,27 @@
     .content
       .row
         .small-5.columns
-          = label_tag :method_type, 'Method', class: 'right inline'
+          = label_tag :method_type, 'Method:', class: 'right inline'
         .small-3.columns.end
-          = select_tag :method_type,  options_for_select([["Morris (EET)", 'morris']]), id: "method_type"
+          = select_tag :method_type,  options_for_select([["Morris (EET)", 'morris'], ["FAST", 'fast']], 'morris'), id: "method_type"
+
+      .item.hidden{:id =>"opt-fast"}
+        .row
+          .small-5.columns
+            = label_tag :design_type_fast, 'Quantile function:', class: 'right inline'
+          .small-3.columns.end
+            = select_tag :design_type_fast,  options_for_select([["qunif", 'qunif']], 'qunif'), id: "design_type_fast"
+        .row
+          .small-5.columns
+            = label_tag :levels, 'Sample size (n):', class: 'right inline'
+          .small-3.columns.end
+            = number_field_tag :sample_size, 100, min: 1, required: true, class: 'text-left'
+        .row
+          = 'WARNING! Analysis on small sample size (n) is wrong for algorith. FAST require at least 100 points to compute per factor!'
       .item{:id =>"opt-morris"}
         .row
           .small-5.columns
-            = label_tag :design_type, 'Design', class: 'right inline'
+            = label_tag :design_type, 'Design:', class: 'right inline'
           .small-3.columns.end
             = select_tag :design_type,  options_for_select([["OAT", 'oat'], ["Simplex", 'simplex']], 'oat'), id: "design_type"
         .row
@@ -24,18 +38,18 @@
         .item{:id =>"opt-oat"}
           .row
             .small-5.columns
-              = label_tag :levels, 'Number of levels', class: 'right inline'
+              = label_tag :levels, 'Number of levels:', class: 'right inline'
             .small-3.columns.end
               = number_field_tag :levels, 1, min: 1, required: true, class: 'text-left'
           .row
             .small-5.columns
-              = label_tag :gridjump, 'Number of levels that are increased/decreased', class: 'right inline'
+              = label_tag :gridjump, 'Number of levels that are increased/decreased:', class: 'right inline'
             .small-3.columns.end
               = number_field_tag :gridjump, 1, min: 1, required: true, class: 'text-left'
         .item.hidden{:id =>"opt-simplex"}
           .row
             .small-5.columns
-              = label_tag :factor, 'Homothety factor', class: 'right inline'
+              = label_tag :factor, 'Homothety factor:', class: 'right inline'
             .small-3.columns.end
               = number_field_tag :factor, 1, min: 1, required: true, class: 'text-left'
         .row
@@ -45,9 +59,10 @@
           method_type = $("#method_type option:selected").text()
           if (method_type == "Morris (EET)") {
             $("#opt-morris").show()
+            $("#opt-fast").hide()
           } else {
             $("#opt-morris").hide()
-            toastr.error("Incorrectly selected values")
+            $("#opt-fast").show()
           }
         })
 

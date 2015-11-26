@@ -12,38 +12,130 @@ library("httr")
 library("stringr")
 
 
-
 validate <- function(obj , type , pattern=NULL){
-  if (type != typeof(obj)){
-    print(typeof(obj))
-    stop("Variable has wrong type")
-  }
-  if (!is.null(pattern)){
-    if (grepl(pattern, obj) == FALSE){
-      stop("Variable doesn't match")
+    if (type != typeof(obj)){
+        print(typeof(obj))
+        stop("Variable has wrong type")
     }
-  }
-  return
+    if (!is.null(pattern)){
+        if (grepl(pattern, obj) == FALSE){
+            stop("Variable doesn't match")
+        }
+    }
+    return
 }
 
+setGeneric("morris_f", function(options, parameters) {
+    binf <- c()
+    bsup <- c()
+    factors <- c()
+    input_amount <- length(parameters)
 
-setGeneric("morris_f", function(options, factors,binf, bsup) {
-  if (options$design == "oat") {
-    Uncomplete_object <- morris(model = NULL, factors = factors, 
-                                binf, bsup, r = options$size,
-                                design = list(type = "oat", 
-                                levels = options$levels,
-                                grid.jump = options$gridjump))
-    return(Uncomplete_object)
-    } else {
-    Uncomplete_object <- morris(model = NULL, factors = factors, 
-                                binf, bsup, r = options$size,
-                                design = list(type = "simplex", 
-                                scale.factors = options$factor))
-    return(Uncomplete_object)
+    for (parameter_number in 1:input_amount) {
+        binf[parameter_number] <- parameters[[parameter_number]]$min
+        bsup[parameter_number] <- parameters[[parameter_number]]$max
+        factors[parameter_number] <- parameters[[parameter_number]]$id
     }
 
+    if (options$design == "oat") {
+        Uncomplete_object <- morris(model = NULL, factors = factors,
+                                binf, bsup, r = options$size,
+                                design = list(type = "oat",
+                                levels = options$levels,
+                                grid.jump = options$gridjump))
+        #return(Uncomplete_object)
+    } else {
+        Uncomplete_object <- morris(model = NULL, factors = factors,
+                                binf, bsup, r = options$size,
+                                design = list(type = "simplex",
+                                scale.factors = options$factor))
+        #return(Uncomplete_object)
+    }
+
+    results = list(Uncomplete_object = Uncomplete_object, factors = factors)
+
+    return (results)
 })
+
+setGeneric("fast_f", function(options, parameters) {
+    bqarg <- c()
+    bq <- c()
+    factors <- c()
+    input_amount <- length(parameters)
+
+    for (parameter_number in 1:input_amount) {
+        bq[parameter_number] <- options$design_type
+        bqarg[[parameter_number]] <- list(min = parameters[[parameter_number]]$min, max = parameters[[parameter_number]]$max)
+        factors[parameter_number] <- parameters[[parameter_number]]$id
+    }
+
+    Uncomplete_object <- fast99(model = NULL, factors = factors, n = options$sample_size,
+                                  q = bq, q.arg = bqarg)
+
+
+    results = list(Uncomplete_object = Uncomplete_object, factors = factors)
+    return (results)
+})
+
+setGeneric("morris_load_result_moes", function(output_amount, Uncomplete_object, results_array, factors, output_result, output_to_json) {
+    for (output_number in 1:output_amount) {
+        Complete_object <- tell(Uncomplete_object, results_array[,
+          output_number])
+        mu <- apply(Complete_object$ee, 2, mean)
+        mu.star <- apply(Complete_object$ee, 2, function(Complete_object) mean(abs(Complete_object)))
+        sigma <- apply(Complete_object$ee, 2, sd)
+        moe_result = structure(list())
+
+        for (counted_values in 1:length(factors)) {
+          parameter_results = list(mean = mu[[counted_values]],
+            absolute_mean = mu.star[[counted_values]], standard_deviation = sigma[[counted_values]])
+          moe_result = append(moe_result, structure(list(parameter_results),
+            .Names = factors[[counted_values]]))
+        }
+        output_result = append(output_result, structure(list(moe_result),
+          .Names = output_to_json[output_number]))
+    }
+    return (structure(list(output_result), .Names = c("moes")))
+
+})
+
+setGeneric("fast_load_result_moes", function(output_amount, Uncomplete_object, results_array, factors, output_result, output_to_json) {
+    #TODO Implement
+    for (output_number in 1:output_amount) {
+        Complete_object <- tell(Uncomplete_object, results_array[,
+          output_number])
+
+        if (is.na(Complete_object$V)) {
+            first_order <- 0
+            total_order <- 1
+        } else {
+            if (is.na(Complete_object$D1)) {
+                first_order <- 0
+            } else {
+                first_order <- (Complete_object$D1 / Complete_object$V)
+            }
+
+            if (is.na(Complete_object$Dt)) {
+                total_order <- 1
+            } else {
+                total_order <- (1 - (Complete_object$Dt / Complete_object$V))
+            }
+        }
+        moe_result = structure(list())
+
+        for (counted_values in 1:length(factors)) {
+          parameter_results = list(first_order = first_order[[counted_values]],
+            total_order = total_order[[counted_values]])
+          moe_result = append(moe_result, structure(list(parameter_results),
+            .Names = factors[[counted_values]]))
+        }
+        output_result = append(output_result, structure(list(moe_result),
+          .Names = output_to_json[output_number]))
+    }
+    return (structure(list(output_result), .Names = c("moes")))
+
+})
+
 
 if (!interactive()) {
   file_path = commandArgs(FALSE)[4]
@@ -56,24 +148,27 @@ if (!interactive()) {
   source(scalarm_api)
 }    
     
-    setGeneric("sensitivity_analysis_function" , function(.Object, parameters, options) {})
+    setGeneric("sensitivity_analysis_function" , function(.Object, parameters, options, method_type) {})
     
     setMethod("sensitivity_analysis_function" , "Scalarm" , function(.Object, 
-        parameters, options) {
-        method = list(sensitivity_analysis_method = "morris")
-        results_moes = list()
-        binf <- c()
-        bsup <- c()
-        factors <- c()
-        input_amount <- length(parameters)
+                parameters, options, method_type) {
 
-        for (parameter_number in 1:input_amount) {
-            binf[parameter_number] <- parameters[[parameter_number]]$min
-            bsup[parameter_number] <- parameters[[parameter_number]]$max
-            factors[parameter_number] <- parameters[[parameter_number]]$id
+        results_moes = list()
+
+        if (method_type == "morris") {
+            method = list(sensitivity_analysis_method = "morris")
+            results = morris_f(options, parameters)
+            Uncomplete_object = results$Uncomplete_object
+            factors = results$factors
+        } else if (method_type == "fast") {
+            method = list(sensitivity_analysis_method = "fast")
+            results = fast_f(options, parameters)
+            Uncomplete_object = results$Uncomplete_object
+            factors = results$factors
+        } else {
+            Uncomplete_object = src(options, parameters)
         }
 
-        Uncomplete_object = morris_f(options, factors, binf, bsup)
         starting_points <- Uncomplete_object["X"]
 
         if (any(is.na(Uncomplete_object$X)) == TRUE) {
@@ -108,24 +203,15 @@ if (!interactive()) {
             }
             output_result = structure(list())
 
-            for (output_number in 1:output_amount) {
-                Complete_object <- tell(Uncomplete_object, results_array[, 
-                  output_number])
-                mu <- apply(Complete_object$ee, 2, mean)
-                mu.star <- apply(Complete_object$ee, 2, function(Complete_object) mean(abs(Complete_object)))
-                sigma <- apply(Complete_object$ee, 2, sd)
-                moe_result = structure(list())
-                
-                for (counted_values in 1:length(factors)) {
-                  parameter_results = list(mean = mu[[counted_values]], 
-                    absolute_mean = mu.star[[counted_values]], standard_deviation = sigma[[counted_values]])
-                  moe_result = append(moe_result, structure(list(parameter_results), 
-                    .Names = factors[[counted_values]]))
-                }
-                output_result = append(output_result, structure(list(moe_result), 
-                  .Names = output_to_json[output_number]))
+            if (method_type == "morris") {
+                results_moes = morris_load_result_moes(output_amount, Uncomplete_object, results_array, factors, output_result, output_to_json)
+            } else if (method_type == "fast") {
+                results_moes = fast_load_result_moes(output_amount, Uncomplete_object, results_array, factors, output_result, output_to_json)
+            } else {
+                #TODO Another method - implement
             }
-            results_moes = structure(list(output_result), .Names = c("moes"))
+
+
         }
         results = append(method, results_moes)
         JSON_to_send = toJSON(results)
@@ -134,31 +220,33 @@ if (!interactive()) {
         
     })
 
-if (!interactive()) {
-  if (length(commandArgs(TRUE)) < 1) {
-    config_file = fromJSON(file = "config.json")
-  } else {
-    config_file = fromJSON(file = commandArgs(TRUE)[1])
-  }
-  verify = FALSE
-  design = config_file$design_type
-    validate(config_file$design, "character", "(oat|simplex)")
-    validate(config_file$size, "double")
 
-    if (design == "oat") {
-      validate(config_file$gridjump, "double") # typeof(number) in R returns double
-      validate(config_file$levels,  "double")
-      options = list(design = design, size = config_file$size, gridjump = config_file$gridjump,
-                     levels = config_file$levels)
+if (!interactive()) {
+    if (length(commandArgs(TRUE)) < 1) {
+        config_file = fromJSON(file = "config.json")
     } else {
-      validate(config_file$factor,"double")
-      options = list(design = design, size = config_file$size, factor = config_file$factor)
+        config_file = fromJSON(file = commandArgs(TRUE)[1])
     }
-  parameters_ids = lapply(config_file$parameters, "[[", "id")
-  if (!is.null(config_file$verifySSL)){
-    verify = config_file$verifySSL
-  }
-  scalarm = Scalarm(config_file$user, config_file$password, config_file$experiment_id,
+    verify = FALSE
+    design = config_file$design_type
+    method_type = config_file$method_type
+    if (method_type == "morris") {
+        if (design == "oat") {
+            options = list(design = design, size = config_file$size, gridjump = config_file$gridjump,
+                       levels = config_file$levels)
+        } else {
+            options = list(design = design, size = config_file$size, factor = config_file$factor)
+        }
+    } else if (method_type == "fast") {
+        options = list(sample_size = config_file$sample_size, design_type = config_file$design_type_fast)
+    } else {
+        #TODO Another method - implement
+    }
+    parameters_ids = lapply(config_file$parameters, "[[", "id")
+    if (!is.null(config_file$verifySSL)){
+        verify = config_file$verifySSL
+    }
+    scalarm = Scalarm(config_file$user, config_file$password, config_file$experiment_id,
                     config_file$address, parameters_ids, config_file$http_schema, verify)
-sensitivity_analysis_function(scalarm, config_file$parameters, options)
+    sensitivity_analysis_function(scalarm, config_file$parameters, options, method_type)
 }
