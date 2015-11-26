@@ -35,8 +35,7 @@ setGeneric("morris_f", function(options, factors,binf, bsup) {
                                 levels = options$levels,
                                 grid.jump = options$gridjump))
     return(Uncomplete_object)
-    }
-  else {
+    } else {
     Uncomplete_object <- morris(model = NULL, factors = factors, 
                                 binf, bsup, r = options$size,
                                 design = list(type = "simplex", 
@@ -151,8 +150,7 @@ if (!interactive()) {
       validate(config_file$levels,  "double")
       options = list(design = design, size = config_file$size, gridjump = config_file$gridjump,
                      levels = config_file$levels)
-    }
-    else {
+    } else {
       validate(config_file$factor,"double")
       options = list(design = design, size = config_file$size, factor = config_file$factor)
     }
