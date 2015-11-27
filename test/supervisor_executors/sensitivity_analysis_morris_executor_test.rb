@@ -12,7 +12,7 @@ class SensitivityAnalysisMorrisExecutorTest < ActiveSupport::TestCase
         'experiment_id' => experiment_id
     }
 
-    sa_morris_executor = SupervisorExecutorsProvider.get('sensitivity_analysis_morris')
+    sa_morris_executor = SupervisorExecutorsProvider.get('sensitivity_analysis')
 
     config_path = '/tmp/supervisor_script_config_some_experiment_id_a7b22f4a946bd921'
     sa_morris_executor.stubs(:config_file_path).
@@ -22,7 +22,7 @@ class SensitivityAnalysisMorrisExecutorTest < ActiveSupport::TestCase
     sa_morris_executor.stubs(:log_path).returns(log_path)
 
     # if fails, check if bin name has not been changed
-    bin_name = "#{DIR}/#{SENSITIVITY_ANALYSIS_MORRIS_MAIN_FILE}"
+    bin_name = "#{DIR}/#{SENSITIVITY_ANALYSIS_MAIN_FILE}"
     streams = {out: log_path, err: log_path}
     Process.expects(:spawn).with('Rscript', bin_name, config_path, streams).returns(pid)
     Process.expects(:detach).with(pid)

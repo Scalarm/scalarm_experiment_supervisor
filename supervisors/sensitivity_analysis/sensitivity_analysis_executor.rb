@@ -1,6 +1,6 @@
 require 'supervisor_executors/abstract_supervisor_executor'
 
-class SensitivityAnalysisMorrisExecutor < AbstractSupervisorExecutor
+class SensitivityAnalysisExecutor < AbstractSupervisorExecutor
 
   SCRIPT_PATH = File.join(File.dirname(__FILE__),"morris.R")
 
