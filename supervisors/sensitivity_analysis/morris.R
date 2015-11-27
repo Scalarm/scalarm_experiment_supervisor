@@ -105,22 +105,18 @@ setGeneric("fast_load_result_moes", function(output_amount, Uncomplete_object, r
         Complete_object <- tell(Uncomplete_object, results_array[,
           output_number])
 
-        if (is.na(Complete_object$V)) {
-            first_order <- 0
-            total_order <- 1
-        } else {
-            if (is.na(Complete_object$D1)) {
-                first_order <- 0
-            } else {
-                first_order <- (Complete_object$D1 / Complete_object$V)
-            }
+        first_order <- (Complete_object$D1 / Complete_object$V)
+        total_order <- (1 - (Complete_object$Dt / Complete_object$V))
 
-            if (is.na(Complete_object$Dt)) {
-                total_order <- 1
-            } else {
-                total_order <- (1 - (Complete_object$Dt / Complete_object$V))
+        for (index in 1:length(Complete_object$V)) {
+            if (is.na(first_order[index])) {
+                first_order[index] <- 0
+            }
+            if (is.na(total_order[index])) {
+                total_order[index] <- 1
             }
         }
+
         moe_result = structure(list())
 
         for (counted_values in 1:length(factors)) {

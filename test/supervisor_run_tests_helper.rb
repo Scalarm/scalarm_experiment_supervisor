@@ -49,9 +49,9 @@ module SupervisorRunTestsHelper
   INCORRECT_ID = 'incorrect id'
   INCORRECT_ID_MESSAGE = 'There is no supervisor script with given id'
 
-  CONFIG_FROM_EM_SENSITIVITY_ANALAYSIS_MORRIS =
+  CONFIG_FROM_EM_SENSITIVITY_ANALAYSIS =
       {
-          supervisor_script_id: "sensitivity_analysis_morris",
+          supervisor_script_id: "sensitivity_analysis",
           type:"supervised",
           supervisor_script_params:"",
           design_type:"oat",
@@ -82,8 +82,8 @@ module SupervisorRunTestsHelper
           http_schema:"https"
       }
 
-  FULL_CONFIG_SENSITIVITY_ANALAYSIS_MORRIS ={
-          "supervisor_script_id"=>"sensitivity_analysis_morris",
+  FULL_CONFIG_SENSITIVITY_ANALAYSIS ={
+          "supervisor_script_id"=>"sensitivity_analysis",
           "type"=>"supervised",
           "supervisor_script_params"=>"",
           "design_type"=>"oat",
@@ -114,11 +114,11 @@ module SupervisorRunTestsHelper
           "http_schema"=>"https"
   }
 
-  SENSITIVITY_ANALYSIS_ID = 'sensitivity_analysis_morris'
+  SENSITIVITY_ANALYSIS_ID = 'sensitivity_analysis'
   SENSITIVITY_ANALYSIS_LOG_FILE_PATH = Rails.root.join('log', 'supervisors', "supervisor_script_#{EXPERIMENT_ID}.log").to_s
   SENSITIVITY_ANALYSIS_CONFIG_FILE_PATH = "/tmp/supervisor_script_config_#{EXPERIMENT_ID}_random"
-  SENSITIVITY_ANALYSIS_MORRIS_MAIN_FILE = 'supervisors/sensitivity_analysis_morris/morris.R'
-  SENSITIVITY_ANALYSIS_LIBRARY_FILE = 'supervisors/sensitivity_analysis_morris/scalarmapi.R'
+  SENSITIVITY_ANALYSIS_MAIN_FILE = 'supervisors/sensitivity_analysis/morris.R'
+  SENSITIVITY_ANALYSIS_LIBRARY_FILE = 'supervisors/sensitivity_analysis/scalarmapi.R'
   DIR = File.dirname(__FILE__).match("(.*)/test").captures[0].to_s
   def teardown
     # cleanup if needed

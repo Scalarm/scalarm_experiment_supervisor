@@ -1,7 +1,7 @@
 require 'test_helper'
 require 'supervisor_run_tests_helper'
 
-class SensitivityAnalysisMorrisStartingTest < ActionDispatch::IntegrationTest
+class SensitivityAnalysisStartingTest < ActionDispatch::IntegrationTest
   include SupervisorRunTestsHelper
 
 
@@ -17,23 +17,23 @@ class SensitivityAnalysisMorrisStartingTest < ActionDispatch::IntegrationTest
     Scalarm::Database::Model::Experiment.stubs(:where).returns([experiment])
   end
 
-   test "successful start of sensitivity analysis morris supervisor script" do
+   test "successful start of sensitivity analysis  supervisor script" do
      # mocks
      self.class.mock_information_service
-     SensitivityAnalysisMorrisExecutor.stubs(:config_file_path).with(EXPERIMENT_ID).returns(SENSITIVITY_ANALYSIS_CONFIG_FILE_PATH)
+     SensitivityAnalysisExecutor.stubs(:config_file_path).with(EXPERIMENT_ID).returns(SENSITIVITY_ANALYSIS_CONFIG_FILE_PATH)
      # mock script starting with tests of proper calls
-     bin_name = "#{DIR}/#{SENSITIVITY_ANALYSIS_MORRIS_MAIN_FILE}"
+     bin_name = "#{DIR}/#{SENSITIVITY_ANALYSIS_MAIN_FILE}"
      Process.expects(:spawn).with('Rscript', bin_name, SENSITIVITY_ANALYSIS_CONFIG_FILE_PATH,
                                   out: SENSITIVITY_ANALYSIS_LOG_FILE_PATH, err: SENSITIVITY_ANALYSIS_LOG_FILE_PATH).returns(PID)
      Process.expects(:detach).with(PID)
      SupervisorRunWatcher.expects(:start_watching)
      # test
      # check existence of sm script files
-     assert File.exists? SENSITIVITY_ANALYSIS_MORRIS_MAIN_FILE
+     assert File.exists? SENSITIVITY_ANALYSIS_MAIN_FILE
      assert File.exists? SENSITIVITY_ANALYSIS_LIBRARY_FILE
 
      assert_difference 'SupervisorRun.count', 1 do
-       post supervisor_runs_path supervisor_id: SENSITIVITY_ANALYSIS_ID, config: CONFIG_FROM_EM_SENSITIVITY_ANALAYSIS_MORRIS.to_json
+       post supervisor_runs_path supervisor_id: SENSITIVITY_ANALYSIS_ID, config: CONFIG_FROM_EM_SENSITIVITY_ANALAYSIS.to_json
      end
      # check if only valid response params are present with proper value
      response_hash = JSON.parse(response.body)
@@ -47,11 +47,11 @@ class SensitivityAnalysisMorrisStartingTest < ActionDispatch::IntegrationTest
      assert_equal response_hash['supervisor_run_id'], SupervisorRun.first.id.to_s
      # check existence of config file and its content
      assert File.exists? SENSITIVITY_ANALYSIS_CONFIG_FILE_PATH
-     assert_equal FULL_CONFIG_SENSITIVITY_ANALAYSIS_MORRIS, JSON.parse(File.read(SENSITIVITY_ANALYSIS_CONFIG_FILE_PATH))
+     assert_equal FULL_CONFIG_SENSITIVITY_ANALAYSIS, JSON.parse(File.read(SENSITIVITY_ANALYSIS_CONFIG_FILE_PATH))
    end
 
 
-   test "proper response on error while starting sensitivity analysis morris script with cleanup" do
+   test "proper response on error while starting sensitivity analysis  script with cleanup" do
      # mocks
     self.class.mock_information_service
 
@@ -61,7 +61,7 @@ class SensitivityAnalysisMorrisStartingTest < ActionDispatch::IntegrationTest
     Process.expects(:spawn).raises(StandardError, REASON)
     # test
     assert_no_difference 'SupervisorRun.count' do
-      post supervisor_runs_path supervisor_id: SENSITIVITY_ANALYSIS_ID, config: CONFIG_FROM_EM_SENSITIVITY_ANALAYSIS_MORRIS.to_json
+      post supervisor_runs_path supervisor_id: SENSITIVITY_ANALYSIS_ID, config: CONFIG_FROM_EM_SENSITIVITY_ANALAYSIS.to_json
     end
 
     # check if only valid response params are present with proper value
