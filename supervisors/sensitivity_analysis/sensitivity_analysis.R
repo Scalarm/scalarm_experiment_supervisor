@@ -14,7 +14,6 @@ library("stringr")
 
 validate <- function(obj , type , pattern=NULL){
     if (type != typeof(obj)){
-        print(typeof(obj))
         stop("Variable has wrong type")
     }
     if (!is.null(pattern)){
@@ -30,7 +29,6 @@ setGeneric("morris_f", function(options, parameters) {
     bsup <- c()
     factors <- c()
     input_amount <- length(parameters)
-
     for (parameter_number in 1:input_amount) {
         binf[parameter_number] <- parameters[[parameter_number]]$min
         bsup[parameter_number] <- parameters[[parameter_number]]$max
@@ -43,13 +41,11 @@ setGeneric("morris_f", function(options, parameters) {
                                 design = list(type = "oat",
                                 levels = options$levels,
                                 grid.jump = options$gridjump))
-        #return(Uncomplete_object)
     } else {
         Uncomplete_object <- morris(model = NULL, factors = factors,
                                 binf, bsup, r = options$size,
                                 design = list(type = "simplex",
                                 scale.factors = options$factor))
-        #return(Uncomplete_object)
     }
 
     results = list(Uncomplete_object = Uncomplete_object, factors = factors)
@@ -77,6 +73,28 @@ setGeneric("fast_f", function(options, parameters) {
     return (results)
 })
 
+
+setGeneric("pcc_f", function(options, parameters) {
+  binf <- c()
+  bsup <- c()
+  factors <- c()
+  input_amount <- length(parameters)
+
+  for (parameter_number in 1:input_amount) {
+    binf[parameter_number] <- parameters[[parameter_number]]$min
+    bsup[parameter_number] <- parameters[[parameter_number]]$max
+    factors[parameter_number] <- parameters[[parameter_number]]$id
+  }
+  X = list()
+  for (idx in 1:input_amount) {
+    X = append(X,  structure(list(runif(options$sample_size,binf[idx],bsup[idx])),.Names =factors[idx]))
+  }
+  X = data.frame(X)
+  Uncomplete_object <- list("X"=X)
+  results = list(Uncomplete_object = Uncomplete_object, factors = factors)
+  return(results)
+})
+
 setGeneric("morris_load_result_moes", function(output_amount, Uncomplete_object, results_array, factors, output_result, output_to_json) {
     for (output_number in 1:output_amount) {
         Complete_object <- tell(Uncomplete_object, results_array[,
@@ -100,7 +118,6 @@ setGeneric("morris_load_result_moes", function(output_amount, Uncomplete_object,
 })
 
 setGeneric("fast_load_result_moes", function(output_amount, Uncomplete_object, results_array, factors, output_result, output_to_json) {
-    #TODO Implement
     for (output_number in 1:output_amount) {
         Complete_object <- tell(Uncomplete_object, results_array[,
           output_number])
@@ -132,10 +149,26 @@ setGeneric("fast_load_result_moes", function(output_amount, Uncomplete_object, r
 
 })
 
+setGeneric("pcc_load_result_moes", function(output_amount, Uncomplete_object, results_array, factors, output_result, output_to_json, options) {
+  for (output_number in 1:output_amount) {
+    Complete_object <- pcc(Uncomplete_object$X, results_array[,output_number], nboot = options$nboot)
+    moe_result = structure(list())
+    for (idx in 1:length(factors)) {
+      parameter_results = list("original" = Complete_object$PCC[[1]][idx], "min_c_i" = Complete_object$PCC[[4]][idx], "max_c_i" = Complete_object$PCC[[5]][idx])
+      moe_result = append(moe_result, structure(list(parameter_results),
+                                                .Names = factors[[idx]]))
+    }
+    output_result = append(output_result, structure(list(moe_result),
+                                                    .Names = output_to_json[output_number]))
+  }
+  return (structure(list(output_result), .Names = c("moes")))
+
+})
+
 
 if (!interactive()) {
   file_path = commandArgs(FALSE)[4]
-  directory = str_match(file_path, "--file=(/.*)/morris.R")
+  directory = str_match(file_path, "--file=(/.*)/sensitivity_analysis.R")
   
   if (is.na(directory[, 1]) == TRUE) {
     stop("Error while reading file path")
@@ -150,7 +183,6 @@ if (!interactive()) {
                 parameters, options, method_type) {
 
         results_moes = list()
-
         if (method_type == "morris") {
             method = list(sensitivity_analysis_method = "morris")
             results = morris_f(options, parameters)
@@ -162,11 +194,13 @@ if (!interactive()) {
             Uncomplete_object = results$Uncomplete_object
             factors = results$factors
         } else {
-            Uncomplete_object = src(options, parameters)
+            method = list(sensitivity_analysis_method = "pcc")
+            results = pcc_f(options, parameters)
+            Uncomplete_object = results$Uncomplete_object
+            factors = results$factors
         }
 
         starting_points <- Uncomplete_object["X"]
-
         if (any(is.na(Uncomplete_object$X)) == TRUE) {
             stop("Cannot compute values - NaN in samples")
         } else {
@@ -204,7 +238,7 @@ if (!interactive()) {
             } else if (method_type == "fast") {
                 results_moes = fast_load_result_moes(output_amount, Uncomplete_object, results_array, factors, output_result, output_to_json)
             } else {
-                #TODO Another method - implement
+                results_moes = pcc_load_result_moes(output_amount, Uncomplete_object, results_array, factors, output_result, output_to_json, options)
             }
 
 
@@ -224,20 +258,29 @@ if (!interactive()) {
         config_file = fromJSON(file = commandArgs(TRUE)[1])
     }
     verify = FALSE
-    design = config_file$design_type
     method_type = config_file$method_type
     if (method_type == "morris") {
+        validate(config_file$design_type,"character","oat|simplex")
+        validate(config_file$size,"double")
+        design = config_file$design_type
         if (design == "oat") {
+            validate(config_file$gridjump , "double")
+            validate(config_file$levels , "double")
             options = list(design = design, size = config_file$size, gridjump = config_file$gridjump,
                        levels = config_file$levels)
         } else {
+            validate(config_file$factor , "double")
             options = list(design = design, size = config_file$size, factor = config_file$factor)
         }
     } else if (method_type == "fast") {
+        validate(config_file$sample_size ,"double")
+        validate(config_file$design_type_fast ,"character")
         options = list(sample_size = config_file$sample_size, design_type = config_file$design_type_fast)
-    } else {
-        #TODO Another method - implement
-    }
+    } else if (method_type == "pcc") {
+        validate(config_file$sample,"double")
+        validate(config_file$nboot,"double")
+              options = list(sample_size = config_file$sample, nboot = config_file$nboot)
+          }
     parameters_ids = lapply(config_file$parameters, "[[", "id")
     if (!is.null(config_file$verifySSL)){
         verify = config_file$verifySSL

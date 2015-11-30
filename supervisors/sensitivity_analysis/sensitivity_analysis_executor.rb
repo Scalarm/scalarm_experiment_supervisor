@@ -2,7 +2,7 @@ require 'supervisor_executors/abstract_supervisor_executor'
 
 class SensitivityAnalysisExecutor < AbstractSupervisorExecutor
 
-  SCRIPT_PATH = File.join(File.dirname(__FILE__),"morris.R")
+  SCRIPT_PATH = File.join(File.dirname(__FILE__),"sensitivity_analysis.R")
 
   # overrides parent method
   def self.start(config)

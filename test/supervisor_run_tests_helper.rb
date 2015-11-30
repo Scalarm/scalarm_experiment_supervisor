@@ -83,41 +83,41 @@ module SupervisorRunTestsHelper
       }
 
   FULL_CONFIG_SENSITIVITY_ANALAYSIS ={
-          "supervisor_script_id"=>"sensitivity_analysis",
-          "type"=>"supervised",
-          "supervisor_script_params"=>"",
-          "design_type"=>"oat",
-          "size"=>1,
-          "gridjump"=>1,
-          "levels"=>1,
-          "factor"=>1,
-          "experiment_id"=>EXPERIMENT_ID,
-          "user" =>"user",
-          "password"=>"password",
-          "parameters"=>[
-              {
-                  "id"=>"parameter1",
-                  "type"=>"integer",
-                  "min"=>0,
-                  "max"=>1000,
-                  "start_value"=>500
-              },
-              {
-                  "id"=>"parameter2",
-                  "type"=>"integer",
-                  "min"=>-100,
-                  "max"=>100,
-                  "start_value"=>0
-              }
-          ],
-          "address"=>EM_ADDRESS,
-          "http_schema"=>"https"
+      "supervisor_script_id"=>"sensitivity_analysis",
+      "type"=>"supervised",
+      "supervisor_script_params"=>"",
+      "design_type"=>"oat",
+      "size"=>1,
+      "gridjump"=>1,
+      "levels"=>1,
+      "factor"=>1,
+      "experiment_id"=>EXPERIMENT_ID,
+      "user" =>"user",
+      "password"=>"password",
+      "parameters"=>[
+          {
+              "id"=>"parameter1",
+              "type"=>"integer",
+              "min"=>0,
+              "max"=>1000,
+              "start_value"=>500
+          },
+          {
+              "id"=>"parameter2",
+              "type"=>"integer",
+              "min"=>-100,
+              "max"=>100,
+              "start_value"=>0
+          }
+      ],
+      "address"=>EM_ADDRESS,
+      "http_schema"=>"https"
   }
 
   SENSITIVITY_ANALYSIS_ID = 'sensitivity_analysis'
   SENSITIVITY_ANALYSIS_LOG_FILE_PATH = Rails.root.join('log', 'supervisors', "supervisor_script_#{EXPERIMENT_ID}.log").to_s
   SENSITIVITY_ANALYSIS_CONFIG_FILE_PATH = "/tmp/supervisor_script_config_#{EXPERIMENT_ID}_random"
-  SENSITIVITY_ANALYSIS_MAIN_FILE = 'supervisors/sensitivity_analysis/morris.R'
+  SENSITIVITY_ANALYSIS_MAIN_FILE = 'supervisors/sensitivity_analysis/sensitivity_analysis.R'
   SENSITIVITY_ANALYSIS_LIBRARY_FILE = 'supervisors/sensitivity_analysis/scalarmapi.R'
   DIR = File.dirname(__FILE__).match("(.*)/test").captures[0].to_s
   def teardown

@@ -9,8 +9,18 @@
         .small-5.columns
           = label_tag :method_type, 'Method:', class: 'right inline'
         .small-3.columns.end
-          = select_tag :method_type,  options_for_select([["Morris (EET)", 'morris'], ["FAST", 'fast']], 'morris'), id: "method_type"
-
+          = select_tag :method_type,  options_for_select([["Morris (EET)", 'morris'], ["FAST", 'fast'],["PCC", 'pcc']], 'morris'), id: "method_type"
+      .item.hidden{:id =>"opt-pcc"}
+        .row
+          .small-5.columns
+            = label_tag :sample, 'Sample size:', class: 'right inline'
+          .small-3.columns.end
+            = number_field_tag :sample, 100, min: 1, required: true, class: 'text-left'
+        .row
+          .small-5.columns
+            = label_tag :nboot, 'Number of bootstrap replicates:', class: 'right inline'
+          .small-3.columns.end
+            = number_field_tag :nboot, 100, min: 1, required: true, class: 'text-left'
       .item.hidden{:id =>"opt-fast"}
         .row
           .small-5.columns
@@ -56,13 +66,20 @@
           = 'WARNING! Analysis on small number of parameters and with few levels might contain incorrect results.'
       :javascript
         $("#method_type").on('change',function(){
-          method_type = $("#method_type option:selected").text()
-          if (method_type == "Morris (EET)") {
+          method_type = $("#method_type option:selected").val()
+          if (method_type == "morris") {
             $("#opt-morris").show()
             $("#opt-fast").hide()
-          } else {
+            $("#opt-pcc").hide()
+          } else if(method_type == "fast") {
             $("#opt-morris").hide()
             $("#opt-fast").show()
+            $("#opt-pcc").hide()
+          }
+          else{
+            $("#opt-morris").hide()
+            $("#opt-fast").hide()
+            $("#opt-pcc").show()
           }
         })
 
