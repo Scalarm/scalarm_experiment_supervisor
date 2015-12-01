@@ -90,7 +90,7 @@ setGeneric("pcc_f", function(options, parameters) {
     X = append(X,  structure(list(runif(options$sample_size,binf[idx],bsup[idx])),.Names =factors[idx]))
   }
   X = data.frame(X)
-  Uncomplete_object <- list("X"=X)
+  Uncomplete_object <- list("X" = X)
   results = list(Uncomplete_object = Uncomplete_object, factors = factors)
   return(results)
 })
@@ -154,7 +154,7 @@ setGeneric("pcc_load_result_moes", function(output_amount, Uncomplete_object, re
     Complete_object <- pcc(Uncomplete_object$X, results_array[,output_number], nboot = options$nboot)
     moe_result = structure(list())
     for (idx in 1:length(factors)) {
-      parameter_results = list("original" = Complete_object$PCC[[1]][idx], "min_c_i" = Complete_object$PCC[[4]][idx], "max_c_i" = Complete_object$PCC[[5]][idx])
+      parameter_results = list("original" = Complete_object$PCC[[1]][idx], "min_ci" = Complete_object$PCC[[4]][idx], "max_ci" = Complete_object$PCC[[5]][idx])
       moe_result = append(moe_result, structure(list(parameter_results),
                                                 .Names = factors[[idx]]))
     }

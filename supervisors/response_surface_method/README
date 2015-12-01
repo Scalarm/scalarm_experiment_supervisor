@@ -1,0 +1,14 @@
+Script:
+    - python2
+Libraries:
+
+    -pyDOE
+
+    -numpy
+
+    -pandas
+
+    -scipy
+
+    - statmodels
+

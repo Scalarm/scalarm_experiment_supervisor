@@ -14,13 +14,14 @@ from scalarmapi import Scalarm
 
 #TODO Second order model
 
+
 def validate_int(param):
     if type(param) is not int:
         raise KeyError("Variable has inappropriate type")
     return
 
 
-NO_INFLUENCE = 0.01
+NO_INFLUENCE = 0.1
 max_iterations = 0
 step = 0
 if __name__ == "__main__":
@@ -42,7 +43,7 @@ if __name__ == "__main__":
 def RSM(parameters, search_space, limit, iteration):
 
     if iteration>max_iterations:
-        scalarm.mark_as_complete({'min': list(search_space[0]), 'max': list(search_space[1]), 'stop':'Maximal number of iteration reached'})
+        scalarm.mark_as_complete({"parametric_space": {"down_limit": list(search_space[0]),"upper_limit": list(search_space[1])},'stop':'Maximal number of iteration reached'})
         return
 
     design_points = ccdesign(len(parameters))
@@ -75,7 +76,7 @@ def RSM(parameters, search_space, limit, iteration):
     for new_params, old_params in zip( new_space[1], limit[1]):
         if abs(new_params) > abs(old_params):
             new_space = np.array(new_space, dtype = int)
-            scalarm.mark_as_complete({'min': list(new_space[0]), 'max': list(new_space[1]), 'stop':'Maximal parameter space reached'})
+            scalarm.mark_as_complete({"parametric_space": {"down_limit": list(search_space[0]),"upper_limit": list(search_space[1])},'stop':'Maximal parameter space reached'})
             return
 
     RSM(parameters, new_space, limit, iteration+1)
@@ -168,17 +169,17 @@ def check_linearity(results , parameters, regression, search_space):
 
     for param in range(1,len(regression)):
         if abs(regression[param]) < NO_INFLUENCE:
-            scalarm.mark_as_complete({'min': list(search_space[0]), 'max': list(search_space[1]), 'stop': 'One of parameters has no influence'})
+            scalarm.mark_as_complete({"parametric_space": {"down_limit": list(search_space[0]),"upper_limit": list(search_space[1])},"stop": "One of parameters has no influence"})
             return True
 
     res = regression_analysis(results, parameters, "*")
-
+    print(res.summary())
     for idx in range(1,len(res.params)):
         if idx & (idx - 1) != 0:
-            if abs(res.params[x]) > NO_INFLUENCE:
-                scalarm.mark_as_complete({'min': list(search_space[0]), 'max': list(search_space[1]), 'stop': 'Steepest ascent method is not suitable anymore'})
+            print idx
+            if abs(res.params[idx]) > NO_INFLUENCE:
+                scalarm.mark_as_complete({"parametric_space": {"down_limit": list(search_space[0]),"upper_limit": list(search_space[1])}, 'stop': 'Steepest ascent method is not suitable anymore'})
                 return True
-
     return False
 
 

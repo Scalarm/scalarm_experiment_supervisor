@@ -1,0 +1,8 @@
+To use Sensitivity analysis R must be installed:
+Packages:
+-"rjson"
+-"sensitivity"
+-"httr"
+-"stringr"
+Packages are installed with first use if they are not installed already.
+
