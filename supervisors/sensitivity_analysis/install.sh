@@ -1,2 +1,1 @@
-sudo apt-get install r-base
-sudo apt-get install r-base-dev
+sudo apt-get -y install r-base r-base-dev
