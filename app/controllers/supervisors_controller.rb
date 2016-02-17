@@ -29,7 +29,11 @@ apiDoc:
 =end
   def index
     allowed_manifests = Supervisor.get_manifests.select do |m|
-      m[:public] or @allowed_supervisors.include? m[:id]
+      is_public = m[:public]
+      is_public_visible = !m[:restricted_list]
+      is_allowed_for_user = @allowed_supervisors.include?(m[:id])
+
+      is_public ? (is_public_visible or is_allowed_for_user) : is_allowed_for_user
     end
     render json: allowed_manifests
   end

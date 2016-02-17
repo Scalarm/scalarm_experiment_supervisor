@@ -9,7 +9,7 @@
         .small-5.columns
           = label_tag :method_type, 'Method:', class: 'right inline'
         .small-3.columns.end
-          = select_tag :method_type,  options_for_select([["Morris", 'morris'], ["Fourier Amplitude Sensitivity Testing (FAST)", 'fast'],["Partial Correlation Coefficients (PCC)", 'pcc']], 'morris'), id: "method_type"
+          = select_tag :method_type,  options_for_select([["Morris", 'virtroll_sa_morris'], ["Fourier Amplitude Sensitivity Testing (FAST)", 'fast'],["Partial Correlation Coefficients (PCC)", 'pcc']], 'virtroll_sa_morris'), id: "method_type"
       .item.hidden{:id =>"opt-pcc"}
         .row
           .small-5.columns
@@ -34,7 +34,7 @@
             = number_field_tag :sample_size, 100, min: 1, required: true, class: 'text-left'
         .row
           = 'WARNING! Analysis on small sample size (n) is wrong for algorith. FAST require at least 100 points to compute per factor!'
-      .item{:id =>"opt-morris"}
+      .item{:id =>"opt-virtroll_sa_morris"}
         .row
           .small-5.columns
             = label_tag :design_type, 'Design:', class: 'right inline'

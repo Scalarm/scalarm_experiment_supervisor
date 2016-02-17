@@ -1,2 +1,3 @@
-name: 'Sensitivity Analysis with Morris Design (C#)'
+name: '(DEPRECATED version) VirtRoll Sensitivity Analysis with Morris Design'
 public: true
+restricted_list: true

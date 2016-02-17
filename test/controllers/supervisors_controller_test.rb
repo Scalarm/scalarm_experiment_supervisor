@@ -9,6 +9,8 @@ class SupervisorsControllerTest < ActionController::TestCase
   PUBLIC_MANIFEST = {'id' => ID, 'test' => 'test', 'test2' => ['foo', 'bar', 42], 'public' => true}
   EXPL_NON_PUBLIC_MANIFEST = {'id' => 'expl_non_public', 'a' => 'a', 'bc3' => ['b', 'c', 3], 'public' => false}
   IMPL_NON_PUBLIC_MANIFEST = {'id' => 'impl_non_public', 'a' => 'a', 'bc3' => ['b', 'c', 3]}
+  PUBLIC_RESTRICTED_LIST_MANIFEST = {'id' => 'public_restricted_list_1', 'restricted_list' => true, 'public' => true}
+  PRIVATE_RESTRICTED_LIST_MANIFEST = {'id' => 'private_restricted_list_1', 'restricted_list' => true, 'public' => false}
   SUPERVISOR_DIRECTORY = Rails.root.join('supervisors', "#{ID}").to_s
   VIEW_TEST_FILE = Rails.root.join('supervisors', "#{ID}", 'start_panel.html')
 
@@ -120,6 +122,42 @@ class SupervisorsControllerTest < ActionController::TestCase
     get :index
     manifests = JSON.parse(response.body)
     assert_equal [PUBLIC_MANIFEST, EXPL_NON_PUBLIC_MANIFEST, IMPL_NON_PUBLIC_MANIFEST], manifests
+  end
+
+  test 'index should not return public restricted_list manifests to user without permissions' do
+    @user.allowed_supervisors = []
+    Supervisor.stubs(:get_manifests).returns([PUBLIC_RESTRICTED_LIST_MANIFEST.symbolize_keys])
+
+    get :index
+    manifests = JSON.parse(response.body)
+    assert_equal [], manifests
+  end
+
+  test 'index should return public restricted_list manifests to user with permissions' do
+    @user.allowed_supervisors = [PUBLIC_RESTRICTED_LIST_MANIFEST['id']]
+    Supervisor.stubs(:get_manifests).returns([PUBLIC_RESTRICTED_LIST_MANIFEST.symbolize_keys])
+
+    get :index
+    manifests = JSON.parse(response.body)
+    assert_equal [PUBLIC_RESTRICTED_LIST_MANIFEST], manifests
+  end
+
+  test 'index should not return private restricted_list manifests to user without permissions' do
+    @user.allowed_supervisors = []
+    Supervisor.stubs(:get_manifests).returns([PRIVATE_RESTRICTED_LIST_MANIFEST.symbolize_keys])
+
+    get :index
+    manifests = JSON.parse(response.body)
+    assert_equal [], manifests
+  end
+
+  test 'index should not return private non-restricted_list manifests to user without permissions' do
+    @user.allowed_supervisors = []
+    Supervisor.stubs(:get_manifests).returns([EXPL_NON_PUBLIC_MANIFEST.symbolize_keys])
+
+    get :index
+    manifests = JSON.parse(response.body)
+    assert_equal [], manifests
   end
 
   # since permissions checking happens in before filter, following test applies to other routes

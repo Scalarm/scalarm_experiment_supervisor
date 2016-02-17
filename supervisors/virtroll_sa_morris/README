@@ -1,0 +1,4 @@
+To work, this supervisor needs Sensitivity Analysis binary (https://github.com/Scalarm/sensitivity_analysis_supervisor)
+and Sensitivity Analysis library by Daniel Bachniak. Please put them in application's bin/virtoll_sa/ dir.
+
+Please read application's bin/virtroll_sa/README.md for more information.

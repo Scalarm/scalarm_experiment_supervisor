@@ -4,14 +4,14 @@ require 'mocha/test_unit'
 class MorrisExecutorTest < ActiveSupport::TestCase
 
   # also tests if out and err streams are set to log file
-  test 'morris executor start should launch mono application with config file' do
+  test 'virtroll_sa_morris executor start should launch mono application with config file' do
     experiment_id = 'some_experiment_id'
     pid = 'some_pid'
     config = {
         'experiment_id' => experiment_id
     }
 
-    morris_executor = SupervisorExecutorsProvider.get('morris')
+    morris_executor = SupervisorExecutorsProvider.get('virtroll_sa_morris')
 
     config_path = '/tmp/supervisor_script_config_some_experiment_id_a7b22f4a946bd921'
     morris_executor.stubs(:config_file_path).
