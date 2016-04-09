@@ -71,7 +71,7 @@ apiDoc:
 =end
   def start_panel
     path = Supervisor.view_path(params[:id]) || resource_not_found
-    render path, layout: false
+    render file: path, layout: false
   end
 
   def load_allowed_supervisors
