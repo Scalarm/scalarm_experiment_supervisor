@@ -80,8 +80,9 @@ namespace :db_router do
   task :validate do
     begin
       _validate_db_router
-    rescue Exception => e
-      puts "Error on validation, please read documentation and run db_router:setup"
+    rescue => e
+      puts "Error on validation: #{e}"
+      puts "Please read documentation and run db_router:setup"
       raise
     end
   end
