@@ -1,0 +1,38 @@
+%section.panel.radius
+  %h3.subheader= 'Virtroll optimization using genetic algorithm'
+  = hidden_field_tag 'supervisor_script_id', 'virtroll_optimization_genetic'
+  = hidden_field_tag 'type', 'supervised'
+  = hidden_field_tag 'method_type', 'hooke_jeeves'
+  = hidden_field_tag 'supervisor_script_params'
+
+  = form_tag '', id: 'supervisor_params' do
+    .content
+      .row
+        .small-5.columns
+          = label_tag :moe_name, 'Name of MoE to optimize:', class: 'right inline'
+        .small-4.columns.end
+          = text_field_tag :moe_name, 'moe', required: true, class: 'text-right'
+
+      .row
+        .small-5.columns
+          = label_tag :optimization_max_error, 'Optimization max error:', class: 'right inline'
+        .small-4.columns.end
+          = text_field_tag :optimization_max_error, 0.001, min: 0, required: true, class: 'text-right'
+
+      .row
+        .small-5.columns
+          = label_tag :optimization_max_iterations, 'Optimization max iterations count:', class: 'right inline'
+        .small-4.columns.end
+          = number_field_tag :genetic_population_start, 15, min: 1, required: true, class: 'text-right'
+
+      .row
+        .small-5.columns
+          = label_tag :genetic_population_start, 'Genetic population start count:', class: 'right inline'
+        .small-4.columns.end
+          = number_field_tag :genetic_population_start, 10, min: 1, required: true, class: 'text-right'
+
+      .row
+        .small-5.columns
+          = label_tag :genetic_population_max, 'Genetic population max count:', class: 'right inline'
+        .small-4.columns.end
+          = number_field_tag :genetic_population_max, 20, min: 1, required: true, class: 'text-right'
