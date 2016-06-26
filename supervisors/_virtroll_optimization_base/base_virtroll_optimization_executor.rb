@@ -16,6 +16,8 @@ module BaseVirtrollOptimizationExecutor
     File.open(script_config, 'w+') { |file| file.write(config.to_json) }
     script_log = self.log_path(experiment_id).to_s
     Dir.chdir(BIN_DIR) do
+      cmd = "mono #{BIN_NAME} -config #{script_config}"
+      Rails.logger.info("Starting VirtRoll optimization executor with command: #{cmd}")
       pid = Process.spawn("mono #{BIN_NAME} -config #{script_config}", out: script_log, err: script_log)
       Process.detach(pid)
       pid
