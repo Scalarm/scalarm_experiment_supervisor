@@ -121,7 +121,7 @@ apiDoc:
 
     begin
       experiment_id = BSON::ObjectId(experiment_id)
-    rescue BSON::InvalidObjectId
+    rescue BSON::ObjectId::Invalid
       raise PreconditionFailed.new('Invalid experiment_id')
     end
 
