@@ -1,0 +1,37 @@
+sudo: required
+
+services:
+  - docker
+
+
+before_install:
+  - sudo apt-get install -y curl zip git sysstat r-base-core
+  - rvm install ruby-2.3.3
+  - gem install bundler
+  - bundle install
+  
+script:
+  - export REPO=scalarm/scalarm_experiment_supervisor
+  - docker build . -f Dockerfile -t $REPO
+  
+
+
+before_deploy:
+  - docker login -u $DOCKER_USER -p $DOCKER_PASS	
+  - docker tag $REPO $REPO:$TRAVIS_TAG
+  
+  
+deploy:
+  - provider: script
+    script:
+      docker push $REPO 
+    on:
+      branch: master
+      tags: true
+   
+env:
+  global:
+    - COMMIT=${TRAVIS_COMMIT::8}
+    - secure: "3O85uA9zkkHuedVURJ7THteW3GJhsKbHOOsbpCcbtD5KbyxzCW4nK8W/RM0WkQ2ZJxiBFMPURGpZdlsycZiRtEiczRScCy9peVR0ERWPus/zPWHh0yAkaPyGpVNrK70QYoYgxbfIPSBMKsWi80KK2MGiOxOF/ANGkLOaLFFWAsy5+xjdb/DeGbK3xNMCyPUCA7XH3lFv8Dse/3k5gDKkbrALzkT04KTCagFlHeB7gfv+Ij4r+FmY1jLCoJF45MJ1t/qh6E62Ti6KxdKr6JiaoPW8g61AS/1ONSpTIUn8ELhkkyxTJP+lKa0DV4VNX1dqiXO8i7o4fxydl9RwteJNYTaVnB6QaeGBxbX1E4IPh+BZPL0z0TeyPo71rB5Q75K4s6fgMwhjDkl+HZZxkj92LRdcqlptZtERD8ZT8PbsmLe6g7BFrfEKcZmIWXdGS6YPtic3QPzFertLeq+Mb3yLYmMPu4Y+KjJMWpl+yV5fpTyCDKG8WBcpLG4/X9LV68raVBJoCALD8/sQUvLbkkGJ2A/mScm0CSUS3ligXCEfWtQmAzIv2Ao1BFjXdrt3d3cFcZcIEiTeEsaJwdCm7vJLb1xE3bIzV6FXT6dqTcHFIYrZfK9lZUDP+Q/9E7qw1+u/3k5vjcLxrVM7tmG93J+MIAXxFYCEPx45RXW97d9puUQ="
+    - secure: "3LK9rEk/3sEDuoaEfnQtg5rLpgGFp76DgShENCyBVwdfcjuzs+6M7INfqAg+Eroh6DImjWJQl5EZ4qmt4TvdYsz4WlMG3ksRVZ5R6NoVh6xhQ+pqkk06JPiV0KURKtbu0BjSaO1lGIxp6J+rSbBy3Xg39yjtu8zUWj67lDXwXkzTuGrZHyS8WlC33NiFCbCZeDAjhTyExiRj1FvxxtTet+5+BB83kie/4i6AYRHYBeo/p6TvPjs+dtR66+OXyUbj4hfoLhJQvqyTk622MqmS47V5+OHPzJkN5lHSbSxN/0Xkrg88obkcmzXNf5hY29/1z25ij5uE7ZuSBZPX310mJKSJUvKHZtigpF3Ebm25eNICvaA+kDvmyQ+Ggt4xDjBjhodNOzF+KEL+IPtmmN5DZqzvnZFUKiepANTwAglXL+GHj7Y5qIVrrP9BQN/7SGcpoWZwwHU75II21HcO7c0Hj6MBmQbHegehm843W28rhQV4BEN2LMqCnnTHUIFNXBLwaGLdmErfZ2WoQBRQs+BhnJyKSpEXL9xhFJN0mSBHf4IShulaihuEvtdrUmVD8RWpIOr8GlXVFJ9oDx4t2Fvqp/JfyVqEQnMmoCCUKeH3arGfxF2gPlXPcNtDsLNf7uOrwFrsTbbSVQksfkHx7GcNKyj0o/J00bxbCR5aATzjXsA="
+
