@@ -1,6 +1,6 @@
-[![](https://images.microbadger.com/badges/image/scalarm/scalarm_experiment_supervisor.svg)](https://microbadger.com/images/scalarm/scalarm_experiment_supervisor "Get your own image badge on microbadger.com")
-
+[![](https://images.microbadger.com/badges/image/scalarm/scalarm_experiment_supervisor.svg)](https://microbadger.com/images/scalarm/scalarm_experiment_supervisor "Get your own image badge on microbadger.com")   
 [![](https://images.microbadger.com/badges/version/scalarm/scalarm_experiment_supervisor.svg)](https://microbadger.com/images/scalarm/scalarm_experiment_supervisor "Get your own version badge on microbadger.com")
+
 Configuration
 -------------
 There are two files with configuration: config/secrets.yml and config/thin.yml.
