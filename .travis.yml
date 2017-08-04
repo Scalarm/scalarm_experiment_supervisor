@@ -1,0 +1,40 @@
+sudo: required
+
+services:
+  - docker
+
+# when tests will work
+#language: ruby
+#rvm:
+#  - 2.3
+
+before_install:
+  - sudo apt-get install -y curl zip git sysstat r-base-core
+  - rvm install ruby-2.3.3
+  - gem install bundler
+  - bundle install
+  
+script:
+  - export REPO=scalarm/scalarm_experiment_supervisor
+  - docker build . -f Dockerfile -t $REPO
+  
+
+
+before_deploy:
+  - docker login -u $DOCKER_USER -p $DOCKER_PASS	
+  - docker tag $REPO $REPO:$TRAVIS_TAG
+  
+deploy:
+  - provider: script
+    script:
+      docker push $REPO 
+    on:
+      branch: master
+      tags: true
+   
+env:
+  global:
+    - secure: "Yuc3qyJt3q0wfFGFKvhs6r0vcB+/MoieWDV9LysPTUA9TMXR4pEJ1ir7x0JvsdSL6CbXZJF+aie0naus99g9g1ewYY3qMpfR9yYFbrdP++GPRpOZt93PGzD6ypbS0BvpnmQ9e8dYny9o3ZaVdPUzc9FZzgMeyCjlH65TLVLBJvPo51wtIX/L+OAGjJqdwukMs+XKrB+VjIEQy3lAcLorgGU9r5swK0WvQx7T8iWhGwG1O75MtD87dv5a2AzowEDD0nZYpdotTWYgNm7kvAwFg91NkfBdRBoPyM+WoFVjVGIaQYgGpqIKe37QhuDdgLZt6UJeEPg1L82Ks/2sqpBJDXB5RCttBDvw0gfOlmASERu3wSh6Irv6YY8suZDfC3+R0rYSwL9KUroYr1tWH/+U2g3djHahQgP7y3/7XyMPGwob5Yx+JBFRQfzj0WxHEuKy3788rC2fXwrGijyc42q0/aoqocH22LqFSTaTfs/HV82JOP0w0aiUUflIyUamUVQ5DeR1K2j9a8SCn0fd1KNd+dO+/c9s26kSCqVKVsqXxu6eoy2idL3lbYMnerbw5+Qne31jjHuYcFQtE6wNFXdL2eS/hGkCcRmYN5XZTRP6pJCIssBGyvF5CLvpTajLsH2+46Ufa6kfo4rDYG8wNpObBe+soUNo9A3x1VAV/RnmW9o="
+    - secure: "TvIH7zvGm4vxIXgaWz+mAEq3knXONyjU3W6OltNQqQW4Urmi1nK/P1V/CmlYzRX8+f72mIyuypJWbUo7WJYo/6KoEmI8bWA+Zi/I5M+6pfaSRfyVK4Xk753y+UWNB22+ZqMIxcfWY9031VcpOuI90/IbZLhyHF7LRDJ4D4YRaD3uKCjikX8U0eQ2lRHiaZEwka8MRjYaBPlGFVnusQ1VqLKaqO7JhZ02XgR88bcEtQxaIUwosLvmyNeTzm6KJY7CCt0fGaQqDkSZ/A5HxvN/UugA3MURFnimQ8xUXYluQrqmQlfr5xguFKXWRZu5CCTL5ZygvVo+Xg/v1SyXGeGiLPIJDogFpPkbi8d7sG37v5BEypIDn6TjKzFT+t3AJ3hWO3iww4YsX373txicMwA1OhXvakvPARLeUBBVUEILX2EYnKfh6y+LmEtg2vEbfcdG+KBR48VJbyyLUUQr8C9GU/O6qGewa0Oa0dZEhe1v7rzHtyJe0NOGOO8zrnEywso2Fvv9378lp4qBzOEhYv76jb1UgVzaw8DPdUhSj1fTVFJ5p/MCxBZRcm9bFO7C0Law9yxeR1PzVUwatBJjasOMaGVMFQlTCYzD+laEC1P64NwxW2LITjDcrDFk5KbFelKjANiYA/8guv3HB2T8U7szDjsOgRyf5hsobarMoDVUEn8="
+
+    
