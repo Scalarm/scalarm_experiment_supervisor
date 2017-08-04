@@ -1,19 +1,19 @@
 GIT
   remote: git://github.com/Scalarm/scalarm-database.git
-  revision: 065283fc5e24d7477b1764377a2b6131e966dadd
+  revision: 232fb1e2694823e0caab7e81fd9e7b8d945aae9a
   specs:
-    scalarm-database (2.0.0)
+    scalarm-database (2.1.0)
       activesupport
-      bson
-      bson_ext
+      bson (= 4.2.1)
       encryptor (= 1.3.0)
-      mongo (= 2.2.5)
+      mongo (= 2.4.1)
 
 GIT
   remote: git://github.com/Scalarm/scalarm-service_core.git
-  revision: 08546c5a61b6f3787aeb6a52cb54c3ecd1118248
+  revision: 80407c97925510a68cbd74b2a421cf3fbd367e7a
+  ref: 80407c97925510a68cbd74b2a421cf3fbd367e7a
   specs:
-    scalarm-service_core (2.0.0)
+    scalarm-service_core (2.2.0)
       actionpack (~> 4.1)
       activesupport (~> 4.1)
       grid-proxy (~> 0.1)
@@ -58,8 +58,7 @@ GEM
       thread_safe (~> 0.3, >= 0.3.4)
       tzinfo (~> 1.1)
     arel (6.0.3)
-    bson (4.1.1)
-    bson_ext (1.5.1)
+    bson (4.2.1)
     builder (3.2.2)
     ci_reporter (2.0.0)
       builder (>= 2.1.2)
@@ -95,8 +94,8 @@ GEM
     minitest (5.9.0)
     mocha (1.1.0)
       metaclass (~> 0.0.1)
-    mongo (2.2.5)
-      bson (~> 4.0)
+    mongo (2.4.1)
+      bson (>= 4.2.1, < 5.0.0)
     netrc (0.11.0)
     nokogiri (1.6.8)
       mini_portile2 (~> 2.1.0)
@@ -172,10 +171,10 @@ DEPENDENCIES
   rails (~> 4.2.6)
   rdoc (~> 4.2.0)
   rest-client (~> 1.8)
-  scalarm-database (~> 2.0.0)!
-  scalarm-service_core (~> 2.0.0)!
+  scalarm-database (~> 2.1.0)!
+  scalarm-service_core!
   sdoc (~> 0.4.0)
   therubyracer
 
 BUNDLED WITH
-   1.11.2
+   1.15.1

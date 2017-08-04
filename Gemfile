@@ -51,8 +51,8 @@ gem 'puma'
 
 # for local development - set path to scalarm-database
 #gem 'scalarm-database', path: '/home/jliput/Scalarm/scalarm-database'
-gem 'scalarm-database', '~> 2.0.0', git: 'git://github.com/Scalarm/scalarm-database.git'
+gem 'scalarm-database', '~> 2.1.0', git: 'git://github.com/Scalarm/scalarm-database.git'
 
 # for local development - set path to scalarm-core
 # gem 'scalarm-service_core', path: '/Users/jliput/Scalarm/scalarm-service_core'
-gem 'scalarm-service_core', '~> 2.0.0', git: 'git://github.com/Scalarm/scalarm-service_core.git'
+gem 'scalarm-service_core', git: 'git://github.com/Scalarm/scalarm-service_core.git', ref: '80407c97925510a68cbd74b2a421cf3fbd367e7a'
